@@ -67,6 +67,10 @@ public class GL {
 		STREAM_DRAW = 0x088E4,
 		STATIC_DRAW = 0x088E4,
 		DYNAMIC_DRAW = 0x088E4,
+		STATIC_READ = 0x088E5,
+		DYNAMIC_READ = 0x088E5,
+		STATIC_COPY = 0x088E6,
+		DYNAMIC_COPY = 0x088E6,
 		BUFFER_SIZE = 0x8764,
 		BUFFER_USAGE = 0x8765,
 		CURRENT_VERTEX_ATTRIB = 0x8626,
@@ -220,7 +224,9 @@ public class GL {
 		TEXTURE_CUBE_MAP_NEGATIVE_Z = 0x851A,
 		MAX_CUBE_MAP_TEXTURE_SIZE = 0x851C,
 		TEXTURE0 = 0x84C0,
-		COMPILE_STATUS = 0x8B81;	
+		COMPILE_STATUS = 0x8B81,
+		SHADER_STORAGE_BUFFER = 0x90D2,
+		SHADER_STORAGE_BLOCK = 0x92E6;
 
 	private static MethodHandle HANDLE_glClearColor = Lib.loadFuncHandle(
 		"glClearColor", 
@@ -458,6 +464,40 @@ public class GL {
 		return -1;
 	}
 
+	private static MethodHandle HANDLE_glGetProgramResourceIndex = Lib.loadFuncHandle(
+		"glGetProgramResourceIndex", 
+		Lib.C_UINT32_T,
+		Lib.C_UINT32_T,
+		Lib.C_INT32_T,
+		Lib.C_POINTER_T
+	);
+	public static int GetProgramResourceIndex(int program, int programInterface, MemoryAddress name) {
+		try {
+			return (int) HANDLE_glGetProgramResourceIndex.invoke(program, programInterface, name);
+		} catch (Throwable e) {
+			e.printStackTrace();
+			System.exit(1);
+		}
+
+		return -1;
+	}
+
+	private static MethodHandle HANDLE_glShaderStorageBlockBinding = Lib.loadFuncHandle(
+		"glShaderStorageBlockBinding", 
+		null,
+		Lib.C_UINT32_T,
+		Lib.C_UINT32_T,
+		Lib.C_UINT32_T
+	);
+	public static void ShaderStorageBlockBinding(int program, int storageBlockIndex, int storageBlockBinding) {
+		try {
+			HANDLE_glShaderStorageBlockBinding.invoke(program, storageBlockIndex, storageBlockBinding);
+		} catch (Throwable e) {
+			e.printStackTrace();
+			System.exit(1);
+		}
+	}
+
 	private static MethodHandle HANDLE_glUniform1i = Lib.loadFuncHandle(
 		"glUniform1i", 
 		null,
@@ -653,6 +693,39 @@ public class GL {
 			System.exit(1);
 		}
 		return false;
+	}
+
+	private static MethodHandle HANDLE_glGetBufferSubData = Lib.loadFuncHandle(
+		"glGetBufferSubData", 
+		null,
+		Lib.C_UINT32_T,
+		Lib.C_INT64_T,
+		Lib.C_INT64_T,
+		Lib.C_POINTER_T
+	);
+	public static void GetBufferSubData(int target, long offset, long size, MemoryAddress data) {
+		try {
+			HANDLE_glGetBufferSubData.invoke(target, offset, size, data);
+		} catch (Throwable e) {
+			e.printStackTrace();
+			System.exit(1);
+		}
+	}
+
+	private static MethodHandle HANDLE_glBindBufferBase = Lib.loadFuncHandle(
+		"glBindBufferBase", 
+		null,
+		Lib.C_UINT32_T,
+		Lib.C_UINT32_T,
+		Lib.C_UINT32_T
+	);
+	public static void BindBufferBase(int target, int index, int buffer) {
+		try {
+			HANDLE_glBindBufferBase.invoke(target, index, buffer);
+		} catch (Throwable e) {
+			e.printStackTrace();
+			System.exit(1);
+		}
 	}
 
 	private static MethodHandle HANDLE_glDispatchCompute = Lib.loadFuncHandle(

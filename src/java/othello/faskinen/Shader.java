@@ -56,4 +56,30 @@ public class Shader {
 
 		GL.DeleteShader(shader);
 	}
+
+	public void use() {
+		GL.UseProgram(this.programId);
+	}
+
+	public int getUniformLocation(String name) {
+		return GL.GetUniformLocation(this.programId, Lib.javaToStr(name).address());
+	}
+
+	public void setInt(String name, int value) {
+		GL.Uniform1i(this.getUniformLocation(name), value);
+	}
+
+	public void setFloat(String name, float value) {
+		GL.Uniform1f(this.getUniformLocation(name), value);
+	}
+
+	public void setBuffer(String name, Buffer buffer, int binding) {
+		int index = GL.GetProgramResourceIndex(this.programId, GL.SHADER_STORAGE_BLOCK, Lib.javaToStr(name).address());
+		GL.ShaderStorageBlockBinding(this.programId, index, binding);
+		GL.BindBufferBase(GL.SHADER_STORAGE_BUFFER, binding, buffer.bufferId);
+	}
+
+	public void free() {
+		GL.DeleteProgram(this.programId);
+	}
 }

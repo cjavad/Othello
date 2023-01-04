@@ -57,6 +57,8 @@ public class StartMenu extends SceneProvider {
 
     private void handleFaskineClick(ActionEvent event) {
         Faskinen faskinen = new Faskinen();	
+
+		faskinen.dispatch();
     }
 
     private void handleKey(KeyEvent event) {
