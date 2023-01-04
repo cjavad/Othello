@@ -519,5 +519,46 @@ public class Win32 {
         }
         return null;
     }
+
+    /*
+    int ChoosePixelFormat(
+        HDC                         hdc,
+        const PIXELFORMATDESCRIPTOR *ppfd
+    );
+     */
+    private static MethodHandle HANDLE_ChoosePixelFormat = Lib.loadFuncHandle("ChoosePixelFormat", Lib.C_INT32_T,
+            Lib.C_POINTER_T, Lib.C_POINTER_T
+    );
+
+    public static int ChoosePixelFormat(MemoryAddress i_hdc, MemoryAddress i_ppfd) {
+        try {
+            return (int) HANDLE_ChoosePixelFormat.invoke(i_hdc, i_ppfd);
+        } catch (Throwable e) {
+            e.printStackTrace();
+            System.exit(1);
+        }
+        return 0;
+    }
+
+    /*
+    BOOL SetPixelFormat(
+        HDC                         hdc,
+        int                         format,
+        const PIXELFORMATDESCRIPTOR *ppfd
+    );
+     */
+    private static MethodHandle HANDLE_SetPixelFormat = Lib.loadFuncHandle("SetPixelFormat", Lib.C_INT32_T,
+            Lib.C_POINTER_T, Lib.C_INT32_T, Lib.C_POINTER_T
+    );
+
+    public static boolean SetPixelFormat(MemoryAddress i_hdc, int format, MemoryAddress ppfd) {
+        try {
+            return ((int) HANDLE_SetPixelFormat.invoke(i_hdc, format, ppfd)) != 0;
+        } catch (Throwable e) {
+            e.printStackTrace();
+            System.exit(1);
+        }
+        return false;
+    }
 }
 

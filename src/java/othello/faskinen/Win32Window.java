@@ -115,18 +115,35 @@ public class Win32Window extends Window {
 	}
 
 	// TODO
-	public static boolean bSetupPixelFormat(MemoryAddress address)
+	public static boolean bSetupPixelFormat(MemoryAddress hdc)
 	{
 		SegmentAllocator alloc = MemorySession.openImplicit();
 		MemorySegment pfd = alloc.allocate(PIXELFORMATDESCRIPTOR.size());
 		MemoryAddress ppfd = pfd.address();
+		int pixelformat;
 
 		PIXELFORMATDESCRIPTOR.set_nSize(pfd, (short) PIXELFORMATDESCRIPTOR.size());
 		PIXELFORMATDESCRIPTOR.set_nVersion(pfd, (short) 1);
 		PIXELFORMATDESCRIPTOR.set_dwFlags(pfd,
 				0x00000004 | 0x00000020 | 0x00000001
 		);
-//		PIXELFORMATDESCRIPTOR.set_();
+		PIXELFORMATDESCRIPTOR.set_iPixelType(pfd, (byte) 1);
+		PIXELFORMATDESCRIPTOR.set_cColorBits(pfd, (byte) 8);
+		PIXELFORMATDESCRIPTOR.set_cDepthBits(pfd, (byte) 16);
+		PIXELFORMATDESCRIPTOR.set_cAccumBits(pfd, (byte) 0);
+		PIXELFORMATDESCRIPTOR.set_cStencilBits(pfd, (byte) 0);
+
+		pixelformat = Win32.ChoosePixelFormat(hdc, ppfd);
+
+		if (pixelformat == 0) {
+			return false;
+		}
+
+		if (Win32.SetPixelFormat(hdc, pixelformat, ppfd) == false) {
+			return false;
+		}
+
+		return true;
 	}
 
 

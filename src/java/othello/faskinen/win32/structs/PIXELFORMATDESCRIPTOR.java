@@ -111,13 +111,14 @@ public class PIXELFORMATDESCRIPTOR {
     public static int get_dwFlags(MemorySegment struct) { return (int) PIXELFORMATDESCRIPTOR.dwFlags.get(struct); }
     public static void set_dwFlags(MemorySegment struct, int dwFlags) { PIXELFORMATDESCRIPTOR.dwFlags.set(struct, dwFlags); }
 
-    public static byte get_iLayerType(MemorySegment struct) { return (byte) PIXELFORMATDESCRIPTOR.iLayerType.get(struct); }
-    public static void set_iLayerType(MemorySegment struct, byte iLayerType) { PIXELFORMATDESCRIPTOR.iLayerType.set(struct, iLayerType);}
+    public static byte get_iPixelType(MemorySegment struct) { return (byte) PIXELFORMATDESCRIPTOR.iPixelType.get(struct); }
+    public static void set_iPixelType(MemorySegment struct, byte iPixelType) { PIXELFORMATDESCRIPTOR.iPixelType.set(struct, iPixelType);}
 
     public static byte get_cColorBits(MemorySegment struct) { return (byte) PIXELFORMATDESCRIPTOR.cColorBits.get(struct); }
     public static void set_cColorBits(MemorySegment struct, byte cColorBits) { PIXELFORMATDESCRIPTOR.cColorBits.set(struct, cColorBits); }
 
     // cRedBits
+//    public static byte get_cRegBit
 
     // cRedShift
 
@@ -152,7 +153,8 @@ public class PIXELFORMATDESCRIPTOR {
 
     // cAuxBuffers
 
-    // iLayerType
+    public static byte get_iLayerType(MemorySegment struct) { return (byte) PIXELFORMATDESCRIPTOR.iLayerType.get(struct); }
+    public static void set_iLayerType(MemorySegment struct, byte iLayerType) { PIXELFORMATDESCRIPTOR.iLayerType.set(struct, iLayerType); }
 
     // bReserved
 
