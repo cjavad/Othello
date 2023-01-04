@@ -4,6 +4,7 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 
 public class SceneManager {
+
     private Stage stage;
     private Scene activeScene;
     public SceneManager(Stage stage) {
@@ -22,5 +23,9 @@ public class SceneManager {
 
     public Scene getActiveScene() {
         return this.activeScene;
+    }
+
+    public Stage getStage() {
+        return this.stage;
     }
 }

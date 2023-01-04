@@ -13,6 +13,8 @@ repositories {
     mavenCentral()
 }
 
+applicationDefaultJvmArgs = ["--enable-preview"]
+
 application {
     mainClass = 'othello.App'
 }
