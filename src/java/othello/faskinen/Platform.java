@@ -9,7 +9,7 @@ public enum Platform {
 	Mac;
 
 	private static Platform platform = null;
-	public static Platform getPlatform() {
+	public static Platform get() {
 		if (Platform.platform != null) {
 			return Platform.platform;
 		}
