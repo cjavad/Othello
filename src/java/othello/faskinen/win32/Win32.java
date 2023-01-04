@@ -6,6 +6,7 @@ import java.lang.foreign.MemoryAddress;
 import java.lang.foreign.SegmentAllocator;
 import java.lang.invoke.MethodHandle;
 
+@SuppressWarnings("unused")
 public class Win32 {
 
     // https://learn.microsoft.com/en-us/windows/win32/winprog/windows-data-types
