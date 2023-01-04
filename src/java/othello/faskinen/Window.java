@@ -5,6 +5,8 @@ public abstract class Window {
 		switch (Platform.get()) {
 		case Windows:
 			return new Win32Window("", width, height);
+		case Linux:
+			return new X11Window();
 		default:
 			throw new RuntimeException("Unsupported platform: " + Platform.get());
 		}
