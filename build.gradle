@@ -23,6 +23,10 @@ jar {
     }
 }
 
+compileJava {
+    options.compilerArgs += ['--enable-preview']
+}
+
 sourceSets {
     main {
         java {
