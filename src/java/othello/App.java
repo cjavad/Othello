@@ -12,7 +12,13 @@ public class App extends Application {
     public static void main(String[] args) {
         launch(args);
         if (faskine) {
-            Window.create("Window", 1280, 720);
+            Window window = Window.create("Window", 1280, 720);
+            window.show();
+            window.makeContextCurrent();
+            while (true) {
+                window.swapBuffers();
+                window.pollEvents();
+            }
         }
     }
 
