@@ -25,8 +25,8 @@ public class App extends Application {
     @Override
     public void start(Stage stage) throws Exception {
         stage.setTitle("Othello");
-        SceneManager sceneManager = new SceneManager(stage);
+        SceneManager sceneManager = new SceneManager(stage, 800, 600);
         StartMenu startMenu = new StartMenu(sceneManager);
-        sceneManager.setActiveScene(startMenu.getScene());
+        sceneManager.setActive(startMenu);
     }
 }
