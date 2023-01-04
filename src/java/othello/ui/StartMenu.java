@@ -9,6 +9,7 @@ import javafx.scene.Scene;
 import othello.AdvancedReversi;
 import othello.App;
 import othello.BasicReversi;
+import othello.faskinen.Faskinen;
 import othello.faskinen.Window;
 
 // Start Menu UI
@@ -55,9 +56,7 @@ public class StartMenu extends SceneProvider {
     }
 
     private void handleFaskineClick(ActionEvent event) {
-        // Create a new game with the advanced game type
-        this.getSceneManager().getStage().close();
-        App.faskine = true;
+        Faskinen faskinen = new Faskinen();	
     }
 
     private void handleKey(KeyEvent event) {

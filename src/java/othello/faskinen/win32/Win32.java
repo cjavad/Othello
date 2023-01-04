@@ -1,6 +1,7 @@
 package othello.faskinen.win32;
 
 import othello.faskinen.Lib;
+import othello.faskinen.Platform;
 
 import java.lang.foreign.MemoryAddress;
 import java.lang.foreign.MemorySegment;
@@ -13,8 +14,10 @@ public class Win32 {
     // https://learn.microsoft.com/en-us/windows/win32/winprog/windows-data-types
 
     static {
-        System.loadLibrary("kernel32");
-        System.loadLibrary("user32");
+		if (Platform.isWindows()) {
+			System.loadLibrary("kernel32");
+			System.loadLibrary("user32");
+		}
     }
 
     public static final long COLOR_WINDOW = 5;

@@ -127,6 +127,7 @@ public class Win32Window extends Window {
 		PIXELFORMATDESCRIPTOR.set_dwFlags(pfd,
 				0x00000004 | 0x00000020 | 0x00000001
 		);
+	
 		PIXELFORMATDESCRIPTOR.set_iPixelType(pfd, (byte) 1);
 		PIXELFORMATDESCRIPTOR.set_cColorBits(pfd, (byte) 8);
 		PIXELFORMATDESCRIPTOR.set_cDepthBits(pfd, (byte) 16);
