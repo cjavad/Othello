@@ -6,15 +6,19 @@ public class GL {
 
     static
     {
-        if (Platform.get() == Platform.Windows) {
-            System.loadLibrary("opengl32");
-        }
-        else if (Platform.get() == Platform.Linux) {
-
-        }
-        else {
-            throw new RuntimeException("Unsupported platform");
+        switch (Platform.get())
+        {
+            case Windows:
+                System.loadLibrary("opengl32");
+                break;
+            case Linux:
+                System.loadLibrary("GL");
+                break;
+            default:
+                throw new RuntimeException("Unsupported platform, not a real gamer");
         }
     }
+
+
 
 }

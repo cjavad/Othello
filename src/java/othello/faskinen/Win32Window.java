@@ -13,7 +13,7 @@ import othello.faskinen.win32.structs.WNDCLASSEXW;
 public class Win32Window extends Window {
 	MemoryAddress ghWnd;
 
-	public Win32Window() {
+	public Win32Window(String name, int width, int height) {
 		MemoryAddress instance = Win32.GetExecutableHandle();
 		MemorySegment windowClass = MemorySession.global().allocate(WNDCLASSEXW.sizeOf());
 		MemorySegment winCallback = Lib.getJavaFuncPointer(
@@ -22,7 +22,7 @@ public class Win32Window extends Window {
                 MethodType.methodType(long.class, MemoryAddress.class, int.class, int.class, long.class),
                 FunctionDescriptor.of(Lib.C_INT64_T, Lib.C_POINTER_T, Lib.C_UINT32_T, Lib.C_UINT32_T, Lib.C_INT64_T)
         );
-		MemorySegment windowName = Lib.javaToWStr("OpenGL Window");
+		MemorySegment windowName = Lib.javaToWStr(name);
 
 		WNDCLASSEXW.set_cbSize(windowClass, (int) WNDCLASSEXW.sizeOf());
 		WNDCLASSEXW.set_style(windowClass, 0);
@@ -48,19 +48,46 @@ public class Win32Window extends Window {
             Win32.WS_OVERLAPPEDWINDOW | Win32.WS_CLIPSIBLINGS | Win32.WS_CLIPCHILDREN,
 			Win32.CW_USEDEFAULT,
 			Win32.CW_USEDEFAULT,
-			0,
-			0,
+			width,
+			height,
 			Lib.NULLPTR,
 			Lib.NULLPTR,
 			instance,
 			Lib.NULLPTR
 		);
 
-		if (this.ghWnd == Lib.NULLPTR) {
-			int error = Win32.GetLastError();
-			int hresult = Win32.HRESULT_FROM_WIN32(error);
-			throw new RuntimeException("failed to create window with error code " + error + " and trans " + hresult);
+		if (ghWnd.toRawLongValue() == 0)
+		{
+			System.out.println("failed to create window");
+			System.exit(1);
 		}
+
+
+	}
+
+	@Override
+	public void show() {
+
+	}
+
+	@Override
+	public void hide() {
+
+	}
+
+	@Override
+	public void pollEvents() {
+
+	}
+
+	@Override
+	public void swapBuffers() {
+
+	}
+
+	@Override
+	public void makeContextCurrent() {
+
 	}
 
 	public void destroy() {
