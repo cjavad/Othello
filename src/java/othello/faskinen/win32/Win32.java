@@ -49,12 +49,12 @@ public class Win32 {
             WM_MOVE				= 0x0003,
             WM_SIZE				= 0x0005,
 
-    WM_ACTIVATE			= 0x0006,
+            WM_ACTIVATE			= 0x0006,
             WM_INACTIVE			= 0,
             WM_ACTIVE			= 1,
             WM_CLICKACTIVE		= 2,
 
-    WM_SETFOCUS			= 0x0007,
+            WM_SETFOCUS			= 0x0007,
             WM_KILLFOCUS		= 0x0008,
             WM_ENALBE			= 0x000A,
             WM_SETDRAW			= 0x000B,
@@ -64,14 +64,14 @@ public class Win32 {
             WM_PAINT			= 0x000F,
             WM_CLOSE			= 0x0010,
 
-    WM_NCCREATE			= 0x0081,
+            WM_NCCREATE			= 0x0081,
             WM_NCDESTROY		= 0x0082,
             WM_NCCALCSIZE		= 0x0083,
             WM_NCHITTEST		= 0x0084,
             WM_NCPAINT			= 0x0085,
             WM_NCACTIVATE		= 0x0086,
 
-    WM_NCMOUSEMOVE		= 0x00A0,
+            WM_NCMOUSEMOVE		= 0x00A0,
             WM_NCLBUTTONDOWN	= 0x00A1,
             WN_NCLBUTTONUP		= 0x00A2,
             WN_NCLBUTTONDBLCLK	= 0x00A3,
@@ -82,7 +82,7 @@ public class Win32 {
             WN_NCMBUTTONUP		= 0x00A8,
             WM_NCMBUTTONDBLCLK	= 0x00A9,
 
-    WM_KEYDOWN			= 0x0100,
+            WM_KEYDOWN			= 0x0100,
             WM_KEYUP			= 0x0101,
             WM_CHAR				= 0x0102,
             WM_DEADCHAR			= 0x0103,
