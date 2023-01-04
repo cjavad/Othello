@@ -1,4 +1,4 @@
-package othello.faskinen;
+package othello.game.state;
 
 /**
  * @author
@@ -13,6 +13,10 @@ public interface Board2D {
      */
     public int getRows();
     public int getColumns();
+
+    public static void createCopyOfBoard(Board2D board) {
+
+    }
 
     /**
      * These functions always refer to current player id

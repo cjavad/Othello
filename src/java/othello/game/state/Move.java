@@ -1,4 +1,4 @@
-package othello.faskinen;
+package othello.game.state;
 
 public interface Move {
     public int getRound();
