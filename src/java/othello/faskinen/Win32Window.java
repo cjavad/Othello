@@ -14,21 +14,15 @@ public class Win32Window extends Window {
 	MemoryAddress ghWnd;
 
 	public Win32Window() {
-		MemoryAddress instance;
-		MemorySegment windowClass;
-		MemorySegment winCallback;
-		MemorySegment windowName;
-
-		instance = Win32.GetExecutableHandle();
-		windowClass = MemorySession.global().allocate(WNDCLASSEXW.sizeOf());
-		winCallback = Lib.getJavaFuncPointer(
-			Test.class,
-			"MainWndProc",
-			MethodType.methodType(long.class, MemoryAddress.class, int.class, int.class, long.class),
-			FunctionDescriptor.of(Lib.C_INT64_T, Lib.C_POINTER_T, Lib.C_UINT32_T, Lib.C_UINT32_T, Lib.C_INT64_T)
+		MemoryAddress instance = Win32.GetExecutableHandle();
+		MemorySegment windowClass = MemorySession.global().allocate(WNDCLASSEXW.sizeOf());
+		MemorySegment winCallback = Lib.getJavaFuncPointer(
+                Test.class,
+                "MainWndProc",
+                MethodType.methodType(long.class, MemoryAddress.class, int.class, int.class, long.class),
+                FunctionDescriptor.of(Lib.C_INT64_T, Lib.C_POINTER_T, Lib.C_UINT32_T, Lib.C_UINT32_T, Lib.C_INT64_T)
         );
-
-		windowName = Lib.javaToWStr("Hello OpenGL");
+		MemorySegment windowName = Lib.javaToWStr("OpenGL Window");
 
 		WNDCLASSEXW.set_cbSize(windowClass, (int) WNDCLASSEXW.sizeOf());
 		WNDCLASSEXW.set_style(windowClass, 0);
@@ -67,5 +61,9 @@ public class Win32Window extends Window {
 			int hresult = Win32.HRESULT_FROM_WIN32(error);
 			throw new RuntimeException("failed to create window with error code " + error + " and trans " + hresult);
 		}
+	}
+
+	public void destroy() {
+		Win32.DestroyWindow(this.ghWnd);
 	}
 }

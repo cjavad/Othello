@@ -11,8 +11,7 @@ public class Win32 {
 
     // https://learn.microsoft.com/en-us/windows/win32/winprog/windows-data-types
 
-    static
-    {
+    static {
         System.loadLibrary("kernel32");
         System.loadLibrary("user32");
     }
