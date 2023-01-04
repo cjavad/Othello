@@ -1,19 +1,19 @@
 package othello.faskinen;
 
-import java.lang.foreign.FunctionDescriptor;
-import java.lang.foreign.MemoryAddress;
-import java.lang.foreign.MemorySegment;
-import java.lang.foreign.MemorySession;
+import java.lang.foreign.*;
 import java.lang.invoke.MethodType;
 
-import othello.faskinen.win32.Test;
 import othello.faskinen.win32.Win32;
 import othello.faskinen.win32.structs.MSG;
+import othello.faskinen.win32.structs.PIXELFORMATDESCRIPTOR;
 import othello.faskinen.win32.structs.WNDCLASSEXW;
 
 public class Win32Window extends Window {
 	MemoryAddress ghWnd;
+	MemoryAddress ghDC; // HDC
+	MemoryAddress ghRC; // HGLRC
 	MemorySegment msg = MemorySession.global().allocate(MSG.sizeOf());
+	boolean shouldClose;
 
 	public Win32Window(String name, int width, int height) {
 		MemoryAddress hInstance = Win32.GetExecutableHandle();
@@ -21,7 +21,7 @@ public class Win32Window extends Window {
 		MemorySegment wndClass = MemorySession.global().allocate(WNDCLASSEXW.sizeOf());
 
 		MemorySegment winCallback = Lib.getJavaFuncPointer(
-				Test.class,
+				this.getClass(),
 				"MainWndProc",
 				MethodType.methodType(long.class, MemoryAddress.class, int.class, int.class, long.class),
 				FunctionDescriptor.of(Lib.C_INT64_T, Lib.C_POINTER_T, Lib.C_UINT32_T, Lib.C_UINT32_T, Lib.C_INT64_T)
@@ -69,6 +69,8 @@ public class Win32Window extends Window {
 			System.out.println("error code = " + error + ", trans = " + Win32.HRESULT_FROM_WIN32(error));
 			System.exit(1);
 		}
+
+		this.shouldClose = false;
 	}
 
 	@Override
@@ -92,6 +94,7 @@ public class Win32Window extends Window {
 			}
 			else
 			{
+				this.shouldClose = true;
 				throw new RuntimeException("fug");
 			}
 		}
@@ -109,5 +112,86 @@ public class Win32Window extends Window {
 
 	public void destroy() {
 		Win32.DestroyWindow(this.ghWnd);
+	}
+
+	// TODO
+	public static boolean bSetupPixelFormat(MemoryAddress address)
+	{
+		SegmentAllocator alloc = MemorySession.openImplicit();
+		MemorySegment pfd = alloc.allocate(PIXELFORMATDESCRIPTOR.size());
+		MemoryAddress ppfd = pfd.address();
+
+		PIXELFORMATDESCRIPTOR.set_nSize(pfd, (short) PIXELFORMATDESCRIPTOR.size());
+		PIXELFORMATDESCRIPTOR.set_nVersion(pfd, (short) 1);
+		PIXELFORMATDESCRIPTOR.set_dwFlags(pfd,
+				0x00000004 | 0x00000020 | 0x00000001
+		);
+//		PIXELFORMATDESCRIPTOR.set_();
+	}
+
+
+	// LONG WINAPI MainWndProc (HWND, UINT, WPARAM, LPARAM);
+	// WPARAM is UINT_PTR is uint32_t
+	// LPARAM is LONG_PTR is int64_t
+	// i want to die
+	public long MainWndProc(MemoryAddress hWnd, int uMsg, int wParam, long lParam)
+	{
+		long lRet = 1;
+
+		switch (uMsg)
+		{
+			case Win32.WM_CREATE:
+				this.ghDC = Win32.GetDC(hWnd);
+				if (!bSetupPixelFormat(ghDC))
+		            Win32.PostQuitMessage(0);
+//		        this.ghRC = Win32.wglCreateContext(ghDC);
+//		        Win32.wglMakeCurrent(ghDC, ghRC);
+//		        Win32.GetClientRect(hWnd, &rect);
+//		        Win32.initializeGL(rect.right, rect.bottom);
+				break;
+
+//			case Win32.WM_PAINT:
+//				BeginPaint(hWnd, &ps);
+//		        EndPaint(hWnd, &ps);
+//				break;
+//
+//			case Win32.WM_SIZE:
+//				GetClientRect(hWnd, &rect);
+//		        resize(rect.right, rect.bottom);
+//				break;
+
+			case Win32.WM_CLOSE:
+	//			if (ghRC)
+	//	            wglDeleteContext(ghRC);
+	//	        if (ghDC)
+	//	            ReleaseDC(hWnd, ghDC);
+	//	        ghRC = 0;
+	//	        ghDC = 0;
+//
+				Win32.DestroyWindow(hWnd);
+				break;
+
+			case Win32.WM_DESTROY:
+//			if (ghRC)
+//	            wglDeleteContext(ghRC);
+//	        if (ghDC)
+//	            ReleaseDC(hWnd, ghDC);
+//
+				Win32.PostQuitMessage(0);
+				break;
+
+			case Win32.WM_KEYDOWN:
+				switch (wParam) {
+					default:
+						break;
+				}
+				break;
+
+			default:
+				lRet = Win32.DefWindowProcW(hWnd, uMsg, wParam, lParam);
+				break;
+		}
+
+		return lRet;
 	}
 }

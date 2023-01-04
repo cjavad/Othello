@@ -3,6 +3,7 @@ package othello.faskinen.win32;
 import othello.faskinen.Lib;
 
 import java.lang.foreign.MemoryAddress;
+import java.lang.foreign.MemorySegment;
 import java.lang.foreign.SegmentAllocator;
 import java.lang.invoke.MethodHandle;
 
@@ -497,6 +498,26 @@ public class Win32 {
             System.exit(1);
         }
         return 0;
+    }
+
+    /*
+    HDC GetDC(
+        [in] HWND hWnd
+    );
+     */
+
+    private static MethodHandle HANDLE_GetDC = Lib.loadFuncHandle("GetDC", Lib.C_POINTER_T,
+            Lib.C_POINTER_T);
+
+    public static MemoryAddress GetDC(MemoryAddress i_hWnd)
+    {
+        try {
+            return (MemoryAddress)HANDLE_GetDC.invoke(i_hWnd);
+        } catch (Throwable e) {
+            e.printStackTrace();
+            System.exit(1);
+        }
+        return null;
     }
 }
 

@@ -72,6 +72,30 @@ public class Test {
             System.out.println("error code = " + error + ", trans = " + Win32.HRESULT_FROM_WIN32(error));
             System.exit(1);
         }
+
+
+        Win32.ShowWindow(ghWnd, 5);
+        Win32.UpdateWindow(ghWnd);
+
+        MemorySegment msg = MemorySession.global().allocate(MSG.sizeOf());
+
+        out:
+        while (true)
+        {
+            while (Win32.PeekMessageW(msg.address(), Lib.NULLPTR, 0, 0, Win32.PM_NOREMOVE))
+            {
+                if (Win32.GetMessageW(msg.address(), Lib.NULLPTR, 0, 0))
+                {
+                    Win32.TranslateMessage(msg.address());
+                    Win32.DispatchMessageW(msg.address());
+                }
+                else
+                {
+                    break out;
+                }
+            }
+        }
+
     }
 
     // LONG WINAPI MainWndProc (HWND, UINT, WPARAM, LPARAM);
