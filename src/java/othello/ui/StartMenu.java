@@ -23,10 +23,14 @@ public class StartMenu extends SceneProvider {
         Button advancedButton = new Button("Advanced");
         advancedButton.setOnAction(this::handleAdvancedClick);
 
+        Button faskineButton = new Button("Faskinen");
+        faskineButton.setOnAction(this::handleFaskineClick);
+
         // Create a grid pane to hold the buttons
         GridPane grid = new GridPane();
         grid.add(basicButton, 0, 0);
-        grid.add(advancedButton, 1, 0);
+        grid.add(advancedButton, 1, 1);
+        grid.add(faskineButton, 2, 2);
 
         // Create a scene and add the grid pane to it and center it
         StackPane root = new StackPane();
@@ -44,6 +48,11 @@ public class StartMenu extends SceneProvider {
     private void handleAdvancedClick(ActionEvent event) {
         // Create a new game with the advanced game type
         this.getSceneManager().setActive(new AdvancedReversi(this.getSceneManager()));
+    }
+
+    private void handleFaskineClick(ActionEvent event) {
+        // Create a new game with the advanced game type
+
     }
 
     private void handleKey(KeyEvent event) {

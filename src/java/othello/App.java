@@ -1,7 +1,6 @@
 package othello;
 
 import javafx.application.Application;
-import javafx.scene.Scene;
 import javafx.stage.Stage;
 import othello.ui.SceneManager;
 import othello.ui.StartMenu;

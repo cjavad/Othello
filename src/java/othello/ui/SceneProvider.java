@@ -17,7 +17,7 @@ public class SceneProvider {
     }
 
     public Scene getScene() {
-        return scene;
+        return this.scene;
     }
 
     public SceneManager getSceneManager() {

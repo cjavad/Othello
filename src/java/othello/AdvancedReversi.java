@@ -16,6 +16,6 @@ public class AdvancedReversi extends SceneProvider {
         // Create simple scene
         Scene scene = new Scene(new Pane(), 800, 600);
         // Set scene
-        setScene(scene);
+        this.setScene(scene);
     }
 }
