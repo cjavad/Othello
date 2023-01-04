@@ -22,5 +22,9 @@ public class Context {
 		}
 	}
 
-	public Context() {}
+	public Window window;
+
+	public Context() {
+		this.window = Window.create();
+	}
 }
