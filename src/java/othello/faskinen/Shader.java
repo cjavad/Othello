@@ -5,21 +5,53 @@ import java.lang.foreign.MemorySession;
 import java.lang.foreign.ValueLayout;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.HashSet;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import othello.faskinen.opengl.GL;
 
 public class Shader {
 	public int programId;
 
+	private static Pattern INCLUDE_PATTERN = Pattern.compile("#include \"(.*)\"");
+
+	private static String readShaderFile(Path path) {
+		try {
+			return Files.readString(path);
+		} catch (Exception e) {
+			throw new RuntimeException("Failed to read shader file: " + path, e);
+		}
+	}
+
+	private static String preprocessShader(String source, Path path, HashSet<Path> included) {
+		Matcher matcher = INCLUDE_PATTERN.matcher(source);
+		StringBuffer sb = new StringBuffer();
+
+		while (matcher.find()) {
+			Path includePath = path.resolveSibling(matcher.group(1));
+
+			if (included.contains(includePath)) {
+				matcher.appendReplacement(sb, "");
+
+				continue;
+			}
+			included.add(includePath);
+
+			String includeSource = readShaderFile(includePath);
+			includeSource = preprocessShader(includeSource, includePath, included);
+			matcher.appendReplacement(sb, includeSource);
+		}
+
+		matcher.appendTail(sb);
+
+		return sb.toString();
+	}
+
 	public Shader(String source_path) {
 		Path path = Path.of(source_path);
-		String source;
-
-		try { 
-			source = Files.readString(path);
-		} catch (Exception e) {
-			throw new RuntimeException("Failed to read shader source: " + e.getMessage());
-		};
+		String source = readShaderFile(path);
+		source = preprocessShader(source, path, new HashSet<>());
 
 		MemorySegment sources = MemorySession.openImplicit().allocate(8);
 		sources.set(ValueLayout.ADDRESS, 0, Lib.javaToStr(source).address());

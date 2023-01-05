@@ -10,4 +10,8 @@ public class PieceModel {
 		this.position = position;
 		this.color = color;
 	}
+
+	public BoundingRect getBoundingRect(Mat4 viewProj, int width, int height) {
+		return BoundingRect.sphere(viewProj, this.position, 0.4f, width, height);
+	}
 }

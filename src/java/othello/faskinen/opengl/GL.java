@@ -755,6 +755,19 @@ public class GL {
 		}
 	}
 
+	private static MethodHandle HANDLE_glFinish = loadFuncGL(
+		"glFinish", 
+		null
+	);
+	public static void Finish() {
+		try {
+			HANDLE_glFinish.invoke();
+		} catch (Throwable e) {
+			e.printStackTrace();
+			System.exit(1);
+		}
+	}
+
 	private static MethodHandle HANDLE_glDeleteShader = loadFuncGL(
 		"glDeleteShader", 
 		null,

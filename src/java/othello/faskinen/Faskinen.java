@@ -6,8 +6,10 @@ import othello.faskinen.opengl.GL;
 
 public class Faskinen {
 	public Window window;
-	public Shader shader;
+	public Shader pieceShader;
+
 	public Buffer colorBuffer;
+	public Buffer depthBuffer;
 	public Instant startTime;
 
 	public int imageWidth = 1920;
@@ -15,54 +17,61 @@ public class Faskinen {
 
 	public Camera camera = new Camera();
 	public PieceModel[] pieces = new PieceModel[0];
-	private Buffer pieceBuffer;
 
 	public Faskinen() {
 		this.window = Window.create("context", 1, 1);
 		this.window.makeContextCurrent();
-
+	
 		this.colorBuffer = new Buffer(this.imageWidth * this.imageHeight * 4);
-		this.shader = new Shader("shaders/raymarch.glsl");
+		this.depthBuffer = new Buffer(this.imageWidth * this.imageHeight * 4);
+		this.colorBuffer.upload();
+		this.depthBuffer.upload();
+
+		this.pieceShader = new Shader("shaders/piece.glsl");
 
 		this.startTime = Instant.now();
 	}
 
-	public void writePieceBuffer() {
-		this.pieceBuffer = new Buffer(this.pieces.length * 8 * 4);
-
-		for (int i = 0; i < this.pieces.length; i++) {
-			long offset = i * 8 * 4;
-
-			PieceModel piece = this.pieces[i];
-			this.pieceBuffer.writeFloat(offset + 0, piece.position.x);
-			this.pieceBuffer.writeFloat(offset + 4, piece.position.y);
-			this.pieceBuffer.writeFloat(offset + 8, piece.position.z);
-			this.pieceBuffer.writeFloat(offset + 16, piece.color.x);
-			this.pieceBuffer.writeFloat(offset + 20, piece.color.y);
-			this.pieceBuffer.writeFloat(offset + 24, piece.color.z);
-		}
-
-		this.pieceBuffer.upload();
-	}
-
 	public Buffer renderImage() {
 		this.colorBuffer.upload();
-		this.writePieceBuffer();
+		this.depthBuffer.upload();
 
-		this.shader.use();
+		this.pieceShader.use();
 
 		float time = (float) (Instant.now().toEpochMilli() - this.startTime.toEpochMilli()) / 1000.0f;
-		this.shader.setFloat("time", time);
+		this.pieceShader.setFloat("time", time);
 
-		this.shader.setMat4("viewMatrix", this.camera.viewMatrix());
+		float aspect = (float) this.imageWidth / (float) this.imageHeight;
 
-		this.shader.setInt("imageWidth", this.imageWidth);
-		this.shader.setInt("imageHeight", this.imageHeight);
+		Mat4 viewProj = this.camera.viewProj(aspect);
+		this.pieceShader.setMat4("viewProj", viewProj);
 
-		this.shader.setBuffer("ColorBuffer", this.colorBuffer, 0);
-		this.shader.setBuffer("PieceBuffer", this.pieceBuffer, 1);
+		this.pieceShader.setInt("imageWidth", this.imageWidth);
+		this.pieceShader.setInt("imageHeight", this.imageHeight);	
 
-		GL.DispatchCompute(this.imageWidth / 16, this.imageHeight / 16, 1);
+		BoundingRect imageRect = new BoundingRect(0, 0, this.imageWidth, this.imageHeight);
+
+		this.pieceShader.setBuffer("ColorBuffer", this.colorBuffer, 0);
+		this.pieceShader.setBuffer("DepthBuffer", this.depthBuffer, 1);	
+
+		for (int i = 0; i < this.pieces.length; i++) {
+			PieceModel piece = this.pieces[i];
+
+			BoundingRect pieceRect = piece.getBoundingRect(viewProj, this.imageWidth, this.imageHeight);
+	
+			if (!imageRect.intersects(pieceRect)) continue;
+			pieceRect = imageRect.intersect(pieceRect);
+
+			this.pieceShader.setInt("offsetX", pieceRect.x);
+			this.pieceShader.setInt("offsetY", pieceRect.y);
+			this.pieceShader.setInt("width", pieceRect.width);
+			this.pieceShader.setInt("height", pieceRect.height);
+
+			this.pieceShader.setVec3("position", piece.position);
+			this.pieceShader.setVec3("color", piece.color);
+			GL.DispatchCompute(pieceRect.width / 16 + 1, pieceRect.height / 16 + 1, 1);
+			GL.Finish();
+		}
 
 		this.colorBuffer.download();
 

@@ -68,6 +68,24 @@ public class Mat4 {
 		);
 	}
 
+	public static Mat4 perspective(float fov, float aspect, float near, float far) {
+		fov = (float)Math.toRadians(fov);
+
+		float sinFov = (float)Math.sin(fov / 2);
+		float cosFov = (float)Math.cos(fov / 2);
+
+		float h = cosFov / sinFov;
+		float w = h / aspect;
+		float r = far / (far - near);
+
+		return new Mat4(
+			new Vec4(w, 0, 0, 0),
+			new Vec4(0, h, 0, 0),
+			new Vec4(0, 0, r, 1),
+			new Vec4(0, 0, -r * near, 0)
+		);
+	}	
+
 	public Mat4 transpose() {
 		return new Mat4(
 			new Vec4(this.x.x, this.y.x, this.z.x, this.w.x),
@@ -93,27 +111,25 @@ public class Mat4 {
 			this.z.sub(m.z),
 			this.w.sub(m.w)
 		);
-	}
-
-	public Mat4 mul(Mat4 m) {
-		Mat4 t = m.transpose();
-
-		return new Mat4(
-			new Vec4(this.x.dot(t.x), this.x.dot(t.y), this.x.dot(t.z), this.x.dot(t.w)),
-			new Vec4(this.y.dot(t.x), this.y.dot(t.y), this.y.dot(t.z), this.y.dot(t.w)),
-			new Vec4(this.z.dot(t.x), this.z.dot(t.y), this.z.dot(t.z), this.z.dot(t.w)),
-			new Vec4(this.w.dot(t.x), this.w.dot(t.y), this.w.dot(t.z), this.w.dot(t.w))
-		);
-	}
+	}	
 
 	public Vec4 mul(Vec4 v) {
 		return new Vec4(
-			this.x.dot(v),
-			this.y.dot(v),
-			this.z.dot(v),
-			this.w.dot(v)
+			this.x.x * v.x + this.y.x * v.y + this.z.x * v.z + this.w.x * v.w,
+			this.x.y * v.x + this.y.y * v.y + this.z.y * v.z + this.w.y * v.w,
+			this.x.z * v.x + this.y.z * v.y + this.z.z * v.z + this.w.z * v.w,
+			this.x.w * v.x + this.y.w * v.y + this.z.w * v.z + this.w.w * v.w
 		);
 	}	
+
+	public Mat4 mul(Mat4 m) {
+		return new Mat4(
+			this.mul(m.x),
+			this.mul(m.y),
+			this.mul(m.z),
+			this.mul(m.w)
+		);
+	}
 
 	public float determinant() {
 		return
