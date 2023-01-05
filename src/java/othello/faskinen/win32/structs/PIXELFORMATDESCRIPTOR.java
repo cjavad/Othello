@@ -43,7 +43,7 @@ public class PIXELFORMATDESCRIPTOR {
 
     public static final GroupLayout layout = MemoryLayout.structLayout(
             Lib.C_UINT16_T("nSize"),
-            Lib.C_UINT32_T("nVersion"),
+            Lib.C_UINT16_T("nVersion"),
             Lib.C_UINT32_T("dwFlags"),
             Lib.C_UINT8_T("iPixelType"),
             Lib.C_UINT8_T("cColorBits"),
@@ -117,22 +117,29 @@ public class PIXELFORMATDESCRIPTOR {
     public static byte get_cColorBits(MemorySegment struct) { return (byte) PIXELFORMATDESCRIPTOR.cColorBits.get(struct); }
     public static void set_cColorBits(MemorySegment struct, byte cColorBits) { PIXELFORMATDESCRIPTOR.cColorBits.set(struct, cColorBits); }
 
-    // cRedBits
-//    public static byte get_cRegBit
+    public static byte get_cRedBits(MemorySegment struct) { return (byte) PIXELFORMATDESCRIPTOR.cRedBits.get(struct); }
+    public static void set_cRedBits(MemorySegment struct, byte cRedBits) { PIXELFORMATDESCRIPTOR.cRedBits.set(struct, cRedBits); }
 
-    // cRedShift
+    public static byte get_cRedShift(MemorySegment struct) { return (byte) PIXELFORMATDESCRIPTOR.cRedShift.get(struct); }
+    public static void set_cRedShift(MemorySegment struct, byte cRedShift) { PIXELFORMATDESCRIPTOR.cRedShift.set(struct, cRedShift); }
 
-    // cGreenBits
+    public static byte get_cGreenBits(MemorySegment struct) { return (byte) PIXELFORMATDESCRIPTOR.cGreenBits.get(struct); }
+    public static void set_cGreenBits(MemorySegment struct, byte cGreenBits) { PIXELFORMATDESCRIPTOR.cGreenBits.set(struct, cGreenBits); }
 
-    // cGreenShift
+    public static byte get_cGreenShift(MemorySegment struct) { return (byte) PIXELFORMATDESCRIPTOR.cGreenShift.get(struct); }
+    public static void set_cGreenShift(MemorySegment struct, byte cGreenShift) { PIXELFORMATDESCRIPTOR.cGreenShift.set(struct, cGreenShift); }
 
-    // cBlueBits
+    public static byte get_cBlueBits(MemorySegment struct) { return (byte) PIXELFORMATDESCRIPTOR.cBlueBits.get(struct); }
+    public static void set_cBlueBits(MemorySegment struct, byte cBlueBits) { PIXELFORMATDESCRIPTOR.cBlueBits.set(struct, cBlueBits); }
 
-    // cBlueShift
+    public static byte get_cBlueShift(MemorySegment struct) { return (byte) PIXELFORMATDESCRIPTOR.cBlueShift.get(struct); }
+    public static void set_cBlueShift(MemorySegment struct, byte cBlueShift) { PIXELFORMATDESCRIPTOR.cBlueShift.set(struct, cBlueShift); }
 
-    // cAlphaBits
+    public static byte get_cAlphaBits(MemorySegment struct) { return (byte) PIXELFORMATDESCRIPTOR.cAlphaBits.get(struct); }
+    public static void set_cAlphaBits(MemorySegment struct, byte cAlphaBits) { PIXELFORMATDESCRIPTOR.cAlphaBits.set(struct, cAlphaBits); }
 
-    // cAlphaShift
+    public static byte get_cAlphaShift(MemorySegment struct) { return (byte) PIXELFORMATDESCRIPTOR.cAlphaShift.get(struct); }
+    public static void set_cAlphaShift(MemorySegment struct, byte cAlphaShift) { PIXELFORMATDESCRIPTOR.cAlphaShift.set(struct, cAlphaShift); }
 
     public static byte get_cAccumBits(MemorySegment struct) { return (byte) PIXELFORMATDESCRIPTOR.cAccumBits.get(struct); }
     public static void set_cAccumBits(MemorySegment struct, byte cAccumBits) { PIXELFORMATDESCRIPTOR.cAccumBits.set(struct, cAccumBits); }

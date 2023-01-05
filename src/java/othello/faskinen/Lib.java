@@ -104,6 +104,17 @@ public class Lib {
         return null;
     }
 
+    private static MethodHandle getJavaFuncHandleInstance(Class<?> refc, String name, MethodType type)
+    {
+        try {
+            MethodHandles.lookup().findVirtual(refc, name, type);
+        } catch (NoSuchMethodException | IllegalAccessException e) {
+            e.printStackTrace();
+            System.exit(1);
+        }
+        return null;
+    }
+
     public static MemorySegment getJavaFuncPointer(Class<?> refc, String name, MethodType type, FunctionDescriptor descriptor)
     {
         return getJavaFuncPointer(refc, name, type, descriptor, MemorySession.global());

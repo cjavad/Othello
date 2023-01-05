@@ -2,6 +2,7 @@ package othello.faskinen;
 
 import java.lang.foreign.*;
 import java.lang.invoke.MethodType;
+import java.util.HashMap;
 
 import othello.faskinen.win32.Win32;
 import othello.faskinen.win32.structs.MSG;
@@ -9,6 +10,10 @@ import othello.faskinen.win32.structs.PIXELFORMATDESCRIPTOR;
 import othello.faskinen.win32.structs.WNDCLASSEXW;
 
 public class Win32Window extends Window {
+
+	private static final HashMap<MemoryAddress, Win32Window> windows = new HashMap<MemoryAddress, Win32Window>();
+	private static Win32Window latest;
+
 	MemoryAddress ghWnd;
 	MemoryAddress ghDC; // HDC
 	MemoryAddress ghRC; // HGLRC
@@ -16,18 +21,19 @@ public class Win32Window extends Window {
 	boolean shouldClose;
 
 	public Win32Window(String name, int width, int height) {
+		Win32Window.latest = this;
+
 		MemoryAddress hInstance = Win32.GetExecutableHandle();
 
 		MemorySegment wndClass = MemorySession.global().allocate(WNDCLASSEXW.sizeOf());
 
 		MemorySegment winCallback = Lib.getJavaFuncPointer(
-				this.getClass(),
+				Win32Window.class,
 				"MainWndProc",
 				MethodType.methodType(long.class, MemoryAddress.class, int.class, int.class, long.class),
 				FunctionDescriptor.of(Lib.C_INT64_T, Lib.C_POINTER_T, Lib.C_UINT32_T, Lib.C_UINT32_T, Lib.C_INT64_T)
 		);
 		MemorySegment szClassName = Lib.javaToWStr("OpenGL Window");
-
 
 		WNDCLASSEXW.set_cbSize(wndClass, (int) WNDCLASSEXW.sizeOf());
 		WNDCLASSEXW.set_style(wndClass, 0);
@@ -70,7 +76,7 @@ public class Win32Window extends Window {
 			System.exit(1);
 		}
 
-		this.shouldClose = false;
+		Win32Window.windows.put(this.ghWnd, this);
 	}
 
 	@Override
@@ -107,7 +113,7 @@ public class Win32Window extends Window {
 
 	@Override
 	public void makeContextCurrent() {
-
+		Win32.wglMakeCurrent(this.ghDC, this.ghRC);
 	}
 
 	public void destroy() {
@@ -117,7 +123,7 @@ public class Win32Window extends Window {
 	// TODO
 	public static boolean bSetupPixelFormat(MemoryAddress hdc)
 	{
-		SegmentAllocator alloc = MemorySession.openImplicit();
+		SegmentAllocator alloc = MemorySession.openConfined();
 		MemorySegment pfd = alloc.allocate(PIXELFORMATDESCRIPTOR.size());
 		MemoryAddress ppfd = pfd.address();
 		int pixelformat;
@@ -127,11 +133,22 @@ public class Win32Window extends Window {
 		PIXELFORMATDESCRIPTOR.set_dwFlags(pfd,
 				0x00000004 | 0x00000020 | 0x00000001
 		);
-		PIXELFORMATDESCRIPTOR.set_iPixelType(pfd, (byte) 1);
-		PIXELFORMATDESCRIPTOR.set_cColorBits(pfd, (byte) 8);
-		PIXELFORMATDESCRIPTOR.set_cDepthBits(pfd, (byte) 16);
+		PIXELFORMATDESCRIPTOR.set_iPixelType(pfd, (byte) 0); //
+		PIXELFORMATDESCRIPTOR.set_cColorBits(pfd, (byte) 32);
+		{
+			PIXELFORMATDESCRIPTOR.set_cRedBits(pfd, (byte) 8);
+			PIXELFORMATDESCRIPTOR.set_cRedShift(pfd, (byte) 24);
+			PIXELFORMATDESCRIPTOR.set_cGreenBits(pfd, (byte) 8);
+			PIXELFORMATDESCRIPTOR.set_cGreenShift(pfd, (byte) 16);
+			PIXELFORMATDESCRIPTOR.set_cBlueBits(pfd, (byte) 8);
+			PIXELFORMATDESCRIPTOR.set_cBlueShift(pfd, (byte) 8);
+			PIXELFORMATDESCRIPTOR.set_cAlphaBits(pfd, (byte) 8);
+			PIXELFORMATDESCRIPTOR.set_cAlphaShift(pfd, (byte) 0);
+		}
+		PIXELFORMATDESCRIPTOR.set_cDepthBits(pfd, (byte) 24);
+		PIXELFORMATDESCRIPTOR.set_cStencilBits(pfd, (byte) 8);
 		PIXELFORMATDESCRIPTOR.set_cAccumBits(pfd, (byte) 0);
-		PIXELFORMATDESCRIPTOR.set_cStencilBits(pfd, (byte) 0);
+
 
 		pixelformat = Win32.ChoosePixelFormat(hdc, ppfd);
 
@@ -151,18 +168,20 @@ public class Win32Window extends Window {
 	// WPARAM is UINT_PTR is uint32_t
 	// LPARAM is LONG_PTR is int64_t
 	// i want to die
-	public long MainWndProc(MemoryAddress hWnd, int uMsg, int wParam, long lParam)
+	public static long MainWndProc(MemoryAddress hWnd, int uMsg, int wParam, long lParam)
 	{
 		long lRet = 1;
+
+		Win32Window window = windows.getOrDefault(hWnd, Win32Window.latest);
 
 		switch (uMsg)
 		{
 			case Win32.WM_CREATE:
-				this.ghDC = Win32.GetDC(hWnd);
-				if (!bSetupPixelFormat(ghDC))
+				window.ghDC = Win32.GetDC(hWnd);
+				if (!bSetupPixelFormat(window.ghDC))
 		            Win32.PostQuitMessage(0);
-//		        this.ghRC = Win32.wglCreateContext(ghDC);
-//		        Win32.wglMakeCurrent(ghDC, ghRC);
+		        window.ghRC = Win32.wglCreateContext(window.ghDC);
+//		        Win32.wglMakeCurrent(window.ghDC, window.ghRC);
 //		        Win32.GetClientRect(hWnd, &rect);
 //		        Win32.initializeGL(rect.right, rect.bottom);
 				break;

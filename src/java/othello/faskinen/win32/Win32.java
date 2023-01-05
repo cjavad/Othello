@@ -15,6 +15,8 @@ public class Win32 {
     static {
         System.loadLibrary("kernel32");
         System.loadLibrary("user32");
+        System.loadLibrary("gdi32");
+        System.loadLibrary("opengl32");
     }
 
     public static final long COLOR_WINDOW = 5;
@@ -554,6 +556,47 @@ public class Win32 {
     public static boolean SetPixelFormat(MemoryAddress i_hdc, int format, MemoryAddress ppfd) {
         try {
             return ((int) HANDLE_SetPixelFormat.invoke(i_hdc, format, ppfd)) != 0;
+        } catch (Throwable e) {
+            e.printStackTrace();
+            System.exit(1);
+        }
+        return false;
+    }
+
+    /*
+    HGLRC wglCreateContext(
+        HDC unnamedParam1
+    );
+     */
+
+    private static MethodHandle HANDLE_wglCreateContext = Lib.loadFuncHandle("wglCreateContext", Lib.C_POINTER_T,
+            Lib.C_POINTER_T
+    );
+
+    public static MemoryAddress wglCreateContext(MemoryAddress i_unnammedParam1) {
+        try {
+            return (MemoryAddress) HANDLE_wglCreateContext.invoke(i_unnammedParam1);
+        } catch (Throwable e) {
+            e.printStackTrace();
+            System.exit(1);
+        }
+        return null;
+    }
+
+    /*
+    BOOL wglMakeCurrent(
+        HDC   unnamedParam1,
+        HGLRC unnamedParam2
+    );
+     */
+
+    private static MethodHandle HANDLE_wglMakeCurrent = Lib.loadFuncHandle("wglMakeCurrent", Lib.C_INT32_T,
+            Lib.C_POINTER_T, Lib.C_POINTER_T
+    );
+
+    public static boolean wglMakeCurrent(MemoryAddress i_hdc, MemoryAddress i_hglrc) {
+        try {
+            return ((int) HANDLE_wglMakeCurrent.invoke(i_hdc, i_hglrc)) != 0;
         } catch (Throwable e) {
             e.printStackTrace();
             System.exit(1);
