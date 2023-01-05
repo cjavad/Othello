@@ -13,6 +13,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.StackPane;
 import othello.faskinen.Buffer;
 import othello.faskinen.Faskinen;
+import othello.faskinen.PieceModel;
 import othello.faskinen.Vec3;
 
 public class BoardViewer3D extends SceneProvider {
@@ -29,6 +30,24 @@ public class BoardViewer3D extends SceneProvider {
 		super(manager, "BoardViewer3D");
 
 		this.faskinen = new Faskinen();	
+
+		this.faskinen.pieces = new PieceModel[64];
+		
+		for (int x = 0; x < 8; x++) {
+			for (int z = 0; z < 8; z++) {
+				int i = x + z * 8;
+
+				this.faskinen.pieces[i] = new PieceModel();
+				this.faskinen.pieces[i].position = new Vec3(x, -3, z);
+
+
+				if (i % 2 == 0) {
+					this.faskinen.pieces[i].color = new Vec3(1, 0.1f, 0.1f);
+				} else {
+					this.faskinen.pieces[i].color = new Vec3(0.1f, 0.1f, 1);
+				}
+			}
+		}
 
 		this.image = new WritableImage(this.faskinen.imageWidth, this.faskinen.imageHeight);
 		this.writer = this.image.getPixelWriter();

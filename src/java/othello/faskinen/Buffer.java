@@ -45,12 +45,12 @@ public class Buffer {
 		GL.BindBuffer(GL.SHADER_STORAGE_BUFFER, this.bufferId);
 	}
 
-	public void setData() {
+	public void upload() {
 		this.bind();
 		GL.BufferData(GL.SHADER_STORAGE_BUFFER, this.segment.byteSize(), this.segment.address(), GL.DYNAMIC_READ);
 	}
 
-	public void readData() {
+	public void download() {
 		this.bind();
 		GL.GetBufferSubData(GL.SHADER_STORAGE_BUFFER, 0, this.segment.byteSize(), this.segment.address());
 	}

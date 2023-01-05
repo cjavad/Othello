@@ -12,6 +12,15 @@ buffer ColorBuffer {
 	int colors[];
 };
 
+struct Piece {
+	vec3 position;
+	vec3 color;
+};
+
+buffer PieceBuffer {
+	Piece pieces[];
+};
+
 uint index() {
 	return gl_GlobalInvocationID.x + gl_GlobalInvocationID.y * imageWidth;
 }
@@ -67,7 +76,7 @@ struct Sdf {
 
 Sdf emptySdf() {
 	Sdf sdf;
-	sdf.distance = 0.0;
+	sdf.distance = 1.0 / 0.0;
 
 	return sdf;
 }
@@ -115,17 +124,21 @@ Sdf sdfRoundedCylender(vec3 p, float radius, float height, float roundness, Mate
 }
 
 Sdf sdfPiece(vec3 p, Material material) {
-	Sdf sdf = sdfRoundedCylender(p, 0.5, 0.1, 0.2, material);
+	Sdf sdf = sdfRoundedCylender(p, 0.2, 0.05, 0.1, material);
 	return sdf;
 }
 
 Sdf sdf(in vec3 p) {
-	Sdf d;
+	Sdf d = emptySdf();
 
-	Sdf sphereA = sdfPiece(p + vec3(0.0, sin(time), 0.0), defaultMaterial());
-	Sdf sphereB = sdfSphere(p + vec3(2.0, 5.0, -2.0), 4.0, defaultMaterial());
+	for (int i = 0; i < pieces.length(); i++) {
+		Piece piece = pieces[i];
 
-	d = sdfUnion(sphereA, sphereB);
+		Material material = defaultMaterial();
+		material.color = piece.color;
+
+		d = sdfUnion(d, sdfPiece(p - piece.position, material));
+	}
 
 	return d;
 }
