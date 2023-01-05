@@ -34,7 +34,7 @@ public class PAINTSTRUCT {
             hdc			= Lib.getStructField(layout, "hdc"),
             fErase		= Lib.getStructField(layout, "fErase"),
             fRestore	= Lib.getStructField(layout, "fIncUpdate"),
-            rgbReserved	= Lib.getStructArrayField(layout, "rgbReserved", "byte");
+            rgbReserved = null;//	= Lib.getStructArrayField(layout, "rgbReserved", "byte");
 
     public static final long
             rcPaint		= Lib.getStructFieldOffset(layout, "rcPaint");

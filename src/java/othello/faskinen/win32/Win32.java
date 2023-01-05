@@ -603,5 +603,131 @@ public class Win32 {
         }
         return false;
     }
+
+    /*
+    HDC BeginPaint(
+        [in]  HWND          hWnd,
+        [out] LPPAINTSTRUCT lpPaint
+    );
+     */
+
+    private static MethodHandle HANDLE_BeginPaint = Lib.loadFuncHandle("BeginPaint", Lib.C_POINTER_T,
+            Lib.C_POINTER_T, Lib.C_POINTER_T
+    );
+
+    public static MemoryAddress BeginPaint(MemoryAddress i_hWnd, MemoryAddress o_lpPaint) {
+        try {
+            return (MemoryAddress) HANDLE_BeginPaint.invoke(i_hWnd, o_lpPaint);
+        } catch (Throwable e) {
+            e.printStackTrace();
+            System.exit(1);
+        }
+        return null;
+    }
+
+    /*
+    BOOL EndPaint(
+        [in] HWND              hWnd,
+        [in] const PAINTSTRUCT *lpPaint
+    );
+     */
+
+    private static MethodHandle HANDLE_EndPaint = Lib.loadFuncHandle("EndPaint", Lib.C_BOOL_T,
+            Lib.C_POINTER_T, Lib.C_POINTER_T
+    );
+
+    public static boolean EndPaint(MemoryAddress i_hWnd, MemoryAddress i_lpPaint) {
+        try {
+            return ((int) HANDLE_EndPaint.invoke(i_hWnd, i_lpPaint)) != 0;
+        } catch (Throwable e) {
+            e.printStackTrace();
+            System.exit(1);
+        }
+        return false;
+    }
+
+    /*
+    BOOL GetClientRect(
+        [in]  HWND   hWnd,
+        [out] LPRECT lpRect
+    );
+     */
+
+    private static MethodHandle HANDLE_GetClientRect = Lib.loadFuncHandle("GetClientRect", Lib.C_BOOL_T,
+            Lib.C_POINTER_T, Lib.C_POINTER_T
+    );
+
+    public static boolean GetClientRect(MemoryAddress i_hWnd, MemoryAddress o_lpRect) {
+        try {
+            return ((int) HANDLE_GetClientRect.invoke(i_hWnd, o_lpRect)) != 0;
+        } catch (Throwable e) {
+            e.printStackTrace();
+            System.exit(1);
+        }
+        return false;
+    }
+
+    /*
+    BOOL wglDeleteContext(
+        HGLRC unnamedParam1
+    );
+     */
+
+    private static MethodHandle HANDLE_wglDeleteContext = Lib.loadFuncHandle("wglDeleteContext", Lib.C_BOOL_T,
+            Lib.C_POINTER_T
+    );
+
+    public static boolean wglDeleteContext(MemoryAddress i_hglrc) {
+        try {
+            return ((int) HANDLE_wglDeleteContext.invoke(i_hglrc)) != 0;
+        } catch (Throwable e) {
+            e.printStackTrace();
+            System.exit(1);
+        }
+        return false;
+    }
+
+    /*
+    int ReleaseDC(
+        [in] HWND hWnd,
+        [in] HDC  hDC
+    );
+     */
+
+    private static MethodHandle HANDLE_ReleaseDC = Lib.loadFuncHandle("ReleaseDC", Lib.C_INT32_T,
+            Lib.C_POINTER_T, Lib.C_POINTER_T
+    );
+
+    public static boolean ReleaseDC(MemoryAddress i_hWnd, MemoryAddress i_hDC) {
+        try {
+            return ((int) HANDLE_ReleaseDC.invoke(i_hWnd, i_hDC)) != 0;
+        } catch (Throwable e) {
+            e.printStackTrace();
+            System.exit(1);
+        }
+        return false;
+    }
+
+    /*
+    PROC wglGetProcAddress(
+        LPCSTR unnamedParam1
+    );
+     */
+
+    private static MethodHandle HANDLE_wglGetProcAddress = Lib.loadFuncHandle("wglGetProcAddress", Lib.C_POINTER_T,
+            Lib.C_POINTER_T
+    );
+
+    public static MemoryAddress wglGetProcAddress(MemoryAddress i_lpcstr) {
+        try {
+            return (MemoryAddress) HANDLE_wglGetProcAddress.invoke(i_lpcstr);
+
+        } catch (Throwable e) {
+            e.printStackTrace();
+            System.exit(1);
+        }
+        return null;
+    }
+
 }
 

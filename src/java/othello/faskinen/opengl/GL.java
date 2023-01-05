@@ -1,10 +1,12 @@
 package othello.faskinen.opengl;
 
 import java.lang.foreign.MemoryAddress;
+import java.lang.foreign.MemoryLayout;
 import java.lang.invoke.MethodHandle;
 
 import othello.faskinen.Lib;
 import othello.faskinen.Platform;
+import othello.faskinen.win32.Win32;
 
 public class GL {
     static {
@@ -19,6 +21,16 @@ public class GL {
                 throw new RuntimeException("Unsupported platform, not a real gamer");
         }
     }
+
+	protected static MethodHandle loadFuncGL(String name, MemoryLayout ret, MemoryLayout... params) {
+		if (Platform.get() == Platform.Windows) {
+			MemoryAddress addr = Win32.wglGetProcAddress(Lib.javaToStr(name).address()).address();
+			if (addr.toRawLongValue() != 0) {
+				return Lib.loadFuncFromAddr(addr, ret, params);
+			}
+		}
+		return Lib.loadFuncHandle(name, ret, params);
+	}
 
 	// GL constants
 	public static final int
@@ -228,7 +240,7 @@ public class GL {
 		SHADER_STORAGE_BUFFER = 0x90D2,
 		SHADER_STORAGE_BLOCK = 0x92E6;
 
-	private static MethodHandle HANDLE_glClearColor = Lib.loadFuncHandle(
+	private static MethodHandle HANDLE_glClearColor = loadFuncGL(
 		"glClearColor", 
 		null,
 		Lib.C_FLOAT32_T,
@@ -245,7 +257,7 @@ public class GL {
 		}
 	}
 
-	private static MethodHandle HANDLE_glClear = Lib.loadFuncHandle(
+	private static MethodHandle HANDLE_glClear = loadFuncGL(
 		"glClear", 
 		null,
 		Lib.C_INT32_T
@@ -259,7 +271,7 @@ public class GL {
 		}
 	}
 
-	private static MethodHandle HANDLE_glViewport = Lib.loadFuncHandle(
+	private static MethodHandle HANDLE_glViewport = loadFuncGL(
 		"glViewport", 
 		null,
 		Lib.C_INT32_T,
@@ -276,7 +288,7 @@ public class GL {
 		}
 	}
 
-	private static MethodHandle HANDLE_glCreateShader = Lib.loadFuncHandle(
+	private static MethodHandle HANDLE_glCreateShader = loadFuncGL(
 		"glCreateShader", 
 		Lib.C_UINT32_T,
 		Lib.C_INT32_T
@@ -292,7 +304,7 @@ public class GL {
 		return -1;
 	}
 
-	private static MethodHandle HANDLE_glShaderSource = Lib.loadFuncHandle(
+	private static MethodHandle HANDLE_glShaderSource = loadFuncGL(
 		"glShaderSource", 
 		null,
 		Lib.C_UINT32_T,
@@ -309,7 +321,7 @@ public class GL {
 		}
 	}
 
-	private static MethodHandle HANDLE_glCompileShader = Lib.loadFuncHandle(
+	private static MethodHandle HANDLE_glCompileShader = loadFuncGL(
 		"glCompileShader", 
 		null,
 		Lib.C_UINT32_T
@@ -323,7 +335,7 @@ public class GL {
 		}
 	}
 
-	private static MethodHandle HANDLE_glGetShaderiv = Lib.loadFuncHandle(
+	private static MethodHandle HANDLE_glGetShaderiv = loadFuncGL(
 		"glGetShaderiv", 
 		null,
 		Lib.C_UINT32_T,
@@ -339,7 +351,7 @@ public class GL {
 		}
 	}
 
-	private static MethodHandle HANDLE_glGetShaderInfoLog = Lib.loadFuncHandle(
+	private static MethodHandle HANDLE_glGetShaderInfoLog = loadFuncGL(
 		"glGetShaderInfoLog", 
 		null,
 		Lib.C_UINT32_T,
@@ -356,7 +368,7 @@ public class GL {
 		}
 	}
 
-	private static MethodHandle HANDLE_glCreateProgram = Lib.loadFuncHandle(
+	private static MethodHandle HANDLE_glCreateProgram = loadFuncGL(
 		"glCreateProgram", 
 		Lib.C_UINT32_T
 	);
@@ -371,7 +383,7 @@ public class GL {
 		return -1;
 	}
 
-	private static MethodHandle HANDLE_glAttachShader = Lib.loadFuncHandle(
+	private static MethodHandle HANDLE_glAttachShader = loadFuncGL(
 		"glAttachShader", 
 		null,
 		Lib.C_UINT32_T,
@@ -386,7 +398,7 @@ public class GL {
 		}
 	}
 
-	private static MethodHandle HANDLE_glLinkProgram = Lib.loadFuncHandle(
+	private static MethodHandle HANDLE_glLinkProgram = loadFuncGL(
 		"glLinkProgram", 
 		null,
 		Lib.C_UINT32_T
@@ -400,7 +412,7 @@ public class GL {
 		}
 	}
 
-	private static MethodHandle HANDLE_glGetProgramiv = Lib.loadFuncHandle(
+	private static MethodHandle HANDLE_glGetProgramiv = loadFuncGL(
 		"glGetProgramiv", 
 		null,
 		Lib.C_UINT32_T,
@@ -416,7 +428,7 @@ public class GL {
 		}
 	}
 
-	private static MethodHandle HANDLE_glGetProgramInfoLog = Lib.loadFuncHandle(
+	private static MethodHandle HANDLE_glGetProgramInfoLog = loadFuncGL(
 		"glGetProgramInfoLog", 
 		null,
 		Lib.C_UINT32_T,
@@ -433,7 +445,7 @@ public class GL {
 		}
 	}
 
-	private static MethodHandle HANDLE_glUseProgram = Lib.loadFuncHandle(
+	private static MethodHandle HANDLE_glUseProgram = loadFuncGL(
 		"glUseProgram", 
 		null,
 		Lib.C_UINT32_T
@@ -447,7 +459,7 @@ public class GL {
 		}
 	}
 
-	private static MethodHandle HANDLE_glGetUniformLocation = Lib.loadFuncHandle(
+	private static MethodHandle HANDLE_glGetUniformLocation = loadFuncGL(
 		"glGetUniformLocation", 
 		Lib.C_INT32_T,
 		Lib.C_UINT32_T,
@@ -464,7 +476,7 @@ public class GL {
 		return -1;
 	}
 
-	private static MethodHandle HANDLE_glGetProgramResourceIndex = Lib.loadFuncHandle(
+	private static MethodHandle HANDLE_glGetProgramResourceIndex = loadFuncGL(
 		"glGetProgramResourceIndex", 
 		Lib.C_UINT32_T,
 		Lib.C_UINT32_T,
@@ -482,7 +494,7 @@ public class GL {
 		return -1;
 	}
 
-	private static MethodHandle HANDLE_glShaderStorageBlockBinding = Lib.loadFuncHandle(
+	private static MethodHandle HANDLE_glShaderStorageBlockBinding = loadFuncGL(
 		"glShaderStorageBlockBinding", 
 		null,
 		Lib.C_UINT32_T,
@@ -498,7 +510,7 @@ public class GL {
 		}
 	}
 
-	private static MethodHandle HANDLE_glUniform1i = Lib.loadFuncHandle(
+	private static MethodHandle HANDLE_glUniform1i = loadFuncGL(
 		"glUniform1i", 
 		null,
 		Lib.C_INT32_T,
@@ -513,7 +525,7 @@ public class GL {
 		}
 	}
 
-	private static MethodHandle HANDLE_glUniform1f = Lib.loadFuncHandle(
+	private static MethodHandle HANDLE_glUniform1f = loadFuncGL(
 		"glUniform1f", 
 		null,
 		Lib.C_INT32_T,
@@ -528,7 +540,7 @@ public class GL {
 		}
 	}
 
-	private static MethodHandle HANDLE_glUniform2f = Lib.loadFuncHandle(
+	private static MethodHandle HANDLE_glUniform2f = loadFuncGL(
 		"glUniform2f", 
 		null,
 		Lib.C_INT32_T,
@@ -544,7 +556,7 @@ public class GL {
 		}
 	}
 
-	private static MethodHandle HANDLE_glUniform3f = Lib.loadFuncHandle(
+	private static MethodHandle HANDLE_glUniform3f = loadFuncGL(
 		"glUniform3f", 
 		null,
 		Lib.C_INT32_T,
@@ -561,7 +573,7 @@ public class GL {
 		}
 	}
 
-	private static MethodHandle HANDLE_glUniform4f = Lib.loadFuncHandle(
+	private static MethodHandle HANDLE_glUniform4f = loadFuncGL(
 		"glUniform4f", 
 		null,
 		Lib.C_INT32_T,
@@ -579,7 +591,7 @@ public class GL {
 		}
 	}
 
-	private static MethodHandle HANDLE_glUniformMatrix4fv = Lib.loadFuncHandle(
+	private static MethodHandle HANDLE_glUniformMatrix4fv = loadFuncGL(
 		"glUniformMatrix4fv", 
 		null,
 		Lib.C_INT32_T,
@@ -597,7 +609,7 @@ public class GL {
 		}
 	}
 
-	private static MethodHandle HANDLE_glGenBuffers = Lib.loadFuncHandle(
+	private static MethodHandle HANDLE_glGenBuffers = loadFuncGL(
 		"glGenBuffers", 
 		null,
 		Lib.C_INT32_T,
@@ -612,7 +624,7 @@ public class GL {
 		}
 	}
 
-	private static MethodHandle HANDLE_glBindBuffer = Lib.loadFuncHandle(
+	private static MethodHandle HANDLE_glBindBuffer = loadFuncGL(
 		"glBindBuffer", 
 		null,
 		Lib.C_UINT32_T,
@@ -627,7 +639,7 @@ public class GL {
 		}
 	}
 
-	private static MethodHandle HANDLE_glBufferData = Lib.loadFuncHandle(
+	private static MethodHandle HANDLE_glBufferData = loadFuncGL(
 		"glBufferData", 
 		null,
 		Lib.C_UINT32_T,
@@ -644,7 +656,7 @@ public class GL {
 		}
 	}
 
-	private static MethodHandle HANDLE_glMapBuffer = Lib.loadFuncHandle(
+	private static MethodHandle HANDLE_glMapBuffer = loadFuncGL(
 		"glMapBuffer", 
 		null,
 		Lib.C_POINTER_T,
@@ -661,7 +673,7 @@ public class GL {
 		return null;
 	}
 
-	private static MethodHandle HANDLE_glMapBufferRange = Lib.loadFuncHandle(
+	private static MethodHandle HANDLE_glMapBufferRange = loadFuncGL(
 		"glMapBufferRange", 
 		null,
 		Lib.C_POINTER_T,
@@ -679,7 +691,7 @@ public class GL {
 		return null;
 	}
 
-	private static MethodHandle HANDLE_glUnmapBuffer = Lib.loadFuncHandle(
+	private static MethodHandle HANDLE_glUnmapBuffer = loadFuncGL(
 		"glUnmapBuffer", 
 		null,
 		Lib.C_INT32_T,
@@ -695,7 +707,7 @@ public class GL {
 		return false;
 	}
 
-	private static MethodHandle HANDLE_glGetBufferSubData = Lib.loadFuncHandle(
+	private static MethodHandle HANDLE_glGetBufferSubData = loadFuncGL(
 		"glGetBufferSubData", 
 		null,
 		Lib.C_UINT32_T,
@@ -712,7 +724,7 @@ public class GL {
 		}
 	}
 
-	private static MethodHandle HANDLE_glBindBufferBase = Lib.loadFuncHandle(
+	private static MethodHandle HANDLE_glBindBufferBase = loadFuncGL(
 		"glBindBufferBase", 
 		null,
 		Lib.C_UINT32_T,
@@ -728,7 +740,7 @@ public class GL {
 		}
 	}
 
-	private static MethodHandle HANDLE_glDispatchCompute = Lib.loadFuncHandle(
+	private static MethodHandle HANDLE_glDispatchCompute = loadFuncGL(
 		"glDispatchCompute", 
 		null,
 		Lib.C_UINT32_T,
@@ -744,7 +756,7 @@ public class GL {
 		}
 	}
 
-	private static MethodHandle HANDLE_glDeleteShader = Lib.loadFuncHandle(
+	private static MethodHandle HANDLE_glDeleteShader = loadFuncGL(
 		"glDeleteShader", 
 		null,
 		Lib.C_UINT32_T
@@ -758,7 +770,7 @@ public class GL {
 		}
 	}
 
-	private static MethodHandle HANDLE_glDeleteProgram = Lib.loadFuncHandle(
+	private static MethodHandle HANDLE_glDeleteProgram = loadFuncGL(
 		"glDeleteProgram", 
 		null,
 		Lib.C_UINT32_T
@@ -772,7 +784,7 @@ public class GL {
 		}
 	}
 
-	private static MethodHandle HANDLE_glDeleteBuffers = Lib.loadFuncHandle(
+	private static MethodHandle HANDLE_glDeleteBuffers = loadFuncGL(
 		"glDeleteBuffers", 
 		null,
 		Lib.C_INT32_T,

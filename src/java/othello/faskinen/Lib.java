@@ -19,6 +19,7 @@ import java.lang.invoke.VarHandle;
 import java.nio.CharBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.Optional;
+import java.util.function.Function;
 
 public class Lib {
 
@@ -89,8 +90,18 @@ public class Lib {
         } else {
             desc = FunctionDescriptor.ofVoid((MemoryLayout[]) params);
         }
-
         return linker.downcallHandle(addr, desc);
+    }
+
+    public static MethodHandle loadFuncFromAddr(MemoryAddress address, MemoryLayout ret, MemoryLayout... params)
+    {
+        FunctionDescriptor desc;
+        if (ret != null) {
+            desc = FunctionDescriptor.of(ret, (MemoryLayout[]) params);
+        } else {
+            desc = FunctionDescriptor.ofVoid((MemoryLayout[]) params);
+        }
+        return linker.downcallHandle(address, desc);
     }
 
     private static MethodHandle getJavaFuncHandle(Class<?> refc, String name, MethodType type)

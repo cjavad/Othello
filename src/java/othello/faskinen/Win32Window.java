@@ -4,10 +4,12 @@ import java.lang.foreign.*;
 import java.lang.invoke.MethodType;
 import java.util.HashMap;
 
+import othello.faskinen.win32.ARB;
 import othello.faskinen.win32.Win32;
-import othello.faskinen.win32.structs.MSG;
-import othello.faskinen.win32.structs.PIXELFORMATDESCRIPTOR;
-import othello.faskinen.win32.structs.WNDCLASSEXW;
+import othello.faskinen.win32.structs.*;
+
+import javax.management.ValueExp;
+import javax.swing.text.Segment;
 
 public class Win32Window extends Window {
 
@@ -19,6 +21,7 @@ public class Win32Window extends Window {
 	MemoryAddress ghRC; // HGLRC
 	MemorySegment msg = MemorySession.global().allocate(MSG.sizeOf());
 	boolean shouldClose;
+	public int width, height;
 
 	public Win32Window(String name, int width, int height) {
 		Win32Window.latest = this;
@@ -174,6 +177,10 @@ public class Win32Window extends Window {
 
 		Win32Window window = windows.getOrDefault(hWnd, Win32Window.latest);
 
+		MemorySession local = MemorySession.openImplicit();
+		MemorySegment ps = local.allocate(PAINTSTRUCT.sizeOf());
+		MemorySegment rect = local.allocate(RECT.size());
+
 		switch (uMsg)
 		{
 			case Win32.WM_CREATE:
@@ -181,37 +188,48 @@ public class Win32Window extends Window {
 				if (!bSetupPixelFormat(window.ghDC))
 		            Win32.PostQuitMessage(0);
 		        window.ghRC = Win32.wglCreateContext(window.ghDC);
+				window.makeContextCurrent();
+
+				MemorySegment attribs = local.allocate(Lib.C_INT32_T.byteSize() * 5);
+				attribs.setAtIndex(ValueLayout.JAVA_INT, 0, 0x821B); // version major
+				attribs.setAtIndex(ValueLayout.JAVA_INT, 1, 4);
+				attribs.setAtIndex(ValueLayout.JAVA_INT, 2, 0x821C); // version minor
+				attribs.setAtIndex(ValueLayout.JAVA_INT, 3, 5);
+				attribs.setAtIndex(ValueLayout.JAVA_INT, 4, 0);
+
+				window.ghRC = ARB.wglCreateContextAttribsARB(window.ghDC, MemoryAddress.NULL, attribs.address());
 //		        Win32.wglMakeCurrent(window.ghDC, window.ghRC);
 //		        Win32.GetClientRect(hWnd, &rect);
 //		        Win32.initializeGL(rect.right, rect.bottom);
 				break;
 
-//			case Win32.WM_PAINT:
-//				BeginPaint(hWnd, &ps);
-//		        EndPaint(hWnd, &ps);
-//				break;
+			case Win32.WM_PAINT:
+				Win32.BeginPaint(hWnd, ps.address());
+		        Win32.EndPaint(hWnd, ps.address());
+				break;
 //
-//			case Win32.WM_SIZE:
-//				GetClientRect(hWnd, &rect);
-//		        resize(rect.right, rect.bottom);
-//				break;
+			case Win32.WM_SIZE:
+				Win32.GetClientRect(hWnd, rect.address());
+		        window.width = (int) RECT.get_right(rect);
+				window.height = (int) RECT.get_bottom(rect);
+				break;
 
 			case Win32.WM_CLOSE:
-	//			if (ghRC)
-	//	            wglDeleteContext(ghRC);
-	//	        if (ghDC)
-	//	            ReleaseDC(hWnd, ghDC);
-	//	        ghRC = 0;
-	//	        ghDC = 0;
-//
+				if (window.ghRC.toRawLongValue() != 0)
+		            Win32.wglDeleteContext(window.ghRC);
+		        if (window.ghDC.toRawLongValue() != 0)
+		            Win32.ReleaseDC(hWnd, window.ghDC);
+//		        ghRC = 0;
+//		        ghDC = 0;
+
 				Win32.DestroyWindow(hWnd);
 				break;
 
 			case Win32.WM_DESTROY:
-//			if (ghRC)
-//	            wglDeleteContext(ghRC);
-//	        if (ghDC)
-//	            ReleaseDC(hWnd, ghDC);
+			if (window.ghRC.toRawLongValue() != 0)
+	            Win32.wglDeleteContext(window.ghRC);
+	        if (window.ghDC.toRawLongValue() != 0)
+	            Win32.ReleaseDC(hWnd, window.ghDC);
 //
 				Win32.PostQuitMessage(0);
 				break;
