@@ -14,6 +14,60 @@ public class Mat4 {
 		this(new Vec4(), new Vec4(), new Vec4(), new Vec4());
 	}
 
+	public Mat4 rotationX(float angle) {
+		float c = (float)Math.cos(angle);
+		float s = (float)Math.sin(angle);
+
+		return new Mat4(
+			new Vec4(1, 0, 0, 0),
+			new Vec4(0, c, s, 0),
+			new Vec4(0, -s, c, 0),
+			new Vec4(0, 0, 0, 1)
+		);
+	}
+
+	public Mat4 rotationY(float angle) {
+		float c = (float)Math.cos(angle);
+		float s = (float)Math.sin(angle);
+
+		return new Mat4(
+			new Vec4(c, 0, -s, 0),
+			new Vec4(0, 1, 0, 0),
+			new Vec4(s, 0, c, 0),
+			new Vec4(0, 0, 0, 1)
+		);
+	}
+
+	public Mat4 rotationZ(float angle) {
+		float c = (float)Math.cos(angle);
+		float s = (float)Math.sin(angle);
+
+		return new Mat4(
+			new Vec4(c, s, 0, 0),
+			new Vec4(-s, c, 0, 0),
+			new Vec4(0, 0, 1, 0),
+			new Vec4(0, 0, 0, 1)
+		);
+	}
+
+	public Mat4 translation(Vec3 v) {
+		return new Mat4(
+			new Vec4(1, 0, 0, 0),
+			new Vec4(0, 1, 0, 0),
+			new Vec4(0, 0, 1, 0),
+			new Vec4(v.x, v.y, v.z, 1)
+		);
+	}
+
+	public Mat4 scale(Vec3 v) {
+		return new Mat4(
+			new Vec4(v.x, 0, 0, 0),
+			new Vec4(0, v.y, 0, 0),
+			new Vec4(0, 0, v.z, 0),
+			new Vec4(0, 0, 0, 1)
+		);
+	}
+
 	public Mat4 transpose() {
 		return new Mat4(
 			new Vec4(this.x.x, this.y.x, this.z.x, this.w.x),
