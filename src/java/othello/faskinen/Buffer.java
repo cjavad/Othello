@@ -55,6 +55,10 @@ public class Buffer {
 		GL.GetBufferSubData(GL.SHADER_STORAGE_BUFFER, 0, this.segment.byteSize(), this.segment.address());
 	}
 
+	public byte[] bytes() {
+		return this.segment.toArray(ValueLayout.JAVA_BYTE);
+	}
+
 	public void writeInt(long offset, int value) {
 		this.segment.set(ValueLayout.JAVA_INT, offset, value);
 	}

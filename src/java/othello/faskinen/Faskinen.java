@@ -6,29 +6,31 @@ public class Faskinen {
 	public Window window;
 	public Shader pieceShader;
 	public Buffer colorBuffer;
+	public int imageWidth = 512;
+	public int imageHeight = 512;
 
 	public Faskinen() {
 		this.window = Window.create("context", 1, 1);
 		this.window.makeContextCurrent();
 
-		this.colorBuffer = new Buffer(1024);
+		this.colorBuffer = new Buffer(this.imageWidth * this.imageHeight * 4);
 		this.pieceShader = new Shader("shaders/piece.glsl");
 	}
 
-	public void dispatch() {
+	public Buffer renderImage() {
 		this.colorBuffer.bind();
 		this.colorBuffer.setData();
 
 		this.pieceShader.use();
 
+		this.pieceShader.setInt("imageWidth", this.imageWidth);
+		this.pieceShader.setInt("imageHeight", this.imageHeight);
 		this.pieceShader.setBuffer("ColorBuffer", this.colorBuffer, 0);
 
-		GL.DispatchCompute(1, 1, 1);
+		GL.DispatchCompute(this.imageWidth / 16, this.imageHeight / 16, 1);
 
 		this.colorBuffer.readData();
 
-		for (int i = 0; i < 32; i++) {
-			System.out.println(this.colorBuffer.readInt(i * 4));
-		}
+		return this.colorBuffer;
 	}
 }

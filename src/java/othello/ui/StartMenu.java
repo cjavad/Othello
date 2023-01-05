@@ -7,10 +7,7 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.Scene;
 import othello.AdvancedReversi;
-import othello.App;
 import othello.BasicReversi;
-import othello.faskinen.Faskinen;
-import othello.faskinen.Window;
 
 // Start Menu UI
 
@@ -56,9 +53,7 @@ public class StartMenu extends SceneProvider {
     }
 
     private void handleFaskineClick(ActionEvent event) {
-        Faskinen faskinen = new Faskinen();	
-
-		faskinen.dispatch();
+        new ImageDebugger(this.getSceneManager()).setActive();
     }
 
     private void handleKey(KeyEvent event) {
