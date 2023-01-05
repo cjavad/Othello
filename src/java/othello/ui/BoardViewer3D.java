@@ -15,25 +15,24 @@ import othello.faskinen.Buffer;
 import othello.faskinen.Faskinen;
 import othello.faskinen.Vec3;
 
-public class ImageDebugger extends SceneProvider {
+public class BoardViewer3D extends SceneProvider {
 	WritableImage image;
 	PixelWriter writer;
 	ImageView imageView;
-	float time;
+
 	Faskinen faskinen;
-	boolean isDragging = false;
+
 	float mouseX, mouseY;
 	HashSet<String> keys = new HashSet<String>();
 
-	public ImageDebugger(SceneManager manager) {
-		super(manager, "ImageDebugger");
+	public BoardViewer3D(SceneManager manager) {
+		super(manager, "BoardViewer3D");
 
 		this.faskinen = new Faskinen();	
 
 		this.image = new WritableImage(this.faskinen.imageWidth, this.faskinen.imageHeight);
 		this.writer = this.image.getPixelWriter();
-
-		this.renderImage();
+		this.imageView = new ImageView(this.image);
 
 		AnimationTimer timer = new AnimationTimer() {
 			@Override
@@ -43,16 +42,12 @@ public class ImageDebugger extends SceneProvider {
 		};
 		timer.start();
 
-
-		this.imageView = new ImageView(this.image);
-
-		// handle mouse moved
-		this.imageView.setOnMouseMoved(this::handleMouseMoved);
-		this.imageView.setOnMouseDragged(this::handleMouseDragged);	
-
 		StackPane root = new StackPane();
 		root.getChildren().add(this.imageView);
 		Scene scene = new Scene(root, manager.getWidth(), manager.getHeight());
+
+		scene.setOnMouseMoved(this::handleMouseMoved);
+		scene.setOnMouseDragged(this::handleMouseDragged);
 
 		scene.setOnKeyPressed(this::handleKeyPressed);
 		scene.setOnKeyReleased(this::handleKeyReleased);

@@ -60,16 +60,16 @@ Material defaultMaterial() {
 	return material;
 }
 
-struct Map {
+struct Sdf {
 	float distance;
 	Material material;
 };
 
-Map emptyMap() {
-	Map map;
-	map.distance = 0.0;
+Sdf emptySdf() {
+	Sdf sdf;
+	sdf.distance = 0.0;
 
-	return map;
+	return sdf;
 }
 
 struct Hit {
@@ -88,7 +88,7 @@ Hit emptyHit() {
 	return hit;
 }
 
-Map sdfUnion(Map a, Map b) {
+Sdf sdfUnion(Sdf a, Sdf b) {
 	if (a.distance < b.distance) {
 		return a;
 	} else {
@@ -96,34 +96,34 @@ Map sdfUnion(Map a, Map b) {
 	}
 } 
 
-Map sdfSphere(vec3 p, float radius, Material material) {
-	Map map;
-	map.distance = length(p) - radius;
-	map.material = material;
+Sdf sdfSphere(vec3 p, float radius, Material material) {
+	Sdf sdf;
+	sdf.distance = length(p) - radius;
+	sdf.material = material;
 
-	return map;
+	return sdf;
 }
 
-Map sdfRoundedCylender(vec3 p, float radius, float height, float roundness, Material material) {
-	Map map;
+Sdf sdfRoundedCylender(vec3 p, float radius, float height, float roundness, Material material) {
+	Sdf sdf;
 
 	vec2 d = vec2(length(p.xz) - 2.0 * radius + roundness, abs(p.y) - height);
-	map.distance = min(max(d.x, d.y), 0.0) + length(max(d, 0.0)) - roundness;
-	map.material = material;
+	sdf.distance = min(max(d.x, d.y), 0.0) + length(max(d, 0.0)) - roundness;
+	sdf.material = material;
 	
-	return map;
+	return sdf;
 }
 
-Map sdfPiece(vec3 p, Material material) {
-	Map map = sdfRoundedCylender(p, 0.5, 0.1, 0.2, material);
-	return map;
+Sdf sdfPiece(vec3 p, Material material) {
+	Sdf sdf = sdfRoundedCylender(p, 0.5, 0.1, 0.2, material);
+	return sdf;
 }
 
-Map map(in vec3 p) {
-	Map d;
+Sdf sdf(in vec3 p) {
+	Sdf d;
 
-	Map sphereA = sdfPiece(p + vec3(0.0, sin(time), 0.0), defaultMaterial());
-	Map sphereB = sdfSphere(p + vec3(2.0, 5.0, -2.0), 4.0, defaultMaterial());
+	Sdf sphereA = sdfPiece(p + vec3(0.0, sin(time), 0.0), defaultMaterial());
+	Sdf sphereB = sdfSphere(p + vec3(2.0, 5.0, -2.0), 4.0, defaultMaterial());
 
 	d = sdfUnion(sphereA, sphereB);
 
@@ -134,23 +134,23 @@ vec3 normal(in vec3 p) {
 	vec3 e = vec3(0.001, 0.0, 0.0);
 
 	return normalize(vec3(
-		map(p + e.xyy).distance - map(p - e.xyy).distance,
-		map(p + e.yxy).distance - map(p - e.yxy).distance,
-		map(p + e.yyx).distance - map(p - e.yyx).distance
+		sdf(p + e.xyy).distance - sdf(p - e.xyy).distance,
+		sdf(p + e.yxy).distance - sdf(p - e.yxy).distance,
+		sdf(p + e.yyx).distance - sdf(p - e.yyx).distance
 	));
 }
 
 Hit intersect(Ray ray) {
 	Hit hit = emptyHit();
 
-	for (int i = 0; i < 256; i++) {
+	for (int i = 0; i < 128; i++) {
 		hit.position = ray.origin + ray.direction * hit.distance;
 
-		Map map = map(hit.position);
-		hit.distance += map.distance;
-		hit.material = map.material;
+		Sdf sdf = sdf(hit.position);
+		hit.distance += sdf.distance;
+		hit.material = sdf.material;
 
-		if (abs(map.distance) < 0.001) {
+		if (abs(sdf.distance) < 0.01) {
 			hit.hit = true;
 			hit.normal = normal(hit.position);
 
@@ -169,12 +169,14 @@ float shadow(in Ray ray, float k) {
     float t = 0.01;
     for(int i = 0; i < 64; i++) {
         vec3 position = ray.origin + ray.direction * t;
-		Map map = map(position);
+		Sdf sdf = sdf(position);
 
-        shadow = min(shadow, k * max(map.distance, 0.0) / t);
-        if(shadow < 0.0001) break;
+        shadow = min(shadow, k * max(sdf.distance, 0.0) / t);
+        if(shadow < 0.01) break;
 
-        t += clamp(map.distance, 0.01, 5.0);
+        t += clamp(sdf.distance, 0.01, 5.0);
+
+		if (t > 100.0) break;
     }
 
     return shadow;
@@ -215,10 +217,6 @@ vec3 aces(vec3 x) {
   return clamp((x * (a * x + b)) / (x * (c * x + d) + e), 0.0, 1.0);
 }
 
-vec3 toneMap(vec3 x) {
-  return aces(x);
-}
-
 vec3 gammeCorrect(vec3 x) {
   return pow(x, vec3(1.0 / 2.2));
 }
@@ -241,6 +239,5 @@ void main() {
 		color = vec3(0.0, 0.0, 0.0);
 	}
 
-	vec3 mappedColor = toneMap(color);
-	writeColor(vec4(gammeCorrect(mappedColor), 1.0));
+	writeColor(vec4(gammeCorrect(aces(color)), 1.0));
 }

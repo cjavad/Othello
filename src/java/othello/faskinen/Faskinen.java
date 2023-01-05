@@ -9,8 +9,8 @@ public class Faskinen {
 	public Shader shader;
 	public Buffer colorBuffer;
 	public Instant startTime;
-	public int imageWidth = 1024;
-	public int imageHeight = 1024;
+	public int imageWidth = 1920;
+	public int imageHeight = 1080;
 	public Camera camera = new Camera();
 
 	public Faskinen() {
