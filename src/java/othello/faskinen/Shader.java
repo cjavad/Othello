@@ -73,6 +73,36 @@ public class Shader {
 		GL.Uniform1f(this.getUniformLocation(name), value);
 	}
 
+	public void setVec3(String name, Vec3 value) {
+		GL.Uniform3f(this.getUniformLocation(name), value.x, value.y, value.z);
+	}
+
+	public void setVec4(String name, Vec4 value) {
+		GL.Uniform4f(this.getUniformLocation(name), value.x, value.y, value.z, value.w);
+	}
+
+	public void setMat4(String name, Mat4 value) {
+		MemorySegment mat = MemorySession.openImplicit().allocate(64);
+		mat.set(ValueLayout.JAVA_FLOAT, 0, value.x.x);
+		mat.set(ValueLayout.JAVA_FLOAT, 4, value.x.y);
+		mat.set(ValueLayout.JAVA_FLOAT, 8, value.x.z);
+		mat.set(ValueLayout.JAVA_FLOAT, 12, value.x.w);
+		mat.set(ValueLayout.JAVA_FLOAT, 16, value.y.x);
+		mat.set(ValueLayout.JAVA_FLOAT, 20, value.y.y);
+		mat.set(ValueLayout.JAVA_FLOAT, 24, value.y.z);
+		mat.set(ValueLayout.JAVA_FLOAT, 28, value.y.w);
+		mat.set(ValueLayout.JAVA_FLOAT, 32, value.z.x);
+		mat.set(ValueLayout.JAVA_FLOAT, 36, value.z.y);
+		mat.set(ValueLayout.JAVA_FLOAT, 40, value.z.z);
+		mat.set(ValueLayout.JAVA_FLOAT, 44, value.z.w);
+		mat.set(ValueLayout.JAVA_FLOAT, 48, value.w.x);
+		mat.set(ValueLayout.JAVA_FLOAT, 52, value.w.y);
+		mat.set(ValueLayout.JAVA_FLOAT, 56, value.w.z);
+		mat.set(ValueLayout.JAVA_FLOAT, 60, value.w.w);
+
+		GL.UniformMatrix4fv(this.getUniformLocation(name), 1, 0, mat.address());
+	}
+
 	public void setBuffer(String name, Buffer buffer, int binding) {
 		int index = GL.GetProgramResourceIndex(this.programId, GL.SHADER_STORAGE_BLOCK, Lib.javaToStr(name).address());
 		GL.ShaderStorageBlockBinding(this.programId, index, binding);

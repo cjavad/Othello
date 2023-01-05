@@ -1,6 +1,6 @@
 #version 450
 
-layout(local_size_x = 32, local_size_y = 32) in;
+layout(local_size_x = 16, local_size_y = 16) in;
 
 buffer ColorBuffer {
 	int colors[];
