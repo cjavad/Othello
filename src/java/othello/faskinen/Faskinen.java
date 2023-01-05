@@ -1,31 +1,42 @@
 package othello.faskinen;
 
+import java.time.Instant;
+
 import othello.faskinen.opengl.GL;
 
 public class Faskinen {
 	public Window window;
-	public Shader pieceShader;
+	public Shader shader;
 	public Buffer colorBuffer;
-	public int imageWidth = 512;
-	public int imageHeight = 512;
+	public Instant startTime;
+	public int imageWidth = 1920;
+	public int imageHeight = 1080;
+	public Camera camera = new Camera();
 
 	public Faskinen() {
 		this.window = Window.create("context", 1, 1);
 		this.window.makeContextCurrent();
 
 		this.colorBuffer = new Buffer(this.imageWidth * this.imageHeight * 4);
-		this.pieceShader = new Shader("shaders/piece.glsl");
+		this.shader = new Shader("shaders/raymarch.glsl");
+
+		this.startTime = Instant.now();
 	}
 
 	public Buffer renderImage() {
 		this.colorBuffer.bind();
 		this.colorBuffer.setData();
 
-		this.pieceShader.use();
+		this.shader.use();
 
-		this.pieceShader.setInt("imageWidth", this.imageWidth);
-		this.pieceShader.setInt("imageHeight", this.imageHeight);
-		this.pieceShader.setBuffer("ColorBuffer", this.colorBuffer, 0);
+		float time = (float) (Instant.now().toEpochMilli() - this.startTime.toEpochMilli()) / 1000.0f;
+		this.shader.setFloat("time", time);
+
+		this.shader.setMat4("viewMatrix", this.camera.viewMatrix());
+
+		this.shader.setInt("imageWidth", this.imageWidth);
+		this.shader.setInt("imageHeight", this.imageHeight);
+		this.shader.setBuffer("ColorBuffer", this.colorBuffer, 0);
 
 		GL.DispatchCompute(this.imageWidth / 16, this.imageHeight / 16, 1);
 

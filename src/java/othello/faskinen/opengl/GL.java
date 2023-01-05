@@ -597,7 +597,6 @@ public class GL {
 		Lib.C_INT32_T,
 		Lib.C_INT32_T,
 		Lib.C_INT32_T,
-		Lib.C_INT32_T,
 		Lib.C_POINTER_T
 	);
 	public static void UniformMatrix4fv(int location, int count, int transpose, MemoryAddress value) {

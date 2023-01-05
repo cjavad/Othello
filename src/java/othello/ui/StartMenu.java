@@ -53,7 +53,7 @@ public class StartMenu extends SceneProvider {
     }
 
     private void handleFaskineClick(ActionEvent event) {
-        new ImageDebugger(this.getSceneManager()).setActive();
+        new BoardViewer3D(this.getSceneManager()).setActive();
     }
 
     private void handleKey(KeyEvent event) {
