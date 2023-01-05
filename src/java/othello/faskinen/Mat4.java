@@ -14,7 +14,7 @@ public class Mat4 {
 		this(new Vec4(), new Vec4(), new Vec4(), new Vec4());
 	}
 
-	public Mat4 rotationX(float angle) {
+	public static Mat4 rotationX(float angle) {
 		float c = (float)Math.cos(angle);
 		float s = (float)Math.sin(angle);
 
@@ -26,7 +26,7 @@ public class Mat4 {
 		);
 	}
 
-	public Mat4 rotationY(float angle) {
+	public static Mat4 rotationY(float angle) {
 		float c = (float)Math.cos(angle);
 		float s = (float)Math.sin(angle);
 
@@ -38,7 +38,7 @@ public class Mat4 {
 		);
 	}
 
-	public Mat4 rotationZ(float angle) {
+	public static Mat4 rotationZ(float angle) {
 		float c = (float)Math.cos(angle);
 		float s = (float)Math.sin(angle);
 
@@ -50,7 +50,7 @@ public class Mat4 {
 		);
 	}
 
-	public Mat4 translation(Vec3 v) {
+	public static Mat4 translation(Vec3 v) {
 		return new Mat4(
 			new Vec4(1, 0, 0, 0),
 			new Vec4(0, 1, 0, 0),
@@ -59,7 +59,7 @@ public class Mat4 {
 		);
 	}
 
-	public Mat4 scale(Vec3 v) {
+	public static Mat4 scale(Vec3 v) {
 		return new Mat4(
 			new Vec4(v.x, 0, 0, 0),
 			new Vec4(0, v.y, 0, 0),

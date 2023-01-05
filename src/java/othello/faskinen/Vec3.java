@@ -29,8 +29,16 @@ public class Vec3 {
 		return new Vec3(this.x * v.x, this.y * v.y, this.z * v.z);
 	}
 
+	public Vec3 mul(float s) {
+		return new Vec3(this.x * s, this.y * s, this.z * s);
+	}
+
 	public Vec3 div(Vec3 v) {
 		return new Vec3(this.x / v.x, this.y / v.y, this.z / v.z);
+	}
+
+	public Vec3 div(float s) {
+		return new Vec3(this.x / s, this.y / s, this.z / s);
 	}
 
 	public float dot(Vec3 v) {

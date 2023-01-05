@@ -228,8 +228,8 @@ void main() {
 	vec2 uv = vec2(gl_GlobalInvocationID.xy) / vec2(imageWidth, imageHeight) - 0.5;
 	uv *= vec2(aspect * 2.0, -2.0);
 
-	Ray ray = newRay(vec3(0.0, 0.0, -2.0), vec3(uv, 1.0));
-	//ray = transformRay(viewMatrix, ray);
+	Ray ray = newRay(vec3(0.0, 0.0, 0.0), normalize(vec3(uv, 1.5)));
+	ray = transformRay(viewMatrix, ray);
 
 	Hit hit = intersect(ray);
 

@@ -11,6 +11,7 @@ public class Faskinen {
 	public Instant startTime;
 	public int imageWidth = 1024;
 	public int imageHeight = 1024;
+	public Camera camera = new Camera();
 
 	public Faskinen() {
 		this.window = Window.create("context", 1, 1);
@@ -30,6 +31,8 @@ public class Faskinen {
 
 		float time = (float) (Instant.now().toEpochMilli() - this.startTime.toEpochMilli()) / 1000.0f;
 		this.shader.setFloat("time", time);
+
+		this.shader.setMat4("viewMatrix", this.camera.viewMatrix());
 
 		this.shader.setInt("imageWidth", this.imageWidth);
 		this.shader.setInt("imageHeight", this.imageHeight);
