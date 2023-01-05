@@ -14,8 +14,9 @@ public class X11Window extends Window {
 	long window;
 	int screen;
 
-	public X11Window() {
+	public X11Window(String title, int width, int height) {
 		this.display = X11.XOpenDisplay(Lib.NULLPTR);
+
 		this.screen = X11.XDefaultScreen(this.display);
 		this.rootWindow = X11.XRootWindow(this.display, this.screen);
 		this.window = X11.XCreateSimpleWindow(
@@ -23,28 +24,43 @@ public class X11Window extends Window {
 			this.rootWindow,
 			0,   // x
 			0,   // y
-			640, // width
-			480, // height
+			width, // width
+			height, // height
 			0,   // border width
 			0,   // border
 			0    // background
-		);
+		);	
 
-		MemoryAddress windowName = Lib.javaToStr("Othello").address();
+		MemoryAddress windowName = Lib.javaToStr(title).address();
 		X11.XStoreName(this.display, this.window, windowName);
 
-		MemorySegment settings = MemorySession.global().allocate(32);
+		MemorySegment settings = MemorySession.openImplicit().allocate(20);
 		settings.set(ValueLayout.JAVA_INT, 0, X11.GLX_RGBA);
 		settings.set(ValueLayout.JAVA_INT, 4, X11.GLX_DEPTH_SIZE);
 		settings.set(ValueLayout.JAVA_INT, 8, 24);
 		settings.set(ValueLayout.JAVA_INT, 12, X11.GLX_DOUBLEBUFFER);
 		settings.set(ValueLayout.JAVA_INT, 16, X11.None);
 
-		MemoryAddress visual = X11.glXChooseVisual(this.display, this.screen, settings.address());
+		MemoryAddress visualInfo = X11.glXChooseVisual(
+			this.display,
+			this.screen,
+			settings.address()
+		);
 
-		this.context = X11.glXCreateContext(this.display, visual, Lib.NULLPTR, 1);
+		if (visualInfo == Lib.NULLPTR) {
+			throw new RuntimeException("Failed to create visual info");
+		}
 
-		X11.XFree(settings.address());
+		this.context = X11.glXCreateContext(
+			this.display,
+			visualInfo,
+			Lib.NULLPTR,
+			X11.True
+		);
+
+		if (this.context == Lib.NULLPTR) {
+			throw new RuntimeException("Failed to create OpenGL context");
+		}
 	}
 
 	public void show() {
@@ -56,7 +72,7 @@ public class X11Window extends Window {
 	}
 
 	public void pollEvents() {
-		MemorySegment event = MemorySession.global().allocate(192);
+		MemorySegment event = MemorySession.openImplicit().allocate(192);
 		X11.XNextEvent(this.display, event.address());
 	}
 
@@ -65,7 +81,9 @@ public class X11Window extends Window {
 	}
 
 	public void makeContextCurrent() {
-		X11.glXMakeCurrent(this.display, this.window, this.context);
+		if (X11.glXMakeCurrent(this.display, this.window, this.context) == 0) {
+			throw new RuntimeException("Failed to make context current");	
+		}
 	}
 
 	public void destroy() {

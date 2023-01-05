@@ -1,12 +1,12 @@
 package othello.faskinen;
 
 public abstract class Window {
-	public static Window create(String name, int width, int height) {
+	public static Window create(String title, int width, int height) {
 		switch (Platform.get()) {
 		case Windows:
-			return new Win32Window("", width, height);
+			return new Win32Window(title, width, height);
 		case Linux:
-			return new X11Window();
+			return new X11Window(title, width, height);
 		default:
 			throw new RuntimeException("Unsupported platform: " + Platform.get());
 		}

@@ -1,0 +1,158 @@
+package othello.faskinen;
+
+public class Mat4 {
+	public Vec4 x, y, z, w;
+
+	public Mat4(Vec4 x, Vec4 y, Vec4 z, Vec4 w) {
+		this.x = x;
+		this.y = y;
+		this.z = z;
+		this.w = w;
+	}
+
+	public Mat4() {
+		this(new Vec4(), new Vec4(), new Vec4(), new Vec4());
+	}
+
+	public Mat4 transpose() {
+		return new Mat4(
+			new Vec4(this.x.x, this.y.x, this.z.x, this.w.x),
+			new Vec4(this.x.y, this.y.y, this.z.y, this.w.y),
+			new Vec4(this.x.z, this.y.z, this.z.z, this.w.z),
+			new Vec4(this.x.w, this.y.w, this.z.w, this.w.w)
+		);
+	}
+
+	public Mat4 add(Mat4 m) {
+		return new Mat4(
+			this.x.add(m.x),
+			this.y.add(m.y),
+			this.z.add(m.z),
+			this.w.add(m.w)
+		);
+	}
+
+	public Mat4 sub(Mat4 m) {
+		return new Mat4(
+			this.x.sub(m.x),
+			this.y.sub(m.y),
+			this.z.sub(m.z),
+			this.w.sub(m.w)
+		);
+	}
+
+	public Mat4 mul(Mat4 m) {
+		Mat4 t = m.transpose();
+
+		return new Mat4(
+			new Vec4(this.x.dot(t.x), this.x.dot(t.y), this.x.dot(t.z), this.x.dot(t.w)),
+			new Vec4(this.y.dot(t.x), this.y.dot(t.y), this.y.dot(t.z), this.y.dot(t.w)),
+			new Vec4(this.z.dot(t.x), this.z.dot(t.y), this.z.dot(t.z), this.z.dot(t.w)),
+			new Vec4(this.w.dot(t.x), this.w.dot(t.y), this.w.dot(t.z), this.w.dot(t.w))
+		);
+	}
+
+	public Vec4 mul(Vec4 v) {
+		return new Vec4(
+			this.x.dot(v),
+			this.y.dot(v),
+			this.z.dot(v),
+			this.w.dot(v)
+		);
+	}	
+
+	public float determinant() {
+		return
+			this.x.x * this.y.y * this.z.z * this.w.w +
+			this.x.x * this.y.z * this.z.w * this.w.y +
+			this.x.x * this.y.w * this.z.y * this.w.z +
+			this.x.y * this.y.x * this.z.w * this.w.z +
+			this.x.y * this.y.z * this.z.x * this.w.w +
+			this.x.y * this.y.w * this.z.z * this.w.x +
+			this.x.z * this.y.x * this.z.y * this.w.w +
+			this.x.z * this.y.y * this.z.w * this.w.x +
+			this.x.z * this.y.w * this.z.x * this.w.y +
+			this.x.w * this.y.x * this.z.z * this.w.y +
+			this.x.w * this.y.y * this.z.x * this.w.z +
+			this.x.w * this.y.z * this.z.y * this.w.x -
+			this.x.x * this.y.y * this.z.w * this.w.z -
+			this.x.x * this.y.z * this.z.y * this.w.w -
+			this.x.x * this.y.w * this.z.z * this.w.y -
+			this.x.y * this.y.x * this.z.z * this.w.w -
+			this.x.y * this.y.z * this.z.w * this.w.x -
+			this.x.y * this.y.w * this.z.x * this.w.z -
+			this.x.z * this.y.x * this.z.w * this.w.y -
+			this.x.z * this.y.y * this.z.x * this.w.w -
+			this.x.z * this.y.w * this.z.y * this.w.x -
+			this.x.w * this.y.x * this.z.y * this.w.z -
+			this.x.w * this.y.y * this.z.z * this.w.x -
+			this.x.w * this.y.z * this.z.x * this.w.y;
+	}
+
+	public Mat4 inverse() {
+		float det = this.determinant();
+
+		if (det == 0) {
+			return this;
+		}	
+
+		return new Mat4(
+			new Vec4(
+				(this.y.y * this.z.z * this.w.w + this.y.z * this.z.w * this.w.y + 
+				 this.y.w * this.z.y * this.w.z - this.y.y * this.z.w * this.w.z - 
+				 this.y.z * this.z.y * this.w.w - this.y.w * this.z.z * this.w.y) / det,
+				(this.x.y * this.z.w * this.w.z + this.x.z * this.z.y * this.w.w + 
+				 this.x.w * this.z.z * this.w.y - this.x.y * this.z.z * this.w.w - 
+				 this.x.z * this.z.w * this.w.y - this.x.w * this.z.y * this.w.z) / det,
+				(this.x.y * this.y.z * this.w.w + this.x.z * this.y.w * this.w.y + 
+				 this.x.w * this.y.y * this.w.z - this.x.y * this.y.w * this.w.z - 
+				 this.x.z * this.y.y * this.w.w - this.x.w * this.y.z * this.w.y) / det,
+				(this.x.y * this.y.w * this.z.z + this.x.z * this.y.y * this.z.w + 
+				 this.x.w * this.y.z * this.z.y - this.x.y * this.y.z * this.z.w - 
+				 this.x.z * this.y.w * this.z.y - this.x.w * this.y.y * this.z.z) / det
+			),
+			new Vec4(
+				(this.y.x * this.z.w * this.w.z + this.y.z * this.z.x * this.w.w + 
+				 this.y.w * this.z.z * this.w.x - this.y.x * this.z.z * this.w.w - 
+				 this.y.z * this.z.w * this.w.x - this.y.w * this.z.x * this.w.z) / det,
+				(this.x.x * this.z.z * this.w.w + this.x.z * this.z.w * this.w.x + 
+				 this.x.w * this.z.x * this.w.z - this.x.x * this.z.w * this.w.z - 
+				 this.x.z * this.z.x * this.w.w - this.x.w * this.z.z * this.w.x) / det,
+				(this.x.x * this.y.w * this.w.z + this.x.z * this.y.x * this.w.w + 
+				 this.x.w * this.y.z * this.w.x - this.x.x * this.y.z * this.w.w - 
+				 this.x.z * this.y.w * this.w.x - this.x.w * this.y.x * this.w.z) / det,
+				(this.x.x * this.y.z * this.z.w + this.x.z * this.y.w * this.z.x + 
+				 this.x.w * this.y.x * this.z.z - this.x.x * this.y.w * this.z.z - 
+				 this.x.z * this.y.x * this.z.w - this.x.w * this.y.z * this.z.x) / det
+			),
+			new Vec4(
+				(this.y.x * this.z.y * this.w.w + this.y.y * this.z.w * this.w.x + 
+				 this.y.w * this.z.x * this.w.y - this.y.x * this.z.w * this.w.y - 
+				 this.y.y * this.z.x * this.w.w - this.y.w * this.z.y * this.w.x) / det,
+				(this.x.x * this.z.w * this.w.y + this.x.y * this.z.x * this.w.w + 
+				 this.x.w * this.z.y * this.w.x - this.x.x * this.z.y * this.w.w - 
+				 this.x.y * this.z.w * this.w.x - this.x.w * this.z.x * this.w.y) / det,
+				(this.x.x * this.y.y * this.w.w + this.x.y * this.y.w * this.w.x + 
+				 this.x.w * this.y.x * this.w.y - this.x.x * this.y.w * this.w.y - 
+				 this.x.y * this.y.x * this.w.w - this.x.w * this.y.y * this.w.x) / det,
+				(this.x.x * this.y.w * this.z.y + this.x.y * this.y.x * this.z.w + 
+				 this.x.w * this.y.y * this.z.x - this.x.x * this.y.y * this.z.w - 
+				 this.x.y * this.y.w * this.z.x - this.x.w * this.y.x * this.z.y) / det
+			),
+			new Vec4(
+				(this.y.x * this.z.z * this.w.y + this.y.y * this.z.x * this.w.z + 
+				 this.y.z * this.z.y * this.w.x - this.y.x * this.z.y * this.w.z - 
+				 this.y.y * this.z.z * this.w.x - this.y.z * this.z.x * this.w.y) / det,
+				(this.x.x * this.z.y * this.w.z + this.x.y * this.z.z * this.w.x + 
+				 this.x.z * this.z.x * this.w.y - this.x.x * this.z.z * this.w.y - 
+				 this.x.y * this.z.x * this.w.z - this.x.z * this.z.y * this.w.x) / det,
+				(this.x.x * this.y.z * this.w.y + this.x.y * this.y.x * this.w.z + 
+				 this.x.z * this.y.y * this.w.x - this.x.x * this.y.y * this.w.z - 
+				 this.x.y * this.y.z * this.w.x - this.x.z * this.y.x * this.w.y) / det,
+				(this.x.x * this.y.y * this.z.z + this.x.y * this.y.z * this.z.x + 
+				 this.x.z * this.y.x * this.z.y - this.x.x * this.y.z * this.z.y - 
+				 this.x.y * this.y.x * this.z.z - this.x.z * this.y.y * this.z.x) / det
+			)
+		);
+	}
+}

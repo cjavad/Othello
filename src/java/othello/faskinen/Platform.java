@@ -31,4 +31,16 @@ public enum Platform {
 			throw new RuntimeException("Unknown platform: " + osName);
 		}
 	}
+
+	public static boolean isWindows() {
+		return Platform.get() == Platform.Windows;
+	}
+
+	public static boolean isLinux() {
+		return Platform.get() == Platform.Linux;
+	}
+
+	public static boolean isMac() {
+		return Platform.get() == Platform.Mac;
+	}
 }
