@@ -19,7 +19,6 @@ import java.lang.invoke.VarHandle;
 import java.nio.CharBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.Optional;
-import java.util.function.Function;
 
 public class Lib {
 

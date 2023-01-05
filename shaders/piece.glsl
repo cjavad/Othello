@@ -2,6 +2,7 @@
 
 #include "sdf.glsl"
 
+uniform float time;
 uniform vec3 color;
 uniform vec3 position;
 

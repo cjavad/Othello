@@ -2,7 +2,6 @@
 #include "image.glsl"
 
 uniform mat4 viewProj;
-uniform float time;
 
 Ray getRay() {
 	vec2 uv = getUV();

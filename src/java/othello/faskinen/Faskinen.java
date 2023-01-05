@@ -7,6 +7,7 @@ import othello.faskinen.opengl.GL;
 public class Faskinen {
 	public Window window;
 	public Shader pieceShader;
+	public Shader skyShader;
 
 	public Buffer colorBuffer;
 	public Buffer depthBuffer;
@@ -28,6 +29,7 @@ public class Faskinen {
 		this.depthBuffer.upload();
 
 		this.pieceShader = new Shader("shaders/piece.glsl");
+		this.skyShader = new Shader("shaders/sky.glsl");
 
 		this.startTime = Instant.now();
 	}
@@ -46,11 +48,10 @@ public class Faskinen {
 		Mat4 viewProj = this.camera.viewProj(aspect);
 		this.pieceShader.setMat4("viewProj", viewProj);
 
-		this.pieceShader.setInt("imageWidth", this.imageWidth);
-		this.pieceShader.setInt("imageHeight", this.imageHeight);	
-
 		BoundingRect imageRect = new BoundingRect(0, 0, this.imageWidth, this.imageHeight);
 
+		this.pieceShader.setInt("imageWidth", this.imageWidth);
+		this.pieceShader.setInt("imageHeight", this.imageHeight);	
 		this.pieceShader.setBuffer("ColorBuffer", this.colorBuffer, 0);
 		this.pieceShader.setBuffer("DepthBuffer", this.depthBuffer, 1);	
 
@@ -72,6 +73,22 @@ public class Faskinen {
 			GL.DispatchCompute(pieceRect.width / 16 + 1, pieceRect.height / 16 + 1, 1);
 			GL.Finish();
 		}
+
+		this.skyShader.use();
+
+		this.skyShader.setMat4("viewProj", viewProj);
+
+		this.skyShader.setInt("imageWidth", this.imageWidth);
+		this.skyShader.setInt("imageHeight", this.imageHeight);
+		this.skyShader.setBuffer("ColorBuffer", this.colorBuffer, 0);
+		this.skyShader.setBuffer("DepthBuffer", this.depthBuffer, 1);
+
+		this.skyShader.setInt("offsetX", 0);
+		this.skyShader.setInt("offsetY", 0);
+		this.skyShader.setInt("width", this.imageWidth);
+		this.skyShader.setInt("height", this.imageHeight);
+
+		GL.DispatchCompute(this.imageWidth / 16 + 1, this.imageHeight / 16 + 1, 1);
 
 		this.colorBuffer.download();
 

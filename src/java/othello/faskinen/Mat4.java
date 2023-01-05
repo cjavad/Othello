@@ -111,7 +111,7 @@ public class Mat4 {
 			this.z.sub(m.z),
 			this.w.sub(m.w)
 		);
-	}	
+	}		
 
 	public Vec4 mul(Vec4 v) {
 		return new Vec4(
@@ -121,6 +121,10 @@ public class Mat4 {
 			this.x.w * v.x + this.y.w * v.y + this.z.w * v.z + this.w.w * v.w
 		);
 	}	
+
+	public Vec3 mul(Vec3 v) {
+		return this.mul(v.extend(1.0f)).truncate();
+	}
 
 	public Mat4 mul(Mat4 m) {
 		return new Mat4(

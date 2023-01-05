@@ -12,6 +12,6 @@ public class PieceModel {
 	}
 
 	public BoundingRect getBoundingRect(Mat4 viewProj, int width, int height) {
-		return BoundingRect.sphere(viewProj, this.position, 0.4f, width, height);
+		return BoundingRect.cube(viewProj, this.position, new Vec3(0.5f, 0.4f, 0.5f), width, height);
 	}
 }
