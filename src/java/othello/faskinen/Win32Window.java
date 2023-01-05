@@ -8,9 +8,6 @@ import othello.faskinen.win32.ARB;
 import othello.faskinen.win32.Win32;
 import othello.faskinen.win32.structs.*;
 
-import javax.management.ValueExp;
-import javax.swing.text.Segment;
-
 public class Win32Window extends Window {
 
 	private static final HashMap<MemoryAddress, Win32Window> windows = new HashMap<MemoryAddress, Win32Window>();
