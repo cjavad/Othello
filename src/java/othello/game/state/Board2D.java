@@ -14,6 +14,8 @@ public class Board2D implements othello.game.state.interfaces.Board2D {
     private Player[] players;
     private ArrayList<Move> moves;
 
+    private ArrayList<Space> spaces;
+
     public Board2D(Player[] players, boolean manuel) {
         this(players.length*4, players.length*4, players, manuel);
     }
@@ -42,6 +44,15 @@ public class Board2D implements othello.game.state.interfaces.Board2D {
         this.currentPlayerId = 0;
         this.moves = new ArrayList<Move>();
         this.manual = manuel;
+
+        // Generate list of valid spaces initially once.
+        this.spaces = new ArrayList<>();
+
+        for (int row = 0; row < this.rows; row++) {
+            for (int column = 0; column < this.columns; column++) {
+                this.spaces.add(new Space(row, column));
+            }
+        }
     }
 
     public int getRows() {
@@ -52,46 +63,48 @@ public class Board2D implements othello.game.state.interfaces.Board2D {
         return this.columns;
     }
 
-    public int getCell(int row, int column) {
-        return this.board[row * this.columns + column];
+    public Iterable<Space> getSpaces() {
+        return this.spaces;
     }
 
-    public void setCell(int row, int column, int playerId) {
-        this.board[row * this.columns + column] = playerId;
+    public int getCell(Space space) {
+        return this.board[space.row * this.columns + space.column];
     }
 
-    public int[] findNeighbor(int row, int columns, int direction, int steps) {
-        // Format: [ [row, column], ... ]
-        int[] neighbor = new int[2];
+    public void setCell(Space space, int playerId) {
+        this.board[space.row * this.columns + space.column] = playerId;
+    }
+
+    public Space findNeighbor(Space currentSpace, int direction, int steps) {
         // Directions are Top (0), TopRight (1), Right (2), BottomRight (3), Bottom (4), BottomLeft (5), Left (6), TopLeft (7)
         // Use direction to find stepX and stepY
         // Optimize and minify above switch statement to a ternary operator
-        neighbor[0] = row + steps * ((direction == 0 || direction == 1 || direction == 2) ? 1 : (direction == 4 || direction == 5 || direction == 6) ? -1 : 0);
-        neighbor[1] = columns + steps * ((direction == 2 || direction == 3 || direction == 4) ? 1 : (direction == 6 || direction == 7 || direction == 0) ? -1 : 0);
-        return neighbor[0] < 0 || neighbor[0] >= this.rows || neighbor[1] < 0 || neighbor[1] >= this.columns ? null : neighbor;
+        int stepsX = steps * ((direction == 0 || direction == 1 || direction == 2) ? 1 : (direction == 4 || direction == 5 || direction == 6) ? -1 : 0);
+        int stepsY = steps * ((direction == 2 || direction == 3 || direction == 4) ? 1 : (direction == 6 || direction == 7 || direction == 0) ? -1 : 0);
+        return currentSpace.getNeighbor(stepsX, stepsY, this.rows, this.columns);
     }
 
-    public int[][] getAllNeighbors(int row, int column) {
-        // Format: [ [row, column], ... ]
-        int[][] neighbors = new int[8][2];
-        for (int direction = 0; direction < 8; direction++)
-            neighbors[direction] = findNeighbor(row, column, direction, 1);
+
+    public Space[] getAllNeighbors(Space space) {
+        Space[] neighbors = new Space[8];
+        for (int direction = 0; direction < neighbors.length; direction++)
+            neighbors[direction] = findNeighbor(space, direction, 1);
         return neighbors;
     }
 
-    public int isValidMove(int row, int column, int playerId) {
+    public int isValidMove(Space space, int playerId) {
         // Determine if move can be played by player
-        int playerOccupied = this.getCell(row, column);
+        int playerOccupied = this.getCell(space);
         if (playerOccupied == playerId) return 1;
         // If last move was made in this round and the target cell is empty it is not a valid move
         if (this.getLatestMove() != null && this.getLatestMove().getRound() == this.round && playerOccupied == -1) return 1;
 
-        int[][] neighbors = this.getAllNeighbors(row, column);
+        Space[] neighbors = this.getAllNeighbors(space);
         boolean[] validDirections = new boolean[8];
 
         for (int direction = 0; direction < 8; direction++) {
             if (neighbors[direction] == null) continue;
-            int neighbor = this.getCell(neighbors[direction][0], neighbors[direction][1]);
+            int neighbor = this.getCell(neighbors[direction]);
             if (neighbor == -1) continue;
             if (neighbor == playerId) {
                 validDirections[direction] = true;
@@ -100,12 +113,12 @@ public class Board2D implements othello.game.state.interfaces.Board2D {
 
             // Otherwise loop for own piece in direction (to ensure that there is a line between the two pieces)
             int steps = 1;
-            int[] nextNeighbor;
+            Space nextNeighbor;
             int nextNeighborId;
 
             do {
-                nextNeighbor = findNeighbor(neighbors[direction][0], neighbors[direction][1], direction, steps);
-                nextNeighborId = nextNeighbor == null ? -1 : this.getCell(nextNeighbor[0], nextNeighbor[1]);
+                nextNeighbor = findNeighbor(neighbors[direction], direction, steps);
+                nextNeighborId = nextNeighbor == null ? -1 : this.getCell(nextNeighbor);
                 // If we find our own piece we can flip or place the piece
                 if (nextNeighborId == playerId) return 0;
                 steps++;
@@ -121,31 +134,29 @@ public class Board2D implements othello.game.state.interfaces.Board2D {
         return 1;
     }
 
-    public Iterable<int[]> getValidMoves(int playerId) {
+    public Iterable<Space> getValidMoves(int playerId) {
         // Loop over entire board and determine valid moves
-        ArrayList<int[]> validMoves = new ArrayList<int[]>();
+        ArrayList<Space> validMoves = new ArrayList<>();
 
-        for (int row = 0; row < this.rows; row++) {
-            for (int column = 0; column < this.columns; column++) {
-                if (this.isValidMove(row, column, playerId) == 0) {
-                    validMoves.add(new int[]{row, column});
-                }
+        for (Space space : this.getSpaces()) {
+            if (this.isValidMove(space, playerId) == 0) {
+                validMoves.add(space);
             }
         }
 
         return validMoves;
     }
 
-    public Move move(int row, int column) {
-        if (this.isValidMove(row, column, this.currentPlayerId) > 0) return null;
-        int prevValue = this.getCell(row, column);
+    public Move move(Space space) {
+        if (this.isValidMove(space, this.currentPlayerId) > 0) return null;
+        int prevValue = this.getCell(space);
 
         ArrayList<Change> changes = new ArrayList<>();
 
         if (this.manual) {
             // Don't propagate changes if manual
-            changes.add(new Change(row, column, prevValue));
-            this.setCell(row, column, this.currentPlayerId);
+            changes.add(new Change(space, prevValue));
+            this.setCell(space, this.currentPlayerId);
         } else {
             // Automatically propagate changes
             // TODO
@@ -219,11 +230,11 @@ public class Board2D implements othello.game.state.interfaces.Board2D {
     public int getScore(int playerId) {
         // Count amount of playerId in board
         int score = 0;
-        for (int row = 0; row < this.rows; row++) {
-            for (int column = 0; column < this.columns; column++) {
-                if (this.getCell(row, column) == playerId) score++;
-            }
+
+        for (Space space : this.getSpaces()) {
+            if (this.getCell(space) == playerId) score++;
         }
+
         return score;
     }
 }

@@ -1,5 +1,7 @@
 package othello.game.state.interfaces;
 
+import othello.game.state.Space;
+
 /**
  * @author
  *
@@ -14,24 +16,22 @@ public interface Board2D {
     public int getRows();
     public int getColumns();
 
-    public static void createCopyOfBoard(Board2D board) {
-
-    }
+    public Iterable<Space> getSpaces();
 
     /**
      * These functions always refer to current player id
      * @return Player ID that occupies the cell, or -1 if empty
      */
-    public int getCell(int row, int column);
-    public void setCell(int row, int column, int playerId);
+    public int getCell(Space space);
+    public void setCell(Space space, int playerId);
 
     /**
      *
      * @return Returns 0 is playable, 1 if something is wrong.
      */
-    public int isValidMove(int row, int column, int playerId);
+    public int isValidMove(Space space, int playerId);
     // Return list of all valid moves
-    public Iterable<int[]> getValidMoves(int playerId);
+    public Iterable<Space> getValidMoves(int playerId);
 
     /**
      * Handles moves
@@ -39,7 +39,7 @@ public interface Board2D {
      * Returns the move made, and the changes made to the board.
      */
 
-    public Move move(int row, int column);
+    public Move move(Space space);
 
     /**
      * Player

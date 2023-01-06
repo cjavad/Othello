@@ -11,10 +11,10 @@ import javafx.scene.paint.Paint;
 import javafx.scene.shape.Ellipse;
 import javafx.scene.text.Text;
 import othello.game.state.Board2D;
+import othello.game.state.Space;
 import othello.ui.SceneManager;
 import othello.ui.SceneProvider;
 
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class BoardScene extends SceneProvider {
@@ -66,54 +66,46 @@ public class BoardScene extends SceneProvider {
     public GridPane createGrid() {
         GridPane boardGrid = new GridPane();
 
-        for (int row = 0; row < this.board.getRows(); row++) {
-            for (int column = 0; column < this.board.getColumns(); column++) {
-                Pane cell = new Pane();
-                this.updateCell(cell, row, column);
-
-                // Calculate cell size based on width of screen
-                // Only based on width (square)
-                int cellSize = (this.getSceneManager().getWidth() * 2/3) / this.board.getColumns();
-                cell.setPrefSize(cellSize, cellSize);
-
-                int finalRow = row, finalColumn = column;
-                cell.setOnMouseClicked(event -> { this.handleCellClick(finalRow, finalColumn); });
-
-                // Add (row, column) text to cell
-                Text cellText = new Text("(" + row + ", " + column + ")");
-                // Give text white outline
-                cellText.setStyle("-fx-stroke: white; -fx-stroke-width: 0.3;");
-                StackPane cellStack = new StackPane();
-                cellStack.setAlignment(Pos.CENTER);
-                cellStack.getChildren().addAll(cellText);
-                cell.getChildren().add(cellStack);
-                boardGrid.add(cell, row, column);
-                // Don't ask me why, but this is necessary to make the grid work
-                if (column == 0) boardGrid.setHgap(-1);
-            }
+        for (Space space : this.board.getSpaces()) {
+            Pane cell = new Pane();
+            this.updateCell(cell, space);
+            // Calculate cell size based on width of screen
+            // Only based on width (square)
+            int cellSize = (this.getSceneManager().getWidth() * 2/3) / this.board.getColumns();
+            cell.setPrefSize(cellSize, cellSize);
+            cell.setOnMouseClicked(event -> { this.handleCellClick(space); });
+            // Add (row, column) text to cell
+            Text cellText = new Text("(" + space.row + ", " + space.column + ")");
+            // Give text white outline
+            cellText.setStyle("-fx-stroke: white; -fx-stroke-width: 0.3;");
+            StackPane cellStack = new StackPane();
+            cellStack.setAlignment(Pos.CENTER);
+            cellStack.getChildren().addAll(cellText);
+            cell.getChildren().add(cellStack);
+            boardGrid.add(cell, space.row, space.column);
+            // Don't ask me why, but this is necessary to make the grid work
+            if (space.column == 0) boardGrid.setHgap(-1);
         }
 
         return boardGrid;
     }
 
     public void updateGrid() {
-        for (int row = 0; row < this.board.getRows(); row++) {
-            for (int column = 0; column < this.board.getColumns(); column++) {
-                Pane cell = this.getCell(row, column);
-                this.updateCell(cell, row, column);
-            }
+        for (Space space : this.board.getSpaces()) {
+            Pane cell = (Pane) this.grid.getChildren().get(space.row * this.board.getColumns() + space.column);
+            this.updateCell(cell, space);
         }
     }
 
-    public Pane getCell(int row, int column) {
-        return (Pane) this.grid.getChildren().get(row * this.board.getColumns() + column);
+    public Pane getCell(Space space) {
+        return (Pane) this.grid.getChildren().get(space.row * this.board.getColumns() + space.column);
     }
 
-    public void updateCell(Pane cell, int row, int column) {
-        int cellOccupant = this.board.getCell(row, column);
+    public void updateCell(Pane cell, Space space) {
+        int cellOccupant = this.board.getCell(space);
         AtomicReference<Ellipse> pieceRef = new AtomicReference<>();
 
-        String borderColor = this.board.isValidMove(row, column, this.board.getCurrentPlayerId()) == 0 ? "black" : "green";
+        String borderColor = this.board.isValidMove(space, this.board.getCurrentPlayerId()) == 0 ? "black" : "green";
         String cellStyle = "-fx-border-width: 1; -fx-border-color: "+ borderColor + "; -fx-background-color: darkgreen;";
         cell.setStyle(cellStyle);
         cell.getChildren().forEach(child -> {
@@ -134,7 +126,7 @@ public class BoardScene extends SceneProvider {
             piece.setStroke(javafx.scene.paint.Color.BLACK);
             piece.setStrokeWidth(1);
 
-            // Center piece
+            // Center the piece
             piece.centerXProperty().bind(cell.widthProperty().divide(2));
             piece.centerYProperty().bind(cell.heightProperty().divide(2));
             // Make piece fit in cell
@@ -151,8 +143,8 @@ public class BoardScene extends SceneProvider {
         }
     }
 
-    public void handleCellClick(int row, int column) {
-        this.board.move(row, column);
+    public void handleCellClick(Space space) {
+        this.board.move(space);
         this.updateGrid();
     }
 }
