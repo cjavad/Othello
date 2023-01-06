@@ -14,8 +14,8 @@ public class Board2D implements othello.game.state.interfaces.Board2D {
     private Player[] players;
     private ArrayList<Move> moves;
 
-    public Board2D(Player[] players, boolean manuel, int PlayerCount) {
-        this(PlayerCount*4, PlayerCount*4, players, manuel);
+    public Board2D(Player[] players, boolean manuel) {
+        this(players.length*4, players.length*4, players, manuel);
     }
 
     public Board2D(int rows, int columns, Player[] players, boolean manuel) {
