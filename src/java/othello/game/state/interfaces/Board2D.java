@@ -25,6 +25,9 @@ public interface Board2D {
     public int getCell(Space space);
     public void setCell(Space space, int playerId);
 
+    public Space getRelativeSpace(Space currentSpace, int direction, int steps);
+    public Space[] getAllNeighbors(Space space);
+
     /**
      *
      * @return Returns 0 is playable, 1 if something is wrong.
@@ -45,9 +48,12 @@ public interface Board2D {
      * Player
      */
 
+    public int[] getStartingPositions(int playerId);
+    public void nextPlayer();
     public int getPlayerCount();
     public int getCurrentPlayerId();
     public Player getCurrentPlayer();
+    public Player getPlayer(int playerId);
 
     /**
      * Board state

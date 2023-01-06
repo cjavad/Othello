@@ -75,20 +75,20 @@ public class Board2D implements othello.game.state.interfaces.Board2D {
         this.board[space.row * this.columns + space.column] = playerId;
     }
 
-    public Space findNeighbor(Space currentSpace, int direction, int steps) {
+    public Space getRelativeSpace(Space currentSpace, int direction, int steps) {
         // Directions are Top (0), TopRight (1), Right (2), BottomRight (3), Bottom (4), BottomLeft (5), Left (6), TopLeft (7)
         // Use direction to find stepX and stepY
         // Optimize and minify above switch statement to a ternary operator
         int stepsX = steps * ((direction == 0 || direction == 1 || direction == 2) ? 1 : (direction == 4 || direction == 5 || direction == 6) ? -1 : 0);
         int stepsY = steps * ((direction == 2 || direction == 3 || direction == 4) ? 1 : (direction == 6 || direction == 7 || direction == 0) ? -1 : 0);
-        return currentSpace.getNeighbor(stepsX, stepsY, this.rows, this.columns);
+        return currentSpace.getRelativeSpace(stepsX, stepsY, this.rows, this.columns);
     }
 
 
     public Space[] getAllNeighbors(Space space) {
         Space[] neighbors = new Space[8];
         for (int direction = 0; direction < neighbors.length; direction++)
-            neighbors[direction] = findNeighbor(space, direction, 1);
+            neighbors[direction] = getRelativeSpace(space, direction, 1);
         return neighbors;
     }
 
@@ -117,7 +117,7 @@ public class Board2D implements othello.game.state.interfaces.Board2D {
             int nextNeighborId;
 
             do {
-                nextNeighbor = findNeighbor(neighbors[direction], direction, steps);
+                nextNeighbor = getRelativeSpace(neighbors[direction], direction, steps);
                 nextNeighborId = nextNeighbor == null ? -1 : this.getCell(nextNeighbor);
                 // If we find our own piece we can flip or place the piece
                 if (nextNeighborId == playerId) return 0;
@@ -131,6 +131,7 @@ public class Board2D implements othello.game.state.interfaces.Board2D {
         if (validDirections[2] && validDirections[6]) return 0;
         if (validDirections[3] && validDirections[7]) return 0;
 
+        // Otherwise the move is invalid
         return 1;
     }
 
