@@ -94,13 +94,19 @@ public class Board2DBasicUI extends SceneProvider {
             for (int column = 0; column < this.board.getColumns(); column++) {
                 Pane cell = new Pane();
                 this.updateCell(cell, row, column);
-                cell.setPrefSize(50, 50);
+
+                // Calculate cell size based on width of screen
+                // Only based on width (square)
+                int cellSize = (this.getSceneManager().getWidth() * 2/3) / this.board.getColumns();
+                cell.setPrefSize(cellSize, cellSize);
+
                 int finalRow = row;
                 int finalColumn = column;
                 cell.setOnMouseClicked(event -> {
                     this.board.move(finalRow, finalColumn);
                     this.updateBoard();
                 });
+
                 // Add (row, column) text to cell
                 Text cellText = new Text("(" + row + ", " + column + ")");
                 // Give text white outline

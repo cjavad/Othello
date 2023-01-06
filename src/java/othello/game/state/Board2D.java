@@ -96,7 +96,7 @@ public class Board2D implements othello.game.state.interfaces.Board2D {
             if (neighbor == playerId) {
                 validDirections[direction] = true;
                 continue;
-            };
+            }
 
             // Otherwise loop for own piece in direction (to ensure that there is a line between the two pieces)
             int steps = 1;

@@ -12,7 +12,7 @@ import othello.ui.SceneProvider;
 public class GameUIWrapper extends SceneProvider {
     public GameUIWrapper(SceneManager manager) {
         super(manager, "GameUIWrapper");
-        Board2DBasicUI gameInterface = new Board2DBasicUI(manager, 2);
+        Board2DBasicUI gameInterface = new Board2DBasicUI(manager, 4);
 
         BorderPane root = new BorderPane();
         root.setCenter(gameInterface.getRoot());
