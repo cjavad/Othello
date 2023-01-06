@@ -27,7 +27,7 @@ public class Board2DBasicUI extends SceneProvider {
             this.players[i] = new Player(i);
         }
 
-        this.board = new Board2D(this.players, true);
+        this.board = new Board2D(this.players, true, playerCount);
         this.boardGrid = this.createBoard();
         this.boardGrid.setAlignment(javafx.geometry.Pos.CENTER);
 
