@@ -182,6 +182,10 @@ public class Board2D implements othello.game.state.interfaces.Board2D {
         return this.players.length;
     }
 
+    public Player getPlayer(int playerId) {
+        return this.players[playerId];
+    }
+
     public int getCurrentPlayerId() {
         return this.currentPlayerId;
     }

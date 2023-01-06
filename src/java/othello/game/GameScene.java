@@ -4,18 +4,18 @@ package othello.game;
 
 import javafx.scene.Scene;
 import javafx.scene.layout.BorderPane;
-import othello.game.board.Board2DBasicUI;
+import othello.game.board.basic.BoardScene;
+import othello.game.state.Board2D;
 import othello.ui.GoBackOnce;
 import othello.ui.SceneManager;
 import othello.ui.SceneProvider;
 
-public class GameUIWrapper extends SceneProvider {
-    public GameUIWrapper(SceneManager manager) {
-        super(manager, "GameUIWrapper");
-        Board2DBasicUI gameInterface = new Board2DBasicUI(manager, 4);
-
+public class GameScene extends SceneProvider {
+    public GameScene(SceneManager manager, Board2D board) {
+        super(manager, "GameScene");
+        BoardScene boardScene = new BoardScene(manager, board);
         BorderPane root = new BorderPane();
-        root.setCenter(gameInterface.getRoot());
+        root.setCenter(boardScene.getRoot());
         GoBackOnce goBackOnce = new GoBackOnce(manager);
         root.setLeft(goBackOnce.getRoot());
         this.setScene(new Scene(root, manager.getWidth(), manager.getHeight()));
