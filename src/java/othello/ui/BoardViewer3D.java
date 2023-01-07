@@ -11,9 +11,8 @@ import javafx.scene.image.WritableImage;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.StackPane;
-import othello.faskinen.Buffer;
+
 import othello.faskinen.Faskinen;
-import othello.faskinen.PieceModel;
 import othello.faskinen.Vec3;
 
 public class BoardViewer3D extends SceneProvider {
@@ -31,22 +30,7 @@ public class BoardViewer3D extends SceneProvider {
 
 		this.faskinen = new Faskinen();	
 
-		this.faskinen.pieces = new PieceModel[64];
-		
-		for (int x = 0; x < 8; x++) {
-			for (int z = 0; z < 8; z++) {
-				int i = x + z * 8;
-
-				this.faskinen.pieces[i] = new PieceModel();
-				this.faskinen.pieces[i].position = new Vec3(x, -3, z);
-
-				if ((x + z) % 2 == 0) {
-					this.faskinen.pieces[i].color = new Vec3(1.0f, 1.0f, 1.0f);
-				} else {
-					this.faskinen.pieces[i].color = new Vec3(0.01f, 0.01f, 0.01f);
-				}
-			}
-		}
+		this.faskinen.camera.position = new Vec3(0, 0, -5);
 
 		this.image = new WritableImage(this.faskinen.imageWidth, this.faskinen.imageHeight);
 		this.writer = this.image.getPixelWriter();
@@ -98,12 +82,17 @@ public class BoardViewer3D extends SceneProvider {
 		Vec3 newPosition = this.faskinen.camera.position.add(movement.mul(0.1f));
 		this.faskinen.camera.position = newPosition;
 
-		Buffer buffer = faskinen.renderImage();	
+		this.faskinen.clear();
+		this.faskinen.renderModel(this.faskinen.testModel);
+		this.faskinen.light();
+		this.faskinen.tonemap();
+
+		byte[] bytes = faskinen.imageBytes();	
 		this.writer.setPixels(
 			0, 0, 
 			faskinen.imageWidth, faskinen.imageHeight, 
 			PixelFormat.getByteBgraInstance(), 
-			buffer.bytes(), 
+			bytes, 
 			0, faskinen.imageWidth * 4
 		);
 	}

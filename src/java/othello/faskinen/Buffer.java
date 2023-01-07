@@ -18,12 +18,27 @@ public class Buffer {
 		GL.GenBuffers(1, buffers.address());
 
 		this.bufferId = buffers.get(ValueLayout.JAVA_INT, 0);
+
+		GL.assertNoError();
 	}
 
 	public Buffer(int size) {
 		this();
 
 		this.resize(size);
+	}
+
+	public Buffer(MemorySegment segment) {
+		this.segment = segment;
+
+		MemorySegment buffers = MemorySession.openImplicit().allocate(4);
+		GL.GenBuffers(1, buffers.address());
+
+		this.bufferId = buffers.get(ValueLayout.JAVA_INT, 0);
+	}
+
+	public int sizeof() {
+		return (int) this.segment.byteSize();
 	}
 
 	public void resize(int size) {
@@ -41,18 +56,32 @@ public class Buffer {
 		this.segment.asByteBuffer().put(buffer);
 	}
 
-	public void bind() {
-		GL.BindBuffer(GL.SHADER_STORAGE_BUFFER, this.bufferId);
+	public void bind(int target) {
+		GL.BindBuffer(target, this.bufferId);
+	}
+
+	public void unbind(int target) {
+		GL.BindBuffer(target, 0);
+	}
+
+	public void upload(int target) {
+		this.bind(target);
+		GL.BufferData(target, this.segment.byteSize(), this.segment.address(), GL.STATIC_DRAW);
+		this.unbind(target);
+
+		GL.assertNoError();
 	}
 
 	public void upload() {
-		this.bind();
-		GL.BufferData(GL.SHADER_STORAGE_BUFFER, this.segment.byteSize(), this.segment.address(), GL.DYNAMIC_READ);
+		this.upload(GL.ARRAY_BUFFER);
 	}
 
 	public void download() {
-		this.bind();
-		GL.GetBufferSubData(GL.SHADER_STORAGE_BUFFER, 0, this.segment.byteSize(), this.segment.address());
+		this.bind(GL.ARRAY_BUFFER);
+		GL.GetBufferSubData(GL.ARRAY_BUFFER, 0, this.segment.byteSize(), this.segment.address());
+		this.unbind(GL.ARRAY_BUFFER);
+
+		GL.assertNoError();
 	}
 
 	public byte[] bytes() {

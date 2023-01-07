@@ -1,5 +1,8 @@
 package othello.faskinen;
 
+import java.lang.foreign.MemorySegment;
+import java.lang.foreign.ValueLayout;
+
 public class Vec4 {
 	public float x, y, z, w;
 
@@ -13,6 +16,25 @@ public class Vec4 {
 	public Vec4() {
 		this(0, 0, 0, 0);
 	}	
+
+	public float[] array() {
+		return new float[] { x, y, z, w };
+	}
+
+	public byte[] bytes() {
+		MemorySegment segment = MemorySegment.ofArray(new float[] { x, y, z, w });
+		return segment.toArray(ValueLayout.JAVA_BYTE);
+	}
+
+	public byte[] rgba8() {
+		return new byte[] {
+			(byte)(x * 255),
+			(byte)(y * 255),
+			(byte)(z * 255),
+			(byte)(w * 255)
+		};
+
+	}
 
 	public Vec3 truncate() {
 		return new Vec3(this.x, this.y, this.z);

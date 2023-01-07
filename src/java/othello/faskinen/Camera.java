@@ -16,7 +16,7 @@ public class Camera {
 	}
 
 	public Mat4 proj(float aspect) {
-		return Mat4.perspective(50.0f, aspect, 0.1f, 100.0f);
+		return Mat4.perspective(50.0f, aspect, 0.01f, 100.0f);
 	}
 
 	public Mat4 viewProj(float aspect) {

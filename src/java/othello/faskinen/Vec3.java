@@ -1,7 +1,14 @@
 package othello.faskinen;
 
+import java.lang.foreign.MemorySegment;
+import java.lang.foreign.ValueLayout;
+
 public class Vec3 {	
 	public float x, y, z;	
+
+	public static int sizeof() {
+		return 3 * 4;
+	}
 
 	public Vec3(float x, float y, float z) {
 		this.x = x;
@@ -11,6 +18,12 @@ public class Vec3 {
 
 	public Vec3() {
 		this(0, 0, 0);
+	}
+
+	public Vec3(MemorySegment segment) {
+		this.x = segment.get(ValueLayout.JAVA_FLOAT, 0);
+		this.y = segment.get(ValueLayout.JAVA_FLOAT, 4);
+		this.z = segment.get(ValueLayout.JAVA_FLOAT, 8);
 	}
 
 	public Vec4 extend(float w) {

@@ -1,97 +1,140 @@
 package othello.faskinen;
 
-import java.time.Instant;
-
 import othello.faskinen.opengl.GL;
 
 public class Faskinen {
 	public Window window;
-	public Shader pieceShader;
-	public Shader skyShader;
-
-	public Buffer colorBuffer;
-	public Buffer depthBuffer;
-	public Instant startTime;
+	public Shader geometryShader;
+	public Shader lightingShader;
+	public Shader environmentShader;
+	public Shader tonemapShader;
 
 	public int imageWidth = 1920;
 	public int imageHeight = 1080;
 
+	public GBuffer gbuffer;
+
+	public Texture hdrTexture;
+	public Framebuffer hdrFramebuffer;
+
+	public Texture sdrTexture;
+	public Framebuffer sdrFramebuffer;
+
+	public Light[] lights = new Light[] {
+		new Light(new Vec3(-1.0f, -1.0f, 1.0f), new Vec3(1.0f, 1.0f, 1.0f)),
+	};
+	public Environment environment = new Environment();
+
+	public Model testModel;
 	public Camera camera = new Camera();
-	public PieceModel[] pieces = new PieceModel[0];
 
 	public Faskinen() {
-		this.window = Window.create("context", 1, 1);
+		this.window = Window.create("context", this.imageWidth, this.imageHeight);
 		this.window.makeContextCurrent();
-	
-		this.colorBuffer = new Buffer(this.imageWidth * this.imageHeight * 4);
-		this.depthBuffer = new Buffer(this.imageWidth * this.imageHeight * 4);
-		this.colorBuffer.upload();
-		this.depthBuffer.upload();
 
-		this.pieceShader = new Shader("shaders/piece.glsl");
-		this.skyShader = new Shader("shaders/sky.glsl");
+		this.geometryShader = new Shader("geometry.vert", "geometry.frag");
+		this.lightingShader = new Shader("quad.vert", "lighting.frag");
+		this.environmentShader = new Shader("quad.vert", "environment.frag");
+		this.tonemapShader = new Shader("quad.vert", "tonemap.frag");
 
-		this.startTime = Instant.now();
+		this.testModel = Model.read("models/model.bin");
+
+		this.gbuffer = new GBuffer(this.imageWidth, this.imageHeight);
+
+		this.sdrTexture = Texture.bgra8(this.imageWidth, this.imageHeight);
+		this.sdrFramebuffer = new Framebuffer(this.imageWidth, this.imageHeight, new Texture[] { this.sdrTexture });
+
+		this.hdrTexture = Texture.rgba8(this.imageWidth, this.imageHeight);
+		this.hdrFramebuffer = new Framebuffer(this.imageWidth, this.imageHeight, new Texture[] { this.hdrTexture });
 	}
 
-	public Buffer renderImage() {
-		this.colorBuffer.upload();
-		this.depthBuffer.upload();
+	public void clear() {	
+		this.gbuffer.clear();
 
-		this.pieceShader.use();
+		this.sdrFramebuffer.clear(0.0f, 0.0f, 0.0f, 1.0f);
+		this.hdrFramebuffer.clear(0.0f, 0.0f, 0.0f, 0.0f);
+	}
 
-		float time = (float) (Instant.now().toEpochMilli() - this.startTime.toEpochMilli()) / 1000.0f;
-		this.pieceShader.setFloat("time", time);
-
+	public void renderModel(Model model) {
 		float aspect = (float) this.imageWidth / (float) this.imageHeight;
 
-		Mat4 viewProj = this.camera.viewProj(aspect);
-		this.pieceShader.setMat4("viewProj", viewProj);
+		GL.Enable(GL.DEPTH_TEST);
 
-		BoundingRect imageRect = new BoundingRect(0, 0, this.imageWidth, this.imageHeight);
+		this.gbuffer.framebuffer.bind();
 
-		this.pieceShader.setInt("imageWidth", this.imageWidth);
-		this.pieceShader.setInt("imageHeight", this.imageHeight);	
-		this.pieceShader.setBuffer("ColorBuffer", this.colorBuffer, 0);
-		this.pieceShader.setBuffer("DepthBuffer", this.depthBuffer, 1);	
+		for (Primitive primitive : model.primitives) {
+			this.geometryShader.use();
 
-		for (int i = 0; i < this.pieces.length; i++) {
-			PieceModel piece = this.pieces[i];
+			this.geometryShader.setVec3("baseColor", primitive.material.baseColor);
 
-			BoundingRect pieceRect = piece.getBoundingRect(viewProj, this.imageWidth, this.imageHeight);
-	
-			if (!imageRect.intersects(pieceRect)) continue;
-			pieceRect = imageRect.intersect(pieceRect);
+			this.geometryShader.setMat4("model", Mat4.identity());
+			this.geometryShader.setMat4("viewProj", this.camera.viewProj(aspect));
 
-			this.pieceShader.setInt("offsetX", pieceRect.x);
-			this.pieceShader.setInt("offsetY", pieceRect.y);
-			this.pieceShader.setInt("width", pieceRect.width);
-			this.pieceShader.setInt("height", pieceRect.height);
-
-			this.pieceShader.setVec3("position", piece.position);
-			this.pieceShader.setVec3("color", piece.color);
-			GL.DispatchCompute(pieceRect.width / 16 + 1, pieceRect.height / 16 + 1, 1);
-			GL.Finish();
+			primitive.mesh.bind();
+			this.geometryShader.drawElements(primitive.mesh.indexCount, Lib.NULLPTR);
+			primitive.mesh.unbind();
 		}
 
-		this.skyShader.use();
+		this.gbuffer.framebuffer.unbind();
 
-		this.skyShader.setMat4("viewProj", viewProj);
+		GL.Disable(GL.DEPTH_TEST);
 
-		this.skyShader.setInt("imageWidth", this.imageWidth);
-		this.skyShader.setInt("imageHeight", this.imageHeight);
-		this.skyShader.setBuffer("ColorBuffer", this.colorBuffer, 0);
-		this.skyShader.setBuffer("DepthBuffer", this.depthBuffer, 1);
+		GL.assertNoError();
+	}
 
-		this.skyShader.setInt("offsetX", 0);
-		this.skyShader.setInt("offsetY", 0);
-		this.skyShader.setInt("width", this.imageWidth);
-		this.skyShader.setInt("height", this.imageHeight);
+	public void light() {
+		GL.Enable(GL.BLEND);
+		GL.BlendFunc(GL.ONE, GL.ONE);
 
-		GL.DispatchCompute(this.imageWidth / 16 + 1, this.imageHeight / 16 + 1, 1);
+		this.hdrFramebuffer.bind();	
 
-		this.colorBuffer.download();
+		for (int i = 0; i < this.lights.length; i++) {
+			Light light = this.lights[i];
 
-		return this.colorBuffer;
+			this.lightingShader.use();
+
+			this.lightingShader.setVec3("light_direction", light.direction.normalize());
+			this.lightingShader.setVec3("light_color", light.color);
+
+			this.lightingShader.setTexture("g_position", this.gbuffer.positionTexture);
+			this.lightingShader.setTexture("g_normal", this.gbuffer.normalTexture);
+			this.lightingShader.setTexture("g_baseColor", this.gbuffer.baseColorTexture);
+			this.lightingShader.setTexture("g_depth", this.gbuffer.depthTexture);
+
+			this.lightingShader.drawArrays(0, 6);
+		}
+
+		this.environmentShader.use();
+
+		this.environmentShader.setVec3("ambient_color", this.environment.ambientColor);
+
+		this.environmentShader.setTexture("g_position", this.gbuffer.positionTexture);
+		this.environmentShader.setTexture("g_normal", this.gbuffer.normalTexture);
+		this.environmentShader.setTexture("g_baseColor", this.gbuffer.baseColorTexture);
+		this.environmentShader.setTexture("g_depth", this.gbuffer.depthTexture);
+
+		this.environmentShader.drawArrays(0, 6);
+
+		this.hdrFramebuffer.unbind();
+
+		GL.Disable(GL.BLEND);
+	}
+
+	public void tonemap() {
+		this.sdrFramebuffer.bind();
+
+		this.tonemapShader.use();
+
+		this.tonemapShader.setTexture("hdr", this.hdrTexture);
+		this.tonemapShader.drawArrays(0, 6);
+
+		this.sdrFramebuffer.unbind();
+	}
+
+	public byte[] imageBytes() {
+		byte[] bytes = this.sdrTexture.read();
+		GL.assertNoError();
+
+		return bytes;
 	}
 }

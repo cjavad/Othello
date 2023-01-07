@@ -86,6 +86,32 @@ public class Mat4 {
 		);
 	}	
 
+	public static Mat4 orthographic(float left, float right, float bottom, float top, float near, float far) {
+		float w = 2 / (right - left);
+		float h = 2 / (top - bottom);
+		float d = 2 / (far - near);
+
+		float tx = -(right + left) / (right - left);
+		float ty = -(top + bottom) / (top - bottom);
+		float tz = -(far + near) / (far - near);
+
+		return new Mat4(
+			new Vec4(w, 0, 0, 0),
+			new Vec4(0, h, 0, 0),
+			new Vec4(0, 0, d, 0),
+			new Vec4(tx, ty, tz, 1)
+		);
+	}
+
+	public static Mat4 identity() {
+		return new Mat4(
+			new Vec4(1, 0, 0, 0),
+			new Vec4(0, 1, 0, 0),
+			new Vec4(0, 0, 1, 0),
+			new Vec4(0, 0, 0, 1)
+		);
+	}
+
 	public Mat4 transpose() {
 		return new Mat4(
 			new Vec4(this.x.x, this.y.x, this.z.x, this.w.x),

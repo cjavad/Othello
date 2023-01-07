@@ -37,3 +37,9 @@ build
 # Ignore java jdk installation
 jdk-19-fx/
 jdk/
+
+# Ignore rust build artifacts
+target/
+
+# Ignore Cargo.lock
+Cargo.lock
