@@ -7,6 +7,7 @@ public class Material {
 	public Vec3 baseColor = new Vec3(1.0f, 1.0f, 1.0f);
 	public float roughness = 0.5f;
 	public float metallic = 0.0f;
+	public float reflectance = 0.5f;
 
 	public Material() {}
 

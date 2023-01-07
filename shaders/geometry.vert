@@ -1,8 +1,9 @@
+#include "camera.glsl"
+
 in vec3 position;
 in vec3 normal;
 
 uniform mat4 model;
-uniform mat4 viewProj;
 
 out vec3 w_position;
 out vec3 w_normal;

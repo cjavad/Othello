@@ -1,27 +1,49 @@
 #include "lighting.glsl"
+#include "gbuffer.glsl"
+#include "camera.glsl"
+#include "surface.glsl"
+#include "environment.glsl"
 
 in vec2 uv;
+in vec2 clip;
 
 layout(location = 0) out vec4 o_color;
 
-uniform sampler2D g_position;
-uniform sampler2D g_normal;
-uniform sampler2D g_baseColor;
-uniform sampler2D g_depth;
-
-uniform vec3 ambient_color;
+uniform float intensity;
 
 void main() {
-	float depth = texture(g_depth, uv).x;
-	if (depth == 1.0) discard;
-
 	vec3 position = texture(g_position, uv).xyz;
 	vec3 normal = texture(g_normal, uv).xyz;
 	vec3 baseColor = texture(g_baseColor, uv).xyz;
+	uvec4 material = texture(g_material, uv);
+	vec4 material_0 = rgbaFromUint(material.x);
 
-	vec3 light = vec3(0.0);
-	light += ambient_color;
+	float metallic = material_0.x;
+	float roughness = material_0.y;
+	float reflectance = material_0.z;	
 
-	vec3 color = baseColor * light;
+	Surface surface;
+
+	surface.position = position;
+	surface.normal = normalize(normal);
+
+	vec4 far = invViewProj * vec4(clip, 1.0, 1.0);
+	far.xyz /= far.w;
+	surface.view = flip(normalize(cameraPosition - far.xyz));
+
+	surface.F0 = computeF0(baseColor, metallic, reflectance);
+	surface.F90 = computeF90(surface.F0);
+
+	surface.diffuse = baseColor * (1.0 - metallic);
+	surface.perceptualRoughness = clamp(roughness, MIN_PERCEPTUAL_ROUGHNESS, 0.99);
+	surface.roughness = computeRoughness(surface.perceptualRoughness);
+	surface.metallic = metallic;
+
+	if (texture(g_depth, uv).x == 1.0) {
+		o_color = vec4(texture(skyMap, surface.view).rgb, 1.0);	
+		return;
+	}
+	
+	vec3 color = lightEnvironment(surface) * intensity;
 	o_color = vec4(color, 1.0);
 }

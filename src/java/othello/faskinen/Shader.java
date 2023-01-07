@@ -209,15 +209,36 @@ public class Shader {
 		GL.UniformMatrix4fv(location, 1, 0, mat.address());
 	}
 
-	public void setTexture(String name, Texture texture) {
+	public void setCamera(Camera camera, float aspect) {
+		this.setVec3("cameraPosition", camera.position);
+
+		Mat4 view = camera.view();
+		Mat4 viewProj = camera.viewProj(aspect);
+
+		this.setMat4("viewProj", viewProj);
+		this.setMat4("invViewProj", viewProj.inverse());
+
+		this.setMat4("view", view);
+		this.setMat4("invView", view.inverse());	
+	}
+
+	public void setTexture(String name, int texture, int target) {
 		int location = this.getUniformLocation(name);
 		if (location == -1) return;
 
 		GL.ActiveTexture(GL.TEXTURE0 + this.nextUnit);
-		GL.BindTexture(GL.TEXTURE_2D, texture.textureId);
+		GL.BindTexture(target, texture);
 
 		GL.Uniform1i(location, this.nextUnit);
 		this.nextUnit++;
+	}
+
+	public void setTexture(String name, Texture texture) {
+		this.setTexture(name, texture.textureId, GL.TEXTURE_2D);
+	}
+
+	public void setTextureCube(String name, int texture) {
+		this.setTexture(name, texture, GL.TEXTURE_CUBE_MAP);
 	}
 
 	public void setBuffer(String name, Buffer buffer, int binding) {
@@ -226,6 +247,14 @@ public class Shader {
 		GL.ShaderStorageBlockBinding(this.programId, index, binding);
 		GL.BindBufferBase(GL.SHADER_STORAGE_BUFFER, binding, buffer.bufferId);
 	}	
+
+	public void setGBuffer(GBuffer gbuffer) {
+		this.setTexture("g_position", gbuffer.position);
+		this.setTexture("g_normal", gbuffer.normal);
+		this.setTexture("g_baseColor", gbuffer.baseColor);
+		this.setTexture("g_material", gbuffer.material);
+		this.setTexture("g_depth", gbuffer.depth);
+	}
 
 	public void free() {
 		GL.DeleteProgram(this.programId);

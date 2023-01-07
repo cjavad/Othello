@@ -133,6 +133,37 @@ public class GL {
 		}
 	}
 
+	private static MethodHandle HANDLE_glPixelStorei = loadFuncGL(
+		"glPixelStorei", 
+		null,
+		Lib.C_INT32_T,
+		Lib.C_INT32_T
+	);
+	public static void PixelStorei(int pname, int param) {
+		try {
+			HANDLE_glPixelStorei.invoke(pname, param);
+		} catch (Throwable e) {
+			e.printStackTrace();
+			System.exit(1);
+		}
+	}
+
+	private static MethodHandle HANDLE_glPixelStoref = loadFuncGL(
+		"glPixelStoref", 
+		null,
+		Lib.C_INT32_T,
+		Lib.C_FLOAT32_T
+	);
+	public static void PixelStoref(int pname, float param) {
+		try {
+			HANDLE_glPixelStoref.invoke(pname, param);
+		} catch (Throwable e) {
+			e.printStackTrace();
+			System.exit(1);
+		}
+	}
+
+
 	private static MethodHandle HANDLE_glBlendFunc = loadFuncGL(
 		"glBlendFunc", 
 		null,

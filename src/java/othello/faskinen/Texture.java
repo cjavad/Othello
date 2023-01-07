@@ -5,6 +5,8 @@ import java.lang.foreign.MemoryAddress;
 import java.lang.foreign.MemorySegment;
 import java.lang.foreign.MemorySession;
 import java.lang.foreign.ValueLayout;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 import othello.faskinen.opengl.GL;
 
@@ -32,13 +34,29 @@ public class Texture {
 
 		MemoryAddress address;
 		if (data.length > 0) {
-			address = MemorySegment.ofArray(data).address();
+			MemorySegment dataSegment = MemorySession.openImplicit().allocate(data.length);
+			dataSegment.copyFrom(MemorySegment.ofArray(data));
+			address = dataSegment.address();
 		} else {
 			address = Lib.NULLPTR;
 		}
 
 		GL.TexImage2D(GL.TEXTURE_2D, 0, internal, width, height, 0, format, type, address);
 		GL.GenerateMipmap(GL.TEXTURE_2D);
+
+		GL.TexParameteri(GL.TEXTURE_2D, GL.TEXTURE_WRAP_S, GL.REPEAT);
+		GL.TexParameteri(GL.TEXTURE_2D, GL.TEXTURE_WRAP_T, GL.REPEAT);
+
+		if (type == GL.FLOAT) {
+			GL.TexParameteri(GL.TEXTURE_2D, GL.TEXTURE_MIN_FILTER, GL.LINEAR_MIPMAP_LINEAR);
+			GL.TexParameteri(GL.TEXTURE_2D, GL.TEXTURE_MAG_FILTER, GL.LINEAR);
+		} else {
+			GL.TexParameteri(GL.TEXTURE_2D, GL.TEXTURE_MIN_FILTER, GL.NEAREST);
+			GL.TexParameteri(GL.TEXTURE_2D, GL.TEXTURE_MAG_FILTER, GL.NEAREST);
+		}
+		
+
+		GL.BindTexture(GL.TEXTURE_2D, 0);
 
 		GL.assertNoError();
 	}
@@ -135,6 +153,18 @@ public class Texture {
 			default:
 				throw new RuntimeException("Unsupported internal format");
 		}
+	}
+
+	public static Texture integratedDFG() {
+		byte[] bytes;
+
+		try {
+			bytes = Files.readAllBytes(Path.of("integratedDFG"));
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+
+		return new Texture(GL.RGBA8, GL.RGBA, GL.UNSIGNED_BYTE, 256, 256, bytes);
 	}
 
 	public byte[] read() {

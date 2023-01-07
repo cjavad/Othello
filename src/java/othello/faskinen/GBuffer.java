@@ -3,26 +3,29 @@ package othello.faskinen;
 import othello.faskinen.opengl.GL;
 
 public class GBuffer {
-	public Texture positionTexture;
-	public Texture normalTexture;
-	public Texture baseColorTexture;
-	public Texture depthTexture;
+	public Texture position;
+	public Texture normal;
+	public Texture baseColor;
+	public Texture material;
+	public Texture depth;
 
 	public Framebuffer framebuffer;
 
 	public GBuffer(int width, int height) {
-		this.positionTexture = Texture.rgba16f(width, height);
-		this.normalTexture = Texture.rgba16f(width, height);
-		this.baseColorTexture = Texture.rgba8(width, height);
-		this.depthTexture = Texture.depth32f(width, height);
+		this.position = Texture.rgba16f(width, height);
+		this.normal = Texture.rgba16f(width, height);
+		this.baseColor = Texture.rgba8(width, height);
+		this.material = Texture.rgba32u(width, height);
+		this.depth = Texture.depth32f(width, height);
 
-		Texture[] textures = new Texture[] {
-			this.positionTexture,
-			this.normalTexture,
-			this.baseColorTexture
+		Texture[] colorTextures = new Texture[] {
+			this.position,
+			this.normal,
+			this.baseColor,
+			this.material
 		};
 
-		this.framebuffer = new Framebuffer(width, height, textures, this.depthTexture);
+		this.framebuffer = new Framebuffer(width, height, colorTextures, this.depth);
 	}
 
 	public void clear() {

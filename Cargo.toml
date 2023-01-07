@@ -1,2 +1,3 @@
 [workspace]
-members = ["tools/masher"]
+resolver = "2"
+members = ["tools/masher", "tools/bakery"]

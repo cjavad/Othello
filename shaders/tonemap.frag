@@ -18,10 +18,10 @@ vec3 gamma_correct(vec3 x) {
 }
 
 vec3 tonemap(vec3 x) {
-	return aces(gamma_correct(x));
+	return aces(x);
 }
 
 void main() {
 	vec3 color = texture(hdr, uv).rgb;
-	o_color = vec4(color, 1.0);
+	o_color = vec4(tonemap(color), 1.0);
 }

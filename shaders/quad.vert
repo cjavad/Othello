@@ -1,4 +1,5 @@
 out vec2 uv;
+out vec2 clip;
 
 // full screen quad
 void main() {
@@ -21,5 +22,6 @@ void main() {
 	);
 	
 	uv = uvs[gl_VertexID];
-	gl_Position = vec4(positions[gl_VertexID], 0.0, 1.0);
+	clip = positions[gl_VertexID];
+	gl_Position = vec4(clip, 0.0, 1.0);
 }
