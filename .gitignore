@@ -43,3 +43,6 @@ target/
 
 # Ignore Cargo.lock
 Cargo.lock
+
+# Ignore .settings
+.settings/
