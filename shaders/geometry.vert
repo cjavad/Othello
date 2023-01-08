@@ -1,9 +1,9 @@
 #include "camera.glsl"
 
-in vec3 position;
-in vec3 normal;
-in vec4 tangent;
-in vec2 uv;
+layout(location = 0) in vec3 position;
+layout(location = 1) in vec3 normal;
+layout(location = 2) in vec4 tangent;
+layout(location = 3) in vec2 uv;
 
 uniform mat4 model;
 

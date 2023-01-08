@@ -25,20 +25,12 @@ public class Camera {
 
 	/// negative z
 	public Vec3 forward() {
-		return new Vec3(
-			(float)Math.sin(this.yaw) * (float)Math.cos(this.pitch),
-			(float)Math.sin(this.pitch),
-			(float)Math.cos(this.yaw) * (float)Math.cos(this.pitch)
-		);
+		return this.view().mul(new Vec4(0, 0, -1, 0)).truncate();
 	}
 
 	/// positive x
 	public Vec3 right() {
-		return new Vec3(
-			(float)Math.cos(this.yaw),
-			0,
-			(float)-Math.sin(this.yaw)
-		);
+		return this.view().mul(new Vec4(1, 0, 0, 0)).truncate();
 	}
 
 	public Vec3 up() {

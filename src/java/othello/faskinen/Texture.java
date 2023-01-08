@@ -49,7 +49,7 @@ public class Texture {
 		GL.TexParameteri(GL.TEXTURE_2D, GL.TEXTURE_WRAP_S, GL.REPEAT);
 		GL.TexParameteri(GL.TEXTURE_2D, GL.TEXTURE_WRAP_T, GL.REPEAT);
 
-		if (format == GL.RGBA || format == GL.BGRA) {
+		if (format == GL.RGBA || format == GL.BGRA || format == GL.DEPTH_COMPONENT) {
 			GL.TexParameteri(GL.TEXTURE_2D, GL.TEXTURE_MIN_FILTER, GL.LINEAR_MIPMAP_LINEAR);
 			GL.TexParameteri(GL.TEXTURE_2D, GL.TEXTURE_MAG_FILTER, GL.LINEAR);
 		} else {

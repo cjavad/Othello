@@ -111,7 +111,7 @@ public class BoardViewer3D extends SceneProvider {
 
 		this.faskinen.clear();
 
-		Vec3 boardPosition = new Vec3(0, -0.25f, 0);
+		Vec3 boardPosition = new Vec3(0, -1.25f, 0);
 		this.faskinen.renderModel(this.board, Mat4.translation(boardPosition));
 
 		for (int x = 0; x < 8; x++) {
@@ -156,8 +156,8 @@ public class BoardViewer3D extends SceneProvider {
 		this.mouseX = x;
 		this.mouseY = y;
 
-		this.faskinen.camera.yaw += deltaX / 1000.0f;
-		this.faskinen.camera.pitch += deltaY / 1000.0f;
+		this.faskinen.camera.yaw -= deltaX / 1000.0f;
+		this.faskinen.camera.pitch -= deltaY / 1000.0f;
 	}
 
 	public void handleMouseMoved(MouseEvent event) {

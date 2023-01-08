@@ -5,6 +5,7 @@ import othello.faskinen.opengl.GL;
 public class Faskinen {
 	public Window window;
 	public Shader geometryShader;
+	public Shader shadowShader;
 	public Shader lightingShader;
 	public Shader environmentShader;
 	public Shader tonemapShader;
@@ -22,13 +23,11 @@ public class Faskinen {
 	public Framebuffer sdrFramebuffer;
 
 	public Texture integratedDFG;
-
 	public Texture fallbackWhite;
 	public Texture fallbackNormal;
 
-	public Light[] lights = new Light[] {
-		new Light(new Vec3(-1.0f, -2.0f, 0.5f), new Vec3(1.0f, 1.0f, 1.0f)),
-	};
+	public Light[] lights;
+
 	public Environment environment;
 
 	public Camera camera = new Camera();
@@ -38,16 +37,15 @@ public class Faskinen {
 		this.imageHeight = height;
 
 		this.window = Window.create("context", 1, 1);
-		this.window.makeContextCurrent();
+		this.window.makeContextCurrent();	
 
 		GL.Enable(GL.TEXTURE_CUBE_MAP_SEAMLESS);
 
 		this.geometryShader = new Shader("geometry.vert", "geometry.frag");
+		this.shadowShader = new Shader("shadow.vert", "empty.frag");
 		this.lightingShader = new Shader("quad.vert", "lighting.frag");
 		this.environmentShader = new Shader("quad.vert", "environment.frag");
 		this.tonemapShader = new Shader("quad.vert", "tonemap.frag");
-
-		this.environment = Environment.read("sky.env");
 
 		this.gbuffer = new GBuffer(this.supersampledWidth(), this.supersampledHeight());
 
@@ -65,10 +63,14 @@ public class Faskinen {
 			new Texture[] { this.sdrTexture }
 		);	
 
-		this.integratedDFG = Texture.integratedDFG();
-		
+		this.integratedDFG = Texture.integratedDFG();	
 		this.fallbackWhite = Texture.rgba8White();
 		this.fallbackNormal = Texture.rgba8Normal();
+
+		this.lights = new Light [] {		
+			new Light(new Vec3(-1.0f, -2.0f, 0.5f), new Vec3(1.0f, 1.0f, 1.0f)),
+		};
+		this.environment = Environment.read("sky.env");
 	}
 
 	public void resize(int width, int height) {
@@ -110,6 +112,12 @@ public class Faskinen {
 
 	public void clear() {	
 		GL.Viewport(0, 0, this.supersampledWidth(), this.supersampledHeight());
+
+
+		for (Light light : this.lights) {
+			light.shadowFramebuffer.bind();
+			GL.Clear(GL.DEPTH_BUFFER_BIT);
+		}
 
 		this.gbuffer.clear();
 		this.sdrFramebuffer.clear(0.0f, 0.0f, 0.0f, 1.0f);
@@ -163,6 +171,25 @@ public class Faskinen {
 
 		this.gbuffer.framebuffer.unbind();
 
+		for (Light light : this.lights) {
+			this.shadowShader.use();
+
+			GL.Viewport(0, 0, Light.SHADOWMAP_SIZE, Light.SHADOWMAP_SIZE);
+
+			light.shadowFramebuffer.bind();	
+
+			this.shadowShader.setMat4("model", transform);
+			this.shadowShader.setMat4("viewProj", light.viewProj());
+
+			for (Primitive primitive : model.primitives) {
+				primitive.mesh.bind();
+				this.shadowShader.drawElements(primitive.mesh.indexCount, Lib.NULLPTR);
+				primitive.mesh.unbind();
+			}
+
+			light.shadowFramebuffer.unbind();
+		}
+
 		GL.Disable(GL.DEPTH_TEST);
 
 		GL.assertNoError();
@@ -187,6 +214,17 @@ public class Faskinen {
 
 			this.lightingShader.setVec3("lightDirection", light.direction.normalize());
 			this.lightingShader.setVec3("lightColor", light.color);
+			this.lightingShader.setFloat("lightIntensity", light.intensity);
+			this.lightingShader.setFloat("lightSoftness", 1.0f);
+			this.lightingShader.setFloat("lightFalloff", 2.0f);
+			
+			this.lightingShader.setTexture("shadowMap", light.shadowMap);
+			this.lightingShader.setMat4("lightViewProj", light.viewProj());
+			this.lightingShader.setFloat("lightSize", Light.SIZE);
+			this.lightingShader.setFloat("lightDepth", Light.DEPTH);
+
+			this.lightingShader.setInt("blockerSearchSamples", 24);
+			this.lightingShader.setInt("penumbraSearchSamples", 64);
 
 			this.lightingShader.drawArrays(0, 6);
 		}

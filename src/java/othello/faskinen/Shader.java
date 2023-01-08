@@ -118,7 +118,52 @@ public class Shader {
 
 		GL.DeleteShader(vertexShader);
 		GL.DeleteShader(fragmentShader);
+		GL.assertNoError();
+	}
 
+	public Shader(String vertexPath) {
+		String vertexSource = readShaderFile(SHADER_PATH.resolve(vertexPath));
+
+		vertexSource = preprocessShader(vertexSource, SHADER_PATH.resolve(vertexPath), new HashSet<>());
+		vertexSource = VERSION + "\n" + vertexSource;
+
+		MemorySegment vertexSources = MemorySession.openImplicit().allocate(8);
+		vertexSources.set(ValueLayout.ADDRESS, 0, Lib.javaToStr(vertexSource).address());
+
+		int vertexShader = GL.CreateShader(GL.VERTEX_SHADER);
+
+		GL.ShaderSource(vertexShader, 1, vertexSources.address(), Lib.NULLPTR);
+		GL.CompileShader(vertexShader);
+
+		MemorySegment vertexStatus = MemorySession.openImplicit().allocate(4);
+		GL.GetShaderiv(vertexShader, GL.COMPILE_STATUS, vertexStatus.address());
+
+		if (vertexStatus.get(ValueLayout.JAVA_INT, 0) != GL.TRUE) {
+			MemorySegment log = MemorySession.openImplicit().allocate(1024);
+			GL.GetShaderInfoLog(vertexShader, 1024, Lib.NULLPTR, log.address());
+
+			System.out.println(Lib.strToJava(log));
+			throw new RuntimeException("Failed to compile vertex shader");
+		}
+
+		this.programId = GL.CreateProgram();
+		GL.AttachShader(this.programId, vertexShader);
+
+		GL.LinkProgram(this.programId);
+
+		MemorySegment linkStatus = MemorySession.openImplicit().allocate(4);
+		GL.GetProgramiv(this.programId, GL.LINK_STATUS, linkStatus.address());
+
+		if (linkStatus.get(ValueLayout.JAVA_INT, 0) != GL.TRUE) {
+			MemorySegment log = MemorySession.openImplicit().allocate(1024);
+			MemorySegment length = MemorySession.openImplicit().allocate(4);
+			GL.GetProgramInfoLog(this.programId, 1024, length.address(), log.address());
+
+			System.out.println(Lib.strToJava(log));
+			throw new RuntimeException("Failed to link shader");
+		}
+
+		GL.DeleteShader(vertexShader);
 		GL.assertNoError();
 	}
 

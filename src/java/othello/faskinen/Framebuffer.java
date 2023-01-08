@@ -40,7 +40,7 @@ public class Framebuffer {
 			);
 
 			GL.assertNoError();
-		}
+		}	
 
 		if (depthTexture != null) {
 			if (depthTexture.width != width || depthTexture.height != height) {
@@ -56,6 +56,19 @@ public class Framebuffer {
 			);
 
 			GL.assertNoError();
+		}
+
+		if (textures.length > 0) {
+			MemorySegment drawBuffers = MemorySession.openImplicit().allocate(4 * textures.length);
+
+			for (int i = 0; i < textures.length; i++) {
+				drawBuffers.set(ValueLayout.JAVA_INT, i * 4, GL.COLOR_ATTACHMENT0 + i);
+			}
+
+			GL.DrawBuffers(textures.length, drawBuffers.address());
+		} else {
+			GL.DrawBuffer(GL.NONE);
+			GL.ReadBuffer(GL.NONE);
 		}
 
 		int status = GL.CheckFramebufferStatus(GL.FRAMEBUFFER);
@@ -88,15 +101,7 @@ public class Framebuffer {
 	}
 
 	public void bind() {
-		GL.BindFramebuffer(GL.FRAMEBUFFER, this.framebufferId);
-
-		MemorySegment drawBuffers = MemorySession.openImplicit().allocate(4 * textures.length);
-
-		for (int i = 0; i < textures.length; i++) {
-			drawBuffers.set(ValueLayout.JAVA_INT, i * 4, GL.COLOR_ATTACHMENT0 + i);
-		}
-
-		GL.DrawBuffers(textures.length, drawBuffers.address());
+		GL.BindFramebuffer(GL.FRAMEBUFFER, this.framebufferId);	
 	}
 
 	public void unbind() {

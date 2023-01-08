@@ -71,36 +71,48 @@ public class Mat4 {
 	public static Mat4 perspective(float fov, float aspect, float near, float far) {
 		fov = (float)Math.toRadians(fov);
 
-		float sinFov = (float)Math.sin(fov / 2);
-		float cosFov = (float)Math.cos(fov / 2);
-
-		float h = cosFov / sinFov;
-		float w = h / aspect;
-		float r = far / (far - near);
+		float invLength = 1.0f / (near - far);
+		float f = 1.0f / (float)Math.tan(fov / 2.0f);
+		float a = f / aspect;
+		float b = (near + far) * invLength;
+		float c = 2.0f * near * far * invLength;
 
 		return new Mat4(
-			new Vec4(w, 0, 0, 0),
-			new Vec4(0, h, 0, 0),
-			new Vec4(0, 0, r, 1),
-			new Vec4(0, 0, -r * near, 0)
+			new Vec4(a, 0, 0, 0),
+			new Vec4(0, f, 0, 0),
+			new Vec4(0, 0, b, -1),
+			new Vec4(0, 0, c, 0)
 		);
 	}	
 
 	public static Mat4 orthographic(float left, float right, float bottom, float top, float near, float far) {
-		float w = 2 / (right - left);
-		float h = 2 / (top - bottom);
-		float d = 2 / (far - near);
+		float a = 2.0f / (right - left);
+		float b = 2.0f / (top - bottom);
+		float c = -2.0f / (far - near);
 
 		float tx = -(right + left) / (right - left);
 		float ty = -(top + bottom) / (top - bottom);
 		float tz = -(far + near) / (far - near);
 
 		return new Mat4(
-			new Vec4(w, 0, 0, 0),
-			new Vec4(0, h, 0, 0),
-			new Vec4(0, 0, d, 0),
+			new Vec4(a, 0, 0, 0),
+			new Vec4(0, b, 0, 0),
+			new Vec4(0, 0, c, 0),
 			new Vec4(tx, ty, tz, 1)
 		);
+	}
+
+	public static Mat4 lookAt(Vec3 eye, Vec3 center, Vec3 up) {
+		Vec3 f = center.sub(eye).normalize();
+		Vec3 s = f.cross(up).normalize();
+		Vec3 u = s.cross(f);
+
+		return new Mat4(
+			new Vec4(s.x, u.x, -f.x, 0),
+			new Vec4(s.y, u.y, -f.y, 0),
+			new Vec4(s.z, u.z, -f.z, 0),
+			new Vec4(0, 0, 0, 1)
+		).mul(translation(eye.mul(-1)));
 	}
 
 	public static Mat4 identity() {
