@@ -7,6 +7,9 @@ import java.lang.foreign.ValueLayout;
 
 import othello.faskinen.x11.X11;
 
+/**
+ * A wrapper around an X11 window.
+ */
 public class X11Window extends Window {
 	MemoryAddress display;
 	MemoryAddress rootWindow;

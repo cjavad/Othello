@@ -1,5 +1,10 @@
 package othello.faskinen;
 
+/**
+ * A 3d light.
+ *
+ * Lights may ONLY be created after a valid OpenGL context has been created.
+ */
 public class Light {
 	public static int SHADOWMAP_SIZE = 2048;
 	public static float SIZE = 20.0f;
@@ -23,21 +28,35 @@ public class Light {
 	public Texture shadowMap;
 	public Framebuffer shadowFramebuffer;
 
+	/**
+	 * Create a new light.
+	 * @param direction The direction of the light.
+	 * @param color The color of the light.
+	 * @param intensity The intensity of the light.
+	 */
 	public Light(Vec3 direction, Vec3 color, float intensity) {
 		this.direction = direction;
 		this.color = color;
 		this.intensity = intensity;
 		this.shadowMap = Texture.depth32f(SHADOWMAP_SIZE, SHADOWMAP_SIZE);
-		this.shadowFramebuffer = new Framebuffer(
-			SHADOWMAP_SIZE, SHADOWMAP_SIZE, 
-			new Texture[0], this.shadowMap
-		);
+		this.shadowFramebuffer = new Framebuffer(new Texture[0], this.shadowMap);
 	}
 
+	/**
+	 * Create a new light.
+	 * @param direction The direction of the light.
+	 * @param color The color of the light.
+	 *
+	 * The intensity of the light is set to 10.0f.
+	 */
 	public Light(Vec3 direction, Vec3 color) {
 		this(direction, color, 10.0f);
 	}
 
+	/**
+	 * Calculate the view projection matrix for the light.
+	 * @param return The view projection matrix.
+	 */
 	public Mat4 viewProj() {
 		Mat4 view;
 		if (this.direction.dot(new Vec3(0.0f, 1.0f, 0.0f)) > 0.999f) {

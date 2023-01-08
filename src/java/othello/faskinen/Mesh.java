@@ -6,6 +6,9 @@ import java.lang.foreign.ValueLayout;
 
 import othello.faskinen.opengl.GL;
 
+/**
+ * A mesh belonging to a Primitive.
+ */
 public class Mesh {
 	public static final int VERTEX_SIZE = 48;
 
@@ -16,6 +19,11 @@ public class Mesh {
 	public int vertexCount;
 	public int indexCount;
 
+	/**
+	 * Reads a Mesh from a MemorySegment.
+	 *
+	 * This may ONLY be called after a valid OpenGL context has been created.
+	 */
 	public Mesh(MemorySegment segment) {
 		this.vertexCount = segment.get(ValueLayout.JAVA_INT, 0);
 		this.indexCount = segment.get(ValueLayout.JAVA_INT, 4);
@@ -49,18 +57,27 @@ public class Mesh {
 		this.vertexBuffer.unbind(GL.ARRAY_BUFFER);
 
 		this.vertexBuffer.upload();
-		this.indexBuffer.upload(GL.ELEMENT_ARRAY_BUFFER);
+		this.indexBuffer.upload(GL.ELEMENT_ARRAY_BUFFER, GL.STATIC_DRAW);
 	}
 
+	/**
+	 * Size of the mesh in bytes.
+	 */
 	public long sizeof() {
 		return 8 + this.vertexBuffer.sizeof() + this.indexBuffer.sizeof();
 	}
 
+	/**
+	 * Binds the mesh.
+	 */
 	public void bind() {
 		GL.BindVertexArray(this.vertexArrayId);
 		this.indexBuffer.bind(GL.ELEMENT_ARRAY_BUFFER);
 	}
 
+	/**
+	 * Unbinds the mesh.
+	 */
 	public void unbind() {
 		GL.BindVertexArray(0);
 		this.indexBuffer.unbind(GL.ELEMENT_ARRAY_BUFFER);

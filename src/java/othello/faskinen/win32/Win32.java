@@ -7,6 +7,9 @@ import java.lang.foreign.MemorySegment;
 import java.lang.foreign.SegmentAllocator;
 import java.lang.invoke.MethodHandle;
 
+/**
+ * A wrapper around the Win32 API.
+ */
 @SuppressWarnings("unused")
 public class Win32 {
 

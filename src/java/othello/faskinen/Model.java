@@ -6,14 +6,32 @@ import java.lang.foreign.ValueLayout;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
+/**
+ * A model containing a list of Primitives and a list of Textures.
+ *
+ * Models may ONLY be created after a valid OpenGL context has been created.
+ *
+ * Models are read from binary files created by the `masher` tool.
+ * Run `cargo install --path tools/masher` to install the tool.
+ * Run `masher -h` for more information.
+ * Run `masher INSERT_FILE_HERE.(gltf/glb)` to convert a glTF file to a model file.
+ */
 public class Model {
 	public Primitive[] primitives;
 	public Texture[] textures;
 
+	/**
+	 * Creates a new empty model. 
+	 */
 	public Model() {
 		this.primitives = new Primitive[0];
+		this.textures = new Texture[0];
 	}
 
+	/**
+	 * Reads a model from a MemorySegment.
+	 * @param segment The segment to read from.
+	 */
 	public Model(MemorySegment segment) {
 		int primitiveCount = segment.get(ValueLayout.JAVA_INT, 0);
 		this.primitives = new Primitive[primitiveCount];
@@ -45,10 +63,21 @@ public class Model {
 		}
 	}
 
+	/**
+	 * Creates a new model.
+	 * @param primitives The primitives of the model.
+	 */
 	public Model(Primitive[] primitives) {
 		this.primitives = primitives;
 	}
 
+	/**
+	 * Reads a model from a file.
+	 * @param path The path to the file.
+	 * @return The model.
+	 *
+	 * If the file is invalid, a fatal error is likely to occur.
+	 */
 	public static Model read(String path) {
 		byte[] bytes;
 

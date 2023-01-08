@@ -1,6 +1,18 @@
 package othello.faskinen;
 
+/**
+ * An abstract window backed by a system specific implementation.
+ */
 public abstract class Window {
+	/**
+	 * Creates a new window.
+	 * @param title The title of the window.
+	 * @param width The width of the window.
+	 * @param height The height of the window.
+	 * @return The created window.
+	 *
+	 * The implementation of this method is system specific.
+	 */
 	public static Window create(String title, int width, int height) {
 		switch (Platform.get()) {
 		case Windows:
@@ -12,15 +24,33 @@ public abstract class Window {
 		}
 	}
 
+	/**
+	 * Show the window.
+	 */
 	public abstract void show();
 
+	/**
+	 * Hide the window.
+	 */
 	public abstract void hide();
 
+	/**
+	 * Poll for events.
+	 */
 	public abstract void pollEvents();
 
+	/**
+	 * Swap the buffers.
+	 */
 	public abstract void swapBuffers();
 
+	/**
+	 * Make the window's context current.
+	 */
 	public abstract void makeContextCurrent();
 
+	/**
+	 * Destroy the window.
+	 */
 	public abstract void destroy();
 }

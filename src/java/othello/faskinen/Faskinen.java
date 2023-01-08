@@ -2,18 +2,28 @@ package othello.faskinen;
 
 import othello.faskinen.opengl.GL;
 
+/**
+ * This is FASKINEN.
+ *
+ * @author Faskinen
+ */
 public class Faskinen {
+	/* Window */
 	public Window window;
+
+	/* Shader programs */
 	public Shader geometryShader;
 	public Shader shadowShader;
 	public Shader lightingShader;
 	public Shader environmentShader;
 	public Shader tonemapShader;
 
+	/* Dímensions */
 	public int imageWidth = 1920;
 	public int imageHeight = 1080;
 	public float supersampling = 2.0f;
 
+	/* Buffers */
 	public GBuffer gbuffer;
 
 	public Texture hdrTexture;
@@ -22,16 +32,21 @@ public class Faskinen {
 	public Texture sdrTexture;
 	public Framebuffer sdrFramebuffer;
 
+	/* Integrated textures */
 	public Texture integratedDFG;
 	public Texture fallbackWhite;
 	public Texture fallbackNormal;
 
+	/* Scene */
 	public Light[] lights;
-
 	public Environment environment;
-
 	public Camera camera = new Camera();
 
+	/**
+	 * Creates a new Faskinen instance.
+	 *
+	 * This creates a new window and a valid OpenGL context.
+	 */
 	public Faskinen(int width, int height) {
 		this.imageWidth = width;
 		this.imageHeight = height;
@@ -42,7 +57,7 @@ public class Faskinen {
 		GL.Enable(GL.TEXTURE_CUBE_MAP_SEAMLESS);
 
 		this.geometryShader = new Shader("geometry.vert", "geometry.frag");
-		this.shadowShader = new Shader("shadow.vert", "empty.frag");
+		this.shadowShader = new Shader("shadow.vert");
 		this.lightingShader = new Shader("quad.vert", "lighting.frag");
 		this.environmentShader = new Shader("quad.vert", "environment.frag");
 		this.tonemapShader = new Shader("quad.vert", "tonemap.frag");
@@ -50,18 +65,10 @@ public class Faskinen {
 		this.gbuffer = new GBuffer(this.supersampledWidth(), this.supersampledHeight());
 
 		this.hdrTexture = Texture.rgba16f(this.supersampledWidth(), this.supersampledHeight());
-		this.hdrFramebuffer = new Framebuffer(
-			this.supersampledWidth(), 
-			this.supersampledHeight(),
-			new Texture[] { this.hdrTexture }
-		);
+		this.hdrFramebuffer = new Framebuffer(new Texture[] { this.hdrTexture });
 
 		this.sdrTexture = Texture.sbgra8(this.imageWidth, this.imageHeight);
-		this.sdrFramebuffer = new Framebuffer(
-			this.imageWidth, 
-			this.imageHeight, 
-			new Texture[] { this.sdrTexture }
-		);	
+		this.sdrFramebuffer = new Framebuffer(new Texture[] { this.sdrTexture });	
 
 		this.integratedDFG = Texture.integratedDFG();	
 		this.fallbackWhite = Texture.rgba8White();
@@ -73,6 +80,11 @@ public class Faskinen {
 		this.environment = Environment.read("sky.env");
 	}
 
+	/**
+	 * Resizes the buffers to the given size.
+	 * @param width The new width.
+	 * @param height The new height.
+	 */
 	public void resize(int width, int height) {
 		this.imageWidth = width;
 		this.imageHeight = height;
@@ -88,32 +100,41 @@ public class Faskinen {
 		this.gbuffer = new GBuffer(this.supersampledWidth(), this.supersampledHeight());
 
 		this.hdrTexture = Texture.rgba16f(this.supersampledWidth(), this.supersampledHeight());
-		this.hdrFramebuffer = new Framebuffer(
-			this.supersampledWidth(), 
-			this.supersampledHeight(),
-			new Texture[] { this.hdrTexture }
-		);
+		this.hdrFramebuffer = new Framebuffer(new Texture[] { this.hdrTexture });
 
 		this.sdrTexture = Texture.sbgra8(this.imageWidth, this.imageHeight);
-		this.sdrFramebuffer = new Framebuffer(
-			this.imageWidth, 
-			this.imageHeight, 
-			new Texture[] { this.sdrTexture }
-		);	
+		this.sdrFramebuffer = new Framebuffer(new Texture[] { this.sdrTexture });	
 	}
 
+	/**
+	 * Resizes buffers.
+	 *
+	 * Use this after changing the supersampling factor.
+	 */
+	public void resize() {
+		this.resize(this.imageWidth, this.imageHeight);
+	}
+
+	/**
+	 * Returns the width of the supersampled framebuffer.
+	 * @return The width of the supersampled framebuffer.
+	 */
 	public int supersampledWidth() {
 		return (int) (this.imageWidth * this.supersampling);
 	}
 
+	/**
+	 * Returns the height of the supersampled framebuffer.
+	 * @return The height of the supersampled framebuffer.
+	 */
 	public int supersampledHeight() {
 		return (int) (this.imageHeight * this.supersampling);
 	}
 
+	/**
+	 * Clears the gbuffer, hdr texture, sdr texture and shadow maps.
+	 */
 	public void clear() {	
-		GL.Viewport(0, 0, this.supersampledWidth(), this.supersampledHeight());
-
-
 		for (Light light : this.lights) {
 			light.shadowFramebuffer.bind();
 			GL.Clear(GL.DEPTH_BUFFER_BIT);
@@ -124,13 +145,16 @@ public class Faskinen {
 		this.hdrFramebuffer.clear(0.0f, 0.0f, 0.0f, 0.0f);
 	}
 
+	/**
+	 * Render a model to the gbuffer and shadow maps.
+	 */
 	public void renderModel(Model model, Mat4 transform, int id) {
 		GL.Enable(GL.DEPTH_TEST);
 		GL.Viewport(0, 0, this.supersampledWidth(), this.supersampledHeight());
 
 		float aspect = (float) this.imageWidth / (float) this.imageHeight;
 
-		this.gbuffer.framebuffer.bind();
+		this.gbuffer.bind();
 
 		for (Primitive primitive : model.primitives) {
 			this.geometryShader.use();
@@ -167,11 +191,11 @@ public class Faskinen {
 			this.geometryShader.setCamera(this.camera, aspect);
 
 			primitive.mesh.bind();
-			this.geometryShader.drawElements(primitive.mesh.indexCount, Lib.NULLPTR);
+			this.geometryShader.drawElements(primitive.mesh.indexCount, 0);
 			primitive.mesh.unbind();
 		}
 
-		this.gbuffer.framebuffer.unbind();
+		this.gbuffer.unbind();
 
 		for (Light light : this.lights) {
 			this.shadowShader.use();
@@ -185,7 +209,7 @@ public class Faskinen {
 
 			for (Primitive primitive : model.primitives) {
 				primitive.mesh.bind();
-				this.shadowShader.drawElements(primitive.mesh.indexCount, Lib.NULLPTR);
+				this.shadowShader.drawElements(primitive.mesh.indexCount, 0);
 				primitive.mesh.unbind();
 			}
 
@@ -201,6 +225,9 @@ public class Faskinen {
 		this.renderModel(model, transform, -1);
 	}
 
+	/**
+	 * Lights the scene.
+	 */
 	public void light() {
 		GL.Enable(GL.BLEND);
 		GL.BlendFunc(GL.ONE, GL.ONE);
@@ -252,6 +279,9 @@ public class Faskinen {
 		GL.Disable(GL.BLEND);
 	}
 
+	/**
+	 * Tone maps the HDR framebuffer to the SDR framebuffer.
+	 */
 	public void tonemap() {
 		GL.Viewport(0, 0, this.imageWidth, this.imageHeight);
 
@@ -266,22 +296,28 @@ public class Faskinen {
 		this.sdrFramebuffer.unbind();
 	}
 
+	/**
+	 * Reads the current image from the SDR texture and returns it as a byte array.
+	 * @return The current image as a byte array.
+	 */
 	public byte[] imageBytes() {
-		byte[] bytes = this.sdrTexture.read();
+		byte[] bytes = this.sdrTexture.readBytes();
 		GL.assertNoError();
 
 		return bytes;
 	}
 
+	/**
+	 * Get the id of the pixel at the given coordinates.
+	 * @param x The x coordinate.
+	 * @param y The y coordinate.
+	 * @return The id of the pixel.
+	 */
 	public int getPixelId(int x, int y) {
 		x = (int) (x * this.supersampling);
 		y = (int) (y * this.supersampling);
-
 		y = this.supersampledHeight() - y - 1;
 
-		byte[] bytes = this.gbuffer.material.readPixel(x, y);
-
-		int id = bytes[15] << 24 | bytes[14] << 16 | bytes[13] << 8 | bytes[12];
-		return id - 1;
+		return this.gbuffer.getPixelId(x, y);
 	}
 }

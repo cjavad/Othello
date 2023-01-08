@@ -8,6 +8,9 @@ import othello.faskinen.Lib;
 import othello.faskinen.Platform;
 import othello.faskinen.win32.Win32;
 
+/**
+ * A wrapper around OpenGL.
+ */
 public class GL {
     static {
         switch (Platform.get()) {
@@ -1078,9 +1081,9 @@ public class GL {
 		Lib.C_UINT32_T,
 		Lib.C_INT32_T,
 		Lib.C_UINT32_T,
-		Lib.C_POINTER_T
+		Lib.C_UINT64_T
 	);
-	public static void DrawElements(int mode, int count, int type, MemoryAddress indices) {
+	public static void DrawElements(int mode, int count, int type, long indices) {
 		try {
 			HANDLE_glDrawElements.invoke(mode, count, type, indices);
 		} catch (Throwable e) {

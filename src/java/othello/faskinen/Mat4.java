@@ -14,6 +14,10 @@ public class Mat4 {
 		this(new Vec4(), new Vec4(), new Vec4(), new Vec4());
 	}
 
+	/**
+	 * Creates a matrix representing a rotation around the x-axis.
+	 * @param angle The angle to rotate by in radians.
+	 */
 	public static Mat4 rotationX(float angle) {
 		float c = (float)Math.cos(angle);
 		float s = (float)Math.sin(angle);
@@ -26,6 +30,10 @@ public class Mat4 {
 		);
 	}
 
+	/**
+	 * Creates a matrix representing a rotation around the y-axis.
+	 * @param angle The angle to rotate by in radians.
+	 */
 	public static Mat4 rotationY(float angle) {
 		float c = (float)Math.cos(angle);
 		float s = (float)Math.sin(angle);
@@ -38,6 +46,10 @@ public class Mat4 {
 		);
 	}
 
+	/**
+	 * Creates a matrix representing a rotation around the z-axis.
+	 * @param angle The angle to rotate by in radians.
+	 */
 	public static Mat4 rotationZ(float angle) {
 		float c = (float)Math.cos(angle);
 		float s = (float)Math.sin(angle);
@@ -50,6 +62,10 @@ public class Mat4 {
 		);
 	}
 
+	/**
+	 * Creates a matrix representing a translation.
+	 * @param v The translation vector.
+	 */
 	public static Mat4 translation(Vec3 v) {
 		return new Mat4(
 			new Vec4(1, 0, 0, 0),
@@ -59,6 +75,10 @@ public class Mat4 {
 		);
 	}
 
+	/**
+	 * Creates a matrix representing a scaling.
+	 * @param v The scaling vector.
+	 */
 	public static Mat4 scale(Vec3 v) {
 		return new Mat4(
 			new Vec4(v.x, 0, 0, 0),
@@ -68,6 +88,15 @@ public class Mat4 {
 		);
 	}
 
+	/**
+	 * Creates a matrix representing a right-handed perspective projection.
+	 * @param fov The field of view in degrees.
+	 * @param aspect The aspect ratio.
+	 * @param near The near plane.
+	 * @param far The far plane,
+	 *
+	 * The resulting matrix will have a depth range of [-1, 1].
+	 */
 	public static Mat4 perspective(float fov, float aspect, float near, float far) {
 		fov = (float)Math.toRadians(fov);
 
@@ -85,6 +114,17 @@ public class Mat4 {
 		);
 	}	
 
+	/**
+	 * Creates a matrix representing a right-handed orthographic projection.
+	 * @param left The left plane.
+	 * @param right The right plane.
+	 * @param bottom The bottom plane.
+	 * @param top The top plane.
+	 * @param near The near plane.
+	 * @param far The far plane.
+	 *
+	 * The resulting matrix will have a depth range of [-1, 1].
+	 */
 	public static Mat4 orthographic(float left, float right, float bottom, float top, float near, float far) {
 		float a = 2.0f / (right - left);
 		float b = 2.0f / (top - bottom);
@@ -102,6 +142,12 @@ public class Mat4 {
 		);
 	}
 
+	/**
+	 * Creates a matrix representing a right-handed look-at view transformation.
+	 * @param eye The eye position.
+	 * @param center The center position.
+	 * @param up The up vector.
+	 */
 	public static Mat4 lookAt(Vec3 eye, Vec3 center, Vec3 up) {
 		Vec3 f = center.sub(eye).normalize();
 		Vec3 s = f.cross(up).normalize();
@@ -115,6 +161,9 @@ public class Mat4 {
 		).mul(translation(eye.mul(-1)));
 	}
 
+	/**
+	 * Creates an identity matrix.
+	 */
 	public static Mat4 identity() {
 		return new Mat4(
 			new Vec4(1, 0, 0, 0),

@@ -8,6 +8,9 @@ import othello.faskinen.win32.ARB;
 import othello.faskinen.win32.Win32;
 import othello.faskinen.win32.structs.*;
 
+/**
+ * A wrapper around a Win32 window.
+ */
 public class Win32Window extends Window {
 
 	private static final HashMap<MemoryAddress, Win32Window> windows = new HashMap<MemoryAddress, Win32Window>();

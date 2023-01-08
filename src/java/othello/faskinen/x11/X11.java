@@ -6,6 +6,9 @@ import java.lang.invoke.MethodHandle;
 import othello.faskinen.Lib;
 import othello.faskinen.Platform;
 
+/**
+ * A wrapper around the X11 library.
+ */
 public class X11 {
 	static {
 		if (Platform.isLinux()) {

@@ -1,5 +1,8 @@
 package othello.faskinen;
 
+/**
+ * A simple 3d camera.
+ */
 public class Camera {
 	public Vec3 position = new Vec3(0, 0, 0);
 	public float pitch = 0;
@@ -23,16 +26,26 @@ public class Camera {
 		return this.proj(aspect).mul(this.view().inverse());
 	}
 
-	/// negative z
+	/**
+	 * Get the camera's forward vector.
+	 * @return The local negative z-axis.
+	 */
 	public Vec3 forward() {
 		return this.view().mul(new Vec4(0, 0, -1, 0)).truncate();
 	}
 
-	/// positive x
+	/**
+	 * Get the camera's right vector.
+	 * @return The local x-axis.
+	 */
 	public Vec3 right() {
 		return this.view().mul(new Vec4(1, 0, 0, 0)).truncate();
 	}
 
+	/**
+	 * Get the camera's up vector.
+	 * @return The local y-axis.
+	 */
 	public Vec3 up() {
 		return this.forward().cross(this.right());
 	}

@@ -8,6 +8,15 @@ import java.nio.file.Paths;
 
 import othello.faskinen.opengl.GL;
 
+/**
+ * An pre-baked environment.
+ *
+ * Environments may ONLY be created after a valid OpenGL context has been created.
+ *
+ * Environments are read from binary files created by the `bakery` tool.
+ * Run `cargo install --path tools/bakery` to install the tool.
+ * Run `bakery -h` for more information.
+ */
 public class Environment {
 	public float intensity = 0.75f;
 
@@ -21,6 +30,10 @@ public class Environment {
 	public int skySize;
 	public int skyId;
 
+	/**
+	 * Reads an environment from a MemorySegment.
+	 * @param segment The segment to read from.
+	 */
 	public Environment(MemorySegment segment) {
 		this.irradianceSize = segment.get(ValueLayout.JAVA_INT, 0);
 		this.indirectSize = segment.get(ValueLayout.JAVA_INT, 4);
@@ -114,6 +127,11 @@ public class Environment {
 		GL.BindTexture(GL.TEXTURE_CUBE_MAP, 0);
 	}
 
+	/**
+	 * Reads an environment from a file.
+	 * @param path The path to the file to read from.
+	 * @return The environment.
+	 */
 	public static Environment read(String path) {
 		byte[] bytes;
 

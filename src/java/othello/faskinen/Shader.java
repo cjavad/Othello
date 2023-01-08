@@ -12,6 +12,11 @@ import java.util.regex.Pattern;
 
 import othello.faskinen.opengl.GL;
 
+/**
+ * A wrapper around an OpenGL shader.
+ *
+ * Shaders may ONLY be created after a valid OpenGL context has been created.
+ */
 public class Shader {
 	public int programId;
 	private int nextUnit = 0;
@@ -52,6 +57,15 @@ public class Shader {
 		return sb.toString();
 	}
 
+	/**
+	 * Creates a new shader.
+	 * @param vertexPath The path to the vertex shader.
+	 * @param fragmentPath The path to the fragment shader.
+	 * @return The created shader.
+	 *
+	 * The shader will be preprocessed to include other shaders.
+	 * If shaders have circular dependencies, the stack will overflow
+	 */
 	public Shader(String vertexPath, String fragmentPath) {
 		String vertexSource = readShaderFile(SHADER_PATH.resolve(vertexPath));
 		String fragmentSource = readShaderFile(SHADER_PATH.resolve(fragmentPath));
@@ -121,6 +135,14 @@ public class Shader {
 		GL.assertNoError();
 	}
 
+	/**
+	 * Creates a new shader.
+	 * @param vertexPath The path to the vertex shader.
+	 * @return The created shader.
+	 *
+	 * The shader will be preprocessed to include other shaders.
+	 * If shaders have circular dependencies, the stack will overflow
+	 */
 	public Shader(String vertexPath) {
 		String vertexSource = readShaderFile(SHADER_PATH.resolve(vertexPath));
 
@@ -167,11 +189,17 @@ public class Shader {
 		GL.assertNoError();
 	}
 
+	/**
+	 * Uses this shader.
+	 */
 	public void use() {
 		GL.UseProgram(this.programId);
 		this.nextUnit = 0;
 	}
 
+	/**
+	 * Gets the location of a vertex attribute.
+	 */
 	public int getVertexAttributeLocation(String name) {
 		int location = GL.GetAttribLocation(this.programId, Lib.javaToStr(name).address());
 
@@ -182,6 +210,13 @@ public class Shader {
 		return location;
 	}
 
+	/**
+	 * Binds a vertex buffer to a vertex attribute.
+	 * @param name The name of the vertex attribute.
+	 * @param buffer The buffer to bind.
+	 * @param offset The offset of the attribute in the buffer.
+	 * @param stride The stride of the attribute in the buffer.
+	 */
 	public void bindVertexBuffer(String name, Buffer buffer, int offset, int stride) {
 		int location = this.getVertexAttributeLocation(name);	
 
@@ -189,52 +224,101 @@ public class Shader {
 		GL.assertNoError();
 	}
 
+	/**
+	 * Binds an index buffer.
+	 * @param buffer The buffer to bind.
+	 */
 	public void bindIndexBuffer(Buffer buffer) {
 		GL.BindBuffer(GL.ELEMENT_ARRAY_BUFFER, buffer.bufferId);
 	}
 	
-	public void drawElements(int count, MemoryAddress offset) {	
+	/**
+	 * Draws the shader using glDrawElements.
+	 * @param count The number of indices to draw.
+	 * @param offset The offset of the indices to draw.
+	 */
+	public void drawElements(int count, long offset) {	
 		GL.DrawElements(GL.TRIANGLES, count, GL.UNSIGNED_INT, offset);
 	}
 
+	/**
+	 * Draws the shader using glDrawArrays.
+	 * @param index The index of the first vertex to draw.
+	 * @param count The number of vertices to draw.
+	 */
 	public void drawArrays(int index, int count) {
 		GL.DrawArrays(GL.TRIANGLES, index, count);
 	}
 
+	/**
+	 * Gets the location of a uniform.
+	 * @param name The name of the uniform.
+	 * @return The location of the uniform.
+	 */
 	public int getUniformLocation(String name) {
 		return GL.GetUniformLocation(this.programId, Lib.javaToStr(name).address());
 	}
 
+	/**
+	 * Sets an integer uniform.
+	 * @param name The name of the uniform.
+	 * @param value The value to set.
+	 */
 	public void setInt(String name, int value) {
 		int location = this.getUniformLocation(name);
 		if (location == -1) return;
 		GL.Uniform1i(location, value);
 	}
 
+	/**
+	 * Sets a unsigned integer uniform.
+	 * @param name The name of the uniform.
+	 * @param value The value to set.
+	 */
 	public void setUint(String name, int value) {
 		int location = this.getUniformLocation(name);
 		if (location == -1) return;
 		GL.Uniform1ui(location, value);
 	}
 
+	/**
+	 * Sets a float uniform.
+	 * @param name The name of the uniform.
+	 * @param value The value to set.
+	 */
 	public void setFloat(String name, float value) {
 		int location = this.getUniformLocation(name);
 		if (location == -1) return;
 		GL.Uniform1f(location, value);
 	}
 
+	/**
+	 * Sets a 3D vector uniform.
+	 * @param name The name of the uniform.
+	 * @param value The value to set.
+	 */
 	public void setVec3(String name, Vec3 value) {
 		int location = this.getUniformLocation(name);
 		if (location == -1) return;
 		GL.Uniform3f(location, value.x, value.y, value.z);
 	}
 
+	/**
+	 * Sets a 4D vector uniform.
+	 * @param name The name of the uniform.
+	 * @param value The value to set.
+	 */
 	public void setVec4(String name, Vec4 value) {
 		int location = this.getUniformLocation(name);
 		if (location == -1) return;
 		GL.Uniform4f(location, value.x, value.y, value.z, value.w);
 	}
 
+	/**
+	 * Sets a 4x4 matrix uniform.
+	 * @param name The name of the uniform.
+	 * @param value The value to set.
+	 */
 	public void setMat4(String name, Mat4 value) {
 		int location = this.getUniformLocation(name);
 		if (location == -1) return;
@@ -260,6 +344,18 @@ public class Shader {
 		GL.UniformMatrix4fv(location, 1, 0, mat.address());
 	}
 
+	/**
+	 * Sets the uniforms for a camera.
+	 * @param camera The camera to set the uniforms for.
+	 * @param aspect The aspect ratio of the camera.
+	 *
+	 * The following uniforms are set:
+	 * - cameraPosition (vec3)
+	 * - viewProj (mat4)
+	 * - invViewProj (mat4)
+	 * - view (mat4)
+	 * - invView (mat4)
+	 */
 	public void setCamera(Camera camera, float aspect) {
 		this.setVec3("cameraPosition", camera.position);
 
@@ -273,6 +369,14 @@ public class Shader {
 		this.setMat4("invView", view.inverse());	
 	}
 
+	/**
+	 * Sets a texture uniform.
+	 * @param name The name of the uniform.
+	 * @param texture The texture to set.
+	 * @param target The texture target.
+	 *
+	 * The unit is automatically determined.
+	 */
 	public void setTexture(String name, int texture, int target) {
 		int location = this.getUniformLocation(name);
 		if (location == -1) return;
@@ -284,14 +388,34 @@ public class Shader {
 		this.nextUnit++;
 	}
 
+	/**
+	 * Sets a 2d texture uniform.
+	 * @param name The name of the uniform.
+	 * @param texture The texture to set.
+	 *
+	 * The unit is automatically determined.
+	 */
 	public void setTexture(String name, Texture texture) {
 		this.setTexture(name, texture.textureId, GL.TEXTURE_2D);
 	}
 
+	/**
+	 * Sets a cubemap texture uniform.
+	 * @param name The name of the uniform.
+	 * @param texture The texture to set.
+	 *
+	 * The unit is automatically determined.
+	 */
 	public void setTextureCube(String name, int texture) {
 		this.setTexture(name, texture, GL.TEXTURE_CUBE_MAP);
 	}
 
+	/**
+	 * Sets a buffer object uniform.
+	 * @param name The name of the uniform.
+	 * @param buffer The buffer to set.
+	 * @param binding The binding point.
+	 */
 	public void setBuffer(String name, Buffer buffer, int binding) {
 		int index = GL.GetProgramResourceIndex(this.programId, GL.SHADER_STORAGE_BLOCK, Lib.javaToStr(name).address());
 		if (index == -1) return;
@@ -299,6 +423,17 @@ public class Shader {
 		GL.BindBufferBase(GL.SHADER_STORAGE_BUFFER, binding, buffer.bufferId);
 	}	
 
+	/**
+	 * Sets uniforms for a GBuffer.
+	 * @param gbuffer The GBuffer to set the uniforms for.
+	 *
+	 * The following uniforms are set:
+	 * - g_position (sampler2D)
+	 * - g_normal (sampler2D)
+	 * - g_baseColor (sampler2D)
+	 * - g_material (sampler2D)
+	 * - g_depth (sampler2D)
+	 */
 	public void setGBuffer(GBuffer gbuffer) {
 		this.setTexture("g_position", gbuffer.position);
 		this.setTexture("g_normal", gbuffer.normal);
@@ -307,7 +442,12 @@ public class Shader {
 		this.setTexture("g_depth", gbuffer.depth);
 	}
 
-	public void free() {
+	/**
+	 * Deletes the shader program.
+	 *
+	 * Using the shader program after this will result in undefined behavior.
+	 */
+	public void delete() {
 		GL.DeleteProgram(this.programId);
 	}
 }

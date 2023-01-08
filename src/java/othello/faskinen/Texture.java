@@ -11,6 +11,11 @@ import java.nio.file.Path;
 
 import othello.faskinen.opengl.GL;
 
+/**
+ * A wrapper around an OpenGL texture.
+ *
+ * Textures may ONLY be created after a valid OpenGL context has been created.
+ */
 public class Texture {	
 	public int textureId;
 	public int width;
@@ -21,6 +26,20 @@ public class Texture {
 	public MemorySegment segment;
 	public byte[] data;
 
+	/**
+	 * Creates a new texture.
+	 * @param internal The internal format of the texture.
+	 * @param format The format of the texture.
+	 * @param type The type of the texture.
+	 * @param width The width of the texture.
+	 * @param height The height of the texture.
+	 * @param data The data of the texture.
+	 *
+	 * If the length of data is 0, the texture will be created with no data.
+	 * If data is not big enough to fill the texture, a fatal error is likely to occur.
+	 *
+	 * @return The created texture.
+	 */
 	public Texture(int internal, int format, int type, int width, int height, byte[] data) {
 		MemorySegment textures = MemorySession.openImplicit().allocate(4);
 		GL.GenTextures(1, textures.address());
@@ -149,19 +168,7 @@ public class Texture {
 
 	public static Texture depth32f(int width, int height) {
 		return depth32f(width, height, new byte[0]);
-	}
-
-	public static Texture rgba8White() {
-		return rgba8(1, 1, new byte[] { (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF });
-	}
-
-	public static Texture rgba8Black() {
-		return rgba8(1, 1, new byte[] { (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0xFF });
-	}
-
-	public static Texture rgba8Normal() {
-		return rgba8(1, 1, new byte[] { (byte) 0x80, (byte) 0x80, (byte) 0xFF, (byte) 0xFF });
-	}
+	}	
 
 	public int pixelSize() {
 		switch (internal) {
@@ -186,6 +193,18 @@ public class Texture {
 		}
 	}
 
+	public static Texture rgba8White() {
+		return rgba8(1, 1, new byte[] { (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF });
+	}
+
+	public static Texture rgba8Black() {
+		return rgba8(1, 1, new byte[] { (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0xFF });
+	}
+
+	public static Texture rgba8Normal() {
+		return rgba8(1, 1, new byte[] { (byte) 0x80, (byte) 0x80, (byte) 0xFF, (byte) 0xFF });
+	}
+
 	public static Texture integratedDFG() {
 		byte[] bytes;
 
@@ -198,9 +217,11 @@ public class Texture {
 		return new Texture(GL.RGBA8, GL.RGBA, GL.UNSIGNED_BYTE, 256, 256, bytes);
 	}
 
-	public byte[] read() {
+	/**
+	 * Reads the texture data from the GPU and returns it as a byte array.
+	 */
+	public byte[] readBytes() {
 		int size = this.width * this.height * this.pixelSize();
-
 		if (this.segment == null || this.segment.byteSize() != size) {
 			this.segment = MemorySession.openImplicit().allocate(size);
 			this.data = new byte[size];
@@ -215,7 +236,10 @@ public class Texture {
 		return this.data;
 	}
 
-	public byte[] readPixel(int x, int y) {
+	/**
+	 * Reads the data of a single pixel from the GPU and returns it as a MemorySegment.
+	 */
+	public MemorySegment readPixel(int x, int y) {
 		MemorySegment segment = MemorySession.openImplicit().allocate(this.pixelSize());
 
 		GL.GetTextureSubImage(
@@ -226,40 +250,104 @@ public class Texture {
 			(int) segment.byteSize(), segment.address()
 		);
 
-		return segment.toArray(ValueLayout.JAVA_BYTE);
+		return segment;
 	}
 
+	/**
+	 * Reads the data of a single pixel from the GPU and returns it as a byte array.
+	 */
+	public byte[] readPixelByte(int x, int y) {
+		return this.readPixel(x, y).toArray(ValueLayout.JAVA_BYTE);
+	}
+
+	/**
+	 * Reads the data of a single pixel from the GPU and returns it as an int array.
+	 */
+	public int[] readPixelInt(int x, int y) {
+		return this.readPixel(x, y).toArray(ValueLayout.JAVA_INT);
+	}
+
+	/**
+	 * Reads the data of a single pixel from the GPU and returns it as a float array.
+	 */
+	public float[] readPixelFloat(int x, int y) {
+		return this.readPixel(x, y).toArray(ValueLayout.JAVA_FLOAT);
+	}
+
+	/**
+	 * Binds the texture as GL_TEXTURE_2D.
+	 */
 	public void bind() {
 		GL.BindTexture(GL.TEXTURE_2D, this.textureId);
 	}
 
+	/**
+	 * Unbinds the texture as GL_TEXTURE_2D.
+	 */
 	public void unbind() {
 		GL.BindTexture(GL.TEXTURE_2D, 0);
 	}
 
+	/**
+	 * Fills the texture with data at the given address.
+	 */
 	public void clear(Addressable address) {
 		GL.ClearTexImage(this.textureId, 0, this.format, this.type, address.address());
 	}
 
+	/**
+	 * Fills the texture with data.
+	 */
 	public void clear(byte[] data) {
 		MemorySegment segment = MemorySession.openImplicit().allocate(data.length);
 		segment.copyFrom(MemorySegment.ofArray(data));
 		this.clear(segment);
 	}
 
+	/**
+	 * Fills the texture with data.
+	 */
+	public void clear(int[] data) {
+		MemorySegment segment = MemorySession.openImplicit().allocate(data.length * 4);
+		segment.copyFrom(MemorySegment.ofArray(data));
+		this.clear(segment);
+	}
+
+	/**
+	 * Fills the texture with data.
+	 */
+	public void clear(float[] data) {
+		MemorySegment segment = MemorySession.openImplicit().allocate(data.length * 4);
+		segment.copyFrom(MemorySegment.ofArray(data));
+		this.clear(segment);
+	}
+
+	/**
+	 * Fills the texture with data.
+	 */
 	public void clear(Vec4 color) {
 		this.clear(color.bytes());
 	}
 
+	/**
+	 * Fills the texture with data.
+	 */
 	public void clear(int r, int g, int b, int a) {
 		MemorySegment segment = MemorySegment.ofArray(new int[] { r, g, b, a });
 		this.clear(segment);
 	}
 
+	/**
+	 * Deletes the texture.
+	 *
+	 * Using the texture after this will result in undefined behavior.
+	 */
 	public void delete() {
 		MemorySegment segment = MemorySession.openImplicit().allocate(4);
 		segment.set(ValueLayout.JAVA_INT, 0, this.textureId);
 		GL.DeleteTextures(1, segment.address());
+
+		this.textureId = -1;
 		
 		GL.assertNoError();
 	}
