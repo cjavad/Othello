@@ -33,7 +33,10 @@ public class Faskinen {
 
 	public Camera camera = new Camera();
 
-	public Faskinen() {
+	public Faskinen(int width, int height) {
+		this.imageWidth = width;
+		this.imageHeight = height;
+
 		this.window = Window.create("context", 1, 1);
 		this.window.makeContextCurrent();
 
@@ -66,6 +69,35 @@ public class Faskinen {
 		
 		this.fallbackWhite = Texture.rgba8White();
 		this.fallbackNormal = Texture.rgba8Normal();
+	}
+
+	public void resize(int width, int height) {
+		this.imageWidth = width;
+		this.imageHeight = height;
+
+		this.gbuffer.delete();
+
+		this.hdrTexture.delete();
+		this.hdrFramebuffer.delete();
+
+		this.sdrTexture.delete();
+		this.sdrFramebuffer.delete();
+
+		this.gbuffer = new GBuffer(this.supersampledWidth(), this.supersampledHeight());
+
+		this.hdrTexture = Texture.rgba16f(this.supersampledWidth(), this.supersampledHeight());
+		this.hdrFramebuffer = new Framebuffer(
+			this.supersampledWidth(), 
+			this.supersampledHeight(),
+			new Texture[] { this.hdrTexture }
+		);
+
+		this.sdrTexture = Texture.sbgra8(this.imageWidth, this.imageHeight);
+		this.sdrFramebuffer = new Framebuffer(
+			this.imageWidth, 
+			this.imageHeight, 
+			new Texture[] { this.sdrTexture }
+		);	
 	}
 
 	public int supersampledWidth() {

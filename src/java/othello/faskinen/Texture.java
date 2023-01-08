@@ -243,6 +243,10 @@ public class Texture {
 	}
 
 	public void delete() {
-		GL.DeleteTextures(1, MemorySegment.ofArray(new int[] { this.textureId }).address());
+		MemorySegment segment = MemorySession.openImplicit().allocate(4);
+		segment.set(ValueLayout.JAVA_INT, 0, this.textureId);
+		GL.DeleteTextures(1, segment.address());
+		
+		GL.assertNoError();
 	}
 }

@@ -36,4 +36,13 @@ public class GBuffer {
 
 		this.framebuffer.unbind();
 	}
+
+	public void delete() {
+		this.position.delete();
+		this.normal.delete();
+		this.baseColor.delete();
+		this.material.delete();
+		this.depth.delete();
+		this.framebuffer.delete();
+	}
 }

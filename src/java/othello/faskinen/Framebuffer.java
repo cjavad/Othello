@@ -104,16 +104,10 @@ public class Framebuffer {
 	}
 
 	public void delete() {
-		for (Texture texture : this.textures) {
-			texture.delete();
-		}
-
-		if (this.depthTexture != null) {
-			this.depthTexture.delete();
-		}
-
 		MemorySegment framebuffers = MemorySession.openImplicit().allocate(4);
 		framebuffers.set(ValueLayout.JAVA_INT, 0, this.framebufferId);
 		GL.DeleteFramebuffers(1, framebuffers.address());
+
+		GL.assertNoError();
 	}
 }

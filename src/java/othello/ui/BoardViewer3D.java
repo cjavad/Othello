@@ -21,6 +21,8 @@ public class BoardViewer3D extends SceneProvider {
 	WritableImage image;
 	PixelWriter writer;
 	ImageView imageView;
+	StackPane root;
+	Scene scene;
 
 	Faskinen faskinen;
 
@@ -34,7 +36,10 @@ public class BoardViewer3D extends SceneProvider {
 	public BoardViewer3D(SceneManager manager) {
 		super(manager, "BoardViewer3D");
 
-		this.faskinen = new Faskinen();	
+		int width = this.getSceneManager().getWidth();
+		int height = this.getSceneManager().getHeight();
+
+		this.faskinen = new Faskinen(width, height);
 
 		this.faskinen.camera.position = new Vec3(0, 3, -5);
 
@@ -55,9 +60,21 @@ public class BoardViewer3D extends SceneProvider {
 		};
 		timer.start();
 
-		StackPane root = new StackPane();
+		this.root = new StackPane();
 		root.getChildren().add(this.imageView);
-		Scene scene = new Scene(root, manager.getWidth(), manager.getHeight());
+		this.scene = new Scene(this.root, manager.getWidth(), manager.getHeight());
+
+		// handle resize
+		scene.widthProperty().addListener((obs, oldVal, newVal) -> {
+			int newWidth = (int) this.root.getWidth();
+			int newHeight = (int) this.root.getHeight();
+			this.handleResize(newWidth, newHeight);
+		});
+		scene.heightProperty().addListener((obs, oldVal, newVal) -> {	
+			int newWidth = (int) this.root.getWidth();
+			int newHeight = (int) this.root.getHeight();
+			this.handleResize(newWidth, newHeight);
+		});
 
 		scene.setOnMouseMoved(this::handleMouseMoved);
 		scene.setOnMouseDragged(this::handleMouseDragged);
@@ -65,7 +82,7 @@ public class BoardViewer3D extends SceneProvider {
 		scene.setOnKeyPressed(this::handleKeyPressed);
 		scene.setOnKeyReleased(this::handleKeyReleased);
 
-		this.setScene(scene);
+		this.setScene(this.scene);
 	}
 
 	public void renderImage() {
@@ -120,6 +137,13 @@ public class BoardViewer3D extends SceneProvider {
 			bytes, 
 			0, faskinen.imageWidth * 4
 		);
+	}
+
+	public void handleResize(int width, int height) {	
+		this.faskinen.resize(width, height);
+		this.image = new WritableImage(this.faskinen.imageWidth, this.faskinen.imageHeight);
+		this.writer = this.image.getPixelWriter();
+		this.imageView.setImage(this.image);
 	}
 
 	public void handleMouseDragged(MouseEvent event) {
