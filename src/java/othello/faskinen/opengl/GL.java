@@ -1180,6 +1180,21 @@ public class GL {
 		}
 	}
 
+	private static MethodHandle HANDLE_glDeleteVertexArrays = loadFuncGL(
+		"glDeleteVertexArrays", 
+		null,
+		Lib.C_INT32_T,
+		Lib.C_POINTER_T
+	);
+	public static void DeleteVertexArrays(int n, MemoryAddress vertexArrays) {
+		try {
+			HANDLE_glDeleteVertexArrays.invoke(n, vertexArrays);
+		} catch (Throwable e) {
+			e.printStackTrace();
+			System.exit(1);
+		}
+	}
+
 	private static MethodHandle HANDLE_glDeleteTextures = loadFuncGL(
 		"glDeleteTextures", 
 		null,

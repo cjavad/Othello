@@ -11,7 +11,7 @@ import othello.faskinen.opengl.GL;
  *
  * Framebuffers may ONLY be created after a valid OpenGL context has been created.
  */
-public class Framebuffer         {
+public class Framebuffer {
 	public Texture[] textures;
 	public Texture depthTexture;
 

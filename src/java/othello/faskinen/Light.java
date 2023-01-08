@@ -69,4 +69,12 @@ public class Light {
 
 		return viewProj;
 	}
+
+	/**
+	 * Deletes the shadowMap and shadowFramebuffer
+	 */
+	public void delete() {
+		this.shadowMap.delete();
+		this.shadowFramebuffer.delete();
+	}
 }

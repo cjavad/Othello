@@ -82,4 +82,16 @@ public class Mesh {
 		GL.BindVertexArray(0);
 		this.indexBuffer.unbind(GL.ELEMENT_ARRAY_BUFFER);
 	}
+
+	/**
+	 * Deletes all the OpenGL resources in the Mesh
+	 */
+	public void delete() {
+		this.vertexBuffer.delete();
+		this.indexBuffer.delete();
+
+		MemorySegment arrays = MemorySession.openImplicit().allocate(4);
+		arrays.set(ValueLayout.JAVA_INT, 0, this.vertexArrayId);
+		GL.DeleteVertexArrays(1, arrays.address());
+	}
 }

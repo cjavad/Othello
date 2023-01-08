@@ -5,7 +5,7 @@ import java.lang.foreign.MemoryAddress;
 import java.lang.foreign.MemorySegment;
 import java.lang.foreign.MemorySession;
 import java.lang.foreign.ValueLayout;
-import java.nio.ByteBuffer;
+import java.nio.ByteBuffer; 
 import java.nio.file.Files;
 import java.nio.file.Path;
 
@@ -16,7 +16,7 @@ import othello.faskinen.opengl.GL;
  *
  * Textures may ONLY be created after a valid OpenGL context has been created.
  */
-public class Texture {	
+public class Texture {
 	public int textureId;
 	public int width;
 	public int height;

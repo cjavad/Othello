@@ -146,4 +146,15 @@ public class Environment {
 
 		return new Environment(segment);
 	}
+
+	/**
+	 * Deletes all textures in the Environment
+	 */
+	public void delete() {
+		MemorySegment textures = MemorySession.openImplicit().allocate(4 * 3);
+		textures.set(ValueLayout.JAVA_INT, 0, this.irradianceId);
+		textures.set(ValueLayout.JAVA_INT, 0, this.indirectId);
+		textures.set(ValueLayout.JAVA_INT, 0, this.skyId);
+		GL.DeleteTextures(3, textures.address());
+	}
 }

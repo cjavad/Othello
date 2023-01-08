@@ -30,4 +30,11 @@ public class Primitive {
 	public long sizeof() {
 		return this.mesh.sizeof() + Material.sizeof();
 	}
+
+	/**
+	 * Deletes all OpenGL resources in the Primitive
+	 */
+	public void delete() {
+		this.mesh.delete();
+	}
 }

@@ -320,4 +320,32 @@ public class Faskinen {
 
 		return this.gbuffer.getPixelId(x, y);
 	}
+
+	public void delete() {
+		this.geometryShader.delete();
+		this.shadowShader.delete();
+		this.lightingShader.delete();
+		this.environmentShader.delete();
+		this.tonemapShader.delete();
+
+		this.gbuffer.delete();
+
+		this.hdrTexture.delete();
+		this.hdrFramebuffer.delete();
+
+		this.sdrTexture.delete();
+		this.sdrFramebuffer.delete();
+
+		this.fallbackWhite.delete();
+		this.fallbackNormal.delete();
+		this.integratedDFG.delete();
+
+		this.environment.delete();
+
+		for (Light light : this.lights) {
+			light.delete();
+		}
+
+		this.window.destroy();
+	}
 }

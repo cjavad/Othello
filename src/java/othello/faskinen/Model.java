@@ -92,4 +92,17 @@ public class Model {
 
 		return new Model(segment);
 	}
+
+	/**
+	 * Deletes all the OpenGL resources in the Model
+	 */
+	public void delete() {
+		for (Primitive primitive : this.primitives) {
+			primitive.delete();
+		}
+
+		for (Texture texture : this.textures) {
+			texture.delete();
+		}
+	}
 }
