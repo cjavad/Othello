@@ -76,6 +76,8 @@ public class BoardViewer3D extends SceneProvider {
 			this.handleResize(newWidth, newHeight);
 		});
 
+		scene.setOnMousePressed(this::handleMousePressed);
+
 		scene.setOnMouseMoved(this::handleMouseMoved);
 		scene.setOnMouseDragged(this::handleMouseDragged);
 
@@ -117,11 +119,13 @@ public class BoardViewer3D extends SceneProvider {
 		for (int x = 0; x < 8; x++) {
 			for (int y = 0; y < 8; y++) {
 				Vec3 position = new Vec3(x - 3.5f, 0.05f, y - 3.5f);
+
+				int id = x + y * 8;
 				
 				if ((x + y) % 2 == 0) {
-					this.faskinen.renderModel(this.chipWhite, Mat4.translation(position));
+					this.faskinen.renderModel(this.chipWhite, Mat4.translation(position), id);
 				} else {	
-					this.faskinen.renderModel(this.chipBlack, Mat4.translation(position));
+					this.faskinen.renderModel(this.chipBlack, Mat4.translation(position), id);
 				}
 			}
 		}
@@ -137,6 +141,15 @@ public class BoardViewer3D extends SceneProvider {
 			bytes, 
 			0, faskinen.imageWidth * 4
 		);
+	}
+
+	public void handleMousePressed(MouseEvent event) {
+		int x = (int) event.getX();
+		int y = (int) event.getY();
+
+		int id = this.faskinen.getPixelId(x, y);
+
+		System.out.println("id: " + id);
 	}
 
 	public void handleResize(int width, int height) {	

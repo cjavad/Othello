@@ -464,6 +464,21 @@ public class GL {
 		}
 	}
 
+	private static MethodHandle HANDLE_glUniform1ui = loadFuncGL(
+		"glUniform1ui", 
+		null,
+		Lib.C_INT32_T,
+		Lib.C_UINT32_T
+	);
+	public static void Uniform1ui(int location, int v0) {
+		try {
+			HANDLE_glUniform1ui.invoke(location, v0);
+		} catch (Throwable e) {
+			e.printStackTrace();
+			System.exit(1);
+		}
+	}
+
 	private static MethodHandle HANDLE_glUniform1f = loadFuncGL(
 		"glUniform1f", 
 		null,
@@ -892,6 +907,44 @@ public class GL {
 	public static void GetTexImage(int target, int level, int format, int type, MemoryAddress pixels) {
 		try {
 			HANDLE_glGetTexImage.invoke(target, level, format, type, pixels);
+		} catch (Throwable e) {
+			e.printStackTrace();
+			System.exit(1);
+		}
+	}
+
+	private static MethodHandle HANDLE_glGetTextureSubImage = loadFuncGL(
+		"glGetTextureSubImage", 
+		null,
+		Lib.C_UINT32_T,
+		Lib.C_INT32_T,
+		Lib.C_INT32_T,
+		Lib.C_INT32_T,
+		Lib.C_INT32_T,
+		Lib.C_INT32_T,
+		Lib.C_INT32_T,
+		Lib.C_INT32_T,
+		Lib.C_UINT32_T,
+		Lib.C_UINT32_T,
+		Lib.C_INT32_T,
+		Lib.C_POINTER_T
+	);
+	public static void GetTextureSubImage(
+		int texture, 
+		int level, 
+		int xoffset, 
+		int yoffset, 
+		int zoffset, 
+		int width, 
+		int height, 
+		int depth, 
+		int format, 
+		int type, 
+		int bufSize, 
+		MemoryAddress pixels
+	) {
+		try {
+			HANDLE_glGetTextureSubImage.invoke(texture, level, xoffset, yoffset, zoffset, width, height, depth, format, type, bufSize, pixels);
 		} catch (Throwable e) {
 			e.printStackTrace();
 			System.exit(1);

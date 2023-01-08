@@ -211,6 +211,12 @@ public class Shader {
 		GL.Uniform1i(location, value);
 	}
 
+	public void setUint(String name, int value) {
+		int location = this.getUniformLocation(name);
+		if (location == -1) return;
+		GL.Uniform1ui(location, value);
+	}
+
 	public void setFloat(String name, float value) {
 		int location = this.getUniformLocation(name);
 		if (location == -1) return;

@@ -124,7 +124,7 @@ public class Faskinen {
 		this.hdrFramebuffer.clear(0.0f, 0.0f, 0.0f, 0.0f);
 	}
 
-	public void renderModel(Model model, Mat4 transform) {
+	public void renderModel(Model model, Mat4 transform, int id) {
 		GL.Enable(GL.DEPTH_TEST);
 		GL.Viewport(0, 0, this.supersampledWidth(), this.supersampledHeight());
 
@@ -139,6 +139,8 @@ public class Faskinen {
 			this.geometryShader.setFloat("roughness", primitive.material.roughness);
 			this.geometryShader.setFloat("metallic", primitive.material.metallic);
 			this.geometryShader.setFloat("reflectance", primitive.material.reflectance);
+
+			this.geometryShader.setUint("objectId", id + 1);
 
 			if (primitive.material.baseColorTexture != -1) {
 				Texture texture = model.textures[primitive.material.baseColorTexture];
@@ -195,6 +197,10 @@ public class Faskinen {
 		GL.assertNoError();
 	}
 
+	public void renderModel(Model model, Mat4 transform) {
+		this.renderModel(model, transform, -1);
+	}
+
 	public void light() {
 		GL.Enable(GL.BLEND);
 		GL.BlendFunc(GL.ONE, GL.ONE);
@@ -215,16 +221,16 @@ public class Faskinen {
 			this.lightingShader.setVec3("lightDirection", light.direction.normalize());
 			this.lightingShader.setVec3("lightColor", light.color);
 			this.lightingShader.setFloat("lightIntensity", light.intensity);
-			this.lightingShader.setFloat("lightSoftness", 1.0f);
-			this.lightingShader.setFloat("lightFalloff", 2.0f);
+			this.lightingShader.setFloat("lightSoftness", light.shadowSoftness);
+			this.lightingShader.setFloat("lightFalloff", light.shadowFalloff);
 			
 			this.lightingShader.setTexture("shadowMap", light.shadowMap);
 			this.lightingShader.setMat4("lightViewProj", light.viewProj());
 			this.lightingShader.setFloat("lightSize", Light.SIZE);
 			this.lightingShader.setFloat("lightDepth", Light.DEPTH);
 
-			this.lightingShader.setInt("blockerSearchSamples", 24);
-			this.lightingShader.setInt("penumbraSearchSamples", 64);
+			this.lightingShader.setInt("blockerSearchSamples", light.blockerSearchSamples);
+			this.lightingShader.setInt("penumbraSearchSamples", light.penumbraSearchSamples);
 
 			this.lightingShader.drawArrays(0, 6);
 		}
@@ -265,5 +271,17 @@ public class Faskinen {
 		GL.assertNoError();
 
 		return bytes;
+	}
+
+	public int getPixelId(int x, int y) {
+		x = (int) (x * this.supersampling);
+		y = (int) (y * this.supersampling);
+
+		y = this.supersampledHeight() - y - 1;
+
+		byte[] bytes = this.gbuffer.material.readPixel(x, y);
+
+		int id = bytes[15] << 24 | bytes[14] << 16 | bytes[13] << 8 | bytes[12];
+		return id - 1;
 	}
 }

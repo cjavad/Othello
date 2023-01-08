@@ -16,6 +16,8 @@ uniform float metallic;
 uniform float roughness;
 uniform float reflectance;
 
+uniform uint objectId;
+
 uniform sampler2D baseColorMap;
 uniform sampler2D metallicRoughnessMap;
 uniform sampler2D normalMap;
@@ -35,7 +37,7 @@ void main() {
 	o_material = uvec4(
 		uintFromRgba(vec4(metallic, roughness, reflectance, 1.0)),
 		0, 
-		0, 
-		0
+		0,
+		objectId
 	);
 }

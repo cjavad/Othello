@@ -10,10 +10,16 @@ public class Light {
 		-DEPTH / 2.0f, DEPTH / 2.0f
 	);
 
-
 	public Vec3 direction;
 	public Vec3 color;
 	public float intensity;
+	
+	public float shadowSoftness = 1.0f;
+	public float shadowFalloff = 2.0f;
+
+	public int blockerSearchSamples = 24;
+	public int penumbraSearchSamples = 64;
+
 	public Texture shadowMap;
 	public Framebuffer shadowFramebuffer;
 

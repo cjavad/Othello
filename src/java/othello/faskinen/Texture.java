@@ -215,6 +215,20 @@ public class Texture {
 		return this.data;
 	}
 
+	public byte[] readPixel(int x, int y) {
+		MemorySegment segment = MemorySession.openImplicit().allocate(this.pixelSize());
+
+		GL.GetTextureSubImage(
+			this.textureId, 0, 
+			x, y, 0, 
+			1, 1, 1, 
+			this.format, this.type, 
+			(int) segment.byteSize(), segment.address()
+		);
+
+		return segment.toArray(ValueLayout.JAVA_BYTE);
+	}
+
 	public void bind() {
 		GL.BindTexture(GL.TEXTURE_2D, this.textureId);
 	}
