@@ -26,8 +26,9 @@ public class Framebuffer {
 		GL.assertNoError();
 
 		for (int i = 0; i < textures.length; i++) {
-			assert textures[i].width == width;
-			assert textures[i].height == height;
+			if (textures[i].width != width || textures[i].height != height) {
+				throw new RuntimeException("Texture size does not match framebuffer size");
+			}
 
 			textures[i].bind();
 			GL.FramebufferTexture2D(
@@ -42,8 +43,9 @@ public class Framebuffer {
 		}
 
 		if (depthTexture != null) {
-			assert depthTexture.width == width;
-			assert depthTexture.height == height;
+			if (depthTexture.width != width || depthTexture.height != height) {
+				throw new RuntimeException("Texture size does not match framebuffer size");
+			}
 
 			GL.FramebufferTexture2D(
 				GL.FRAMEBUFFER, 

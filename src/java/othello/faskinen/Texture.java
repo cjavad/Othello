@@ -5,6 +5,7 @@ import java.lang.foreign.MemoryAddress;
 import java.lang.foreign.MemorySegment;
 import java.lang.foreign.MemorySession;
 import java.lang.foreign.ValueLayout;
+import java.nio.ByteBuffer;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
@@ -18,6 +19,7 @@ public class Texture {
 	public int format;
 	public int type;
 	public MemorySegment segment;
+	public byte[] data;
 
 	public Texture(int internal, int format, int type, int width, int height, byte[] data) {
 		MemorySegment textures = MemorySession.openImplicit().allocate(4);
@@ -47,7 +49,7 @@ public class Texture {
 		GL.TexParameteri(GL.TEXTURE_2D, GL.TEXTURE_WRAP_S, GL.REPEAT);
 		GL.TexParameteri(GL.TEXTURE_2D, GL.TEXTURE_WRAP_T, GL.REPEAT);
 
-		if (type == GL.FLOAT) {
+		if (format == GL.RGBA || format == GL.BGRA) {
 			GL.TexParameteri(GL.TEXTURE_2D, GL.TEXTURE_MIN_FILTER, GL.LINEAR_MIPMAP_LINEAR);
 			GL.TexParameteri(GL.TEXTURE_2D, GL.TEXTURE_MAG_FILTER, GL.LINEAR);
 		} else {
@@ -75,6 +77,22 @@ public class Texture {
 
 	public static Texture bgra8(int width, int height) {
 		return bgra8(width, height, new byte[0]);
+	}
+
+	public static Texture srgba8(int width, int height, byte[] data) {
+		return new Texture(GL.SRGB_ALPHA, GL.BGRA, GL.UNSIGNED_BYTE, width, height, data);
+	}
+
+	public static Texture srgba8(int width, int height) {
+		return srgba8(width, height, new byte[0]);
+	}
+
+	public static Texture sbgra8(int width, int height, byte[] data) {
+		return new Texture(GL.SRGB_ALPHA, GL.BGRA, GL.UNSIGNED_BYTE, width, height, data);
+	}
+
+	public static Texture sbgra8(int width, int height) {
+		return sbgra8(width, height, new byte[0]);
 	}
 
 	public static Texture rgba16f(int width, int height, byte[] data) {
@@ -133,11 +151,24 @@ public class Texture {
 		return depth32f(width, height, new byte[0]);
 	}
 
+	public static Texture rgba8White() {
+		return rgba8(1, 1, new byte[] { (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF });
+	}
+
+	public static Texture rgba8Black() {
+		return rgba8(1, 1, new byte[] { (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0xFF });
+	}
+
+	public static Texture rgba8Normal() {
+		return rgba8(1, 1, new byte[] { (byte) 0x80, (byte) 0x80, (byte) 0xFF, (byte) 0xFF });
+	}
+
 	public int pixelSize() {
 		switch (internal) {
 			case GL.RGBA:
 			case GL.RGBA8:
 			case GL.DEPTH_COMPONENT32F:
+			case GL.SRGB_ALPHA:
 				return 4;
 
 			case GL.RGBA16F:
@@ -172,13 +203,16 @@ public class Texture {
 
 		if (this.segment == null || this.segment.byteSize() != size) {
 			this.segment = MemorySession.openImplicit().allocate(size);
+			this.data = new byte[size];
 		}
 
 		this.bind();
 		GL.GetTexImage(GL.TEXTURE_2D, 0, this.format, this.type, this.segment.address());
 		this.unbind();
 
-		return this.segment.toArray(ValueLayout.JAVA_BYTE);
+		ByteBuffer.wrap(this.data).put(this.segment.asByteBuffer());
+
+		return this.data;
 	}
 
 	public void bind() {

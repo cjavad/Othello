@@ -14,8 +14,8 @@ vec2 sampleDFG(float perceptualRoughness, float NoV) {
 
 vec3 environmentIndirect(float perceptualRoughness, vec3 R) {
 	float mipLevels = float(textureQueryLevels(indirectMap));
-	float mip = clamp(perceptualRoughness * mipLevels, 0.0, mipLevels - 1.0);	
-	return textureLod(indirectMap, R, mip).rgb;
+	float mip = clamp(perceptualRoughness * (mipLevels - 1.0), 0.0, mipLevels - 1.0);
+	return textureLod(indirectMap, flip(R), mip).rgb;
 }
 
 vec3 lightEnvironment(Surface surface) {

@@ -40,7 +40,7 @@ void main() {
 	surface.metallic = metallic;
 
 	if (texture(g_depth, uv).x == 1.0) {
-		o_color = vec4(texture(skyMap, surface.view).rgb, 1.0);	
+		o_color = vec4(texture(skyMap, surface.view).rgb * 0.8, 1.0);	
 		return;
 	}
 	

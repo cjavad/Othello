@@ -13,6 +13,8 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.StackPane;
 
 import othello.faskinen.Faskinen;
+import othello.faskinen.Mat4;
+import othello.faskinen.Model;
 import othello.faskinen.Vec3;
 
 public class BoardViewer3D extends SceneProvider {
@@ -25,12 +27,20 @@ public class BoardViewer3D extends SceneProvider {
 	float mouseX, mouseY;
 	HashSet<String> keys = new HashSet<String>();
 
+	Model chipWhite;
+	Model chipBlack;
+	Model board;
+
 	public BoardViewer3D(SceneManager manager) {
 		super(manager, "BoardViewer3D");
 
 		this.faskinen = new Faskinen();	
 
-		this.faskinen.camera.position = new Vec3(0, 0, -5);
+		this.faskinen.camera.position = new Vec3(0, 3, -5);
+
+		this.chipWhite = Model.read("models/chip_white.bin");
+		this.chipBlack = Model.read("models/chip_black.bin");
+		this.board = Model.read("models/chess_board.bin");
 
 		this.image = new WritableImage(this.faskinen.imageWidth, this.faskinen.imageHeight);
 		this.writer = this.image.getPixelWriter();
@@ -79,11 +89,26 @@ public class BoardViewer3D extends SceneProvider {
 
 		movement.y = 0.0f;
 
-		Vec3 newPosition = this.faskinen.camera.position.add(movement.mul(0.1f));
+		Vec3 newPosition = this.faskinen.camera.position.add(movement.normalize().mul(0.1f));
 		this.faskinen.camera.position = newPosition;
 
 		this.faskinen.clear();
-		this.faskinen.renderModel(this.faskinen.testModel);
+
+		Vec3 boardPosition = new Vec3(0, -0.25f, 0);
+		this.faskinen.renderModel(this.board, Mat4.translation(boardPosition));
+
+		for (int x = 0; x < 8; x++) {
+			for (int y = 0; y < 8; y++) {
+				Vec3 position = new Vec3(x - 3.5f, 0.05f, y - 3.5f);
+				
+				if ((x + y) % 2 == 0) {
+					this.faskinen.renderModel(this.chipWhite, Mat4.translation(position));
+				} else {	
+					this.faskinen.renderModel(this.chipBlack, Mat4.translation(position));
+				}
+			}
+		}
+
 		this.faskinen.light();
 		this.faskinen.tonemap();
 

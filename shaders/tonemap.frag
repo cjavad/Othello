@@ -22,6 +22,6 @@ vec3 tonemap(vec3 x) {
 }
 
 void main() {
-	vec3 color = texture(hdr, uv).rgb;
+	vec3 color = textureLod(hdr, uv, 0.0).rgb;
 	o_color = vec4(tonemap(color), 1.0);
 }

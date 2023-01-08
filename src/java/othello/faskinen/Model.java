@@ -8,6 +8,7 @@ import java.nio.file.Paths;
 
 public class Model {
 	public Primitive[] primitives;
+	public Texture[] textures;
 
 	public Model() {
 		this.primitives = new Primitive[0];
@@ -21,6 +22,26 @@ public class Model {
 		for (int i = 0; i < primitiveCount; i++) {
 			this.primitives[i] = new Primitive(segment.asSlice(offset));
 			offset += this.primitives[i].sizeof();
+		}
+
+		int textureCount = segment.get(ValueLayout.JAVA_INT, offset);
+		this.textures = new Texture[textureCount];
+
+		offset += 4;
+		for (int i = 0; i < textureCount; i++) {
+			int pixelSize = segment.get(ValueLayout.JAVA_INT, offset);
+			int width = segment.get(ValueLayout.JAVA_INT, offset + 4);
+			int height = segment.get(ValueLayout.JAVA_INT, offset + 8);
+			offset += 12;
+
+			System.out.println("Loading texture " + i + " with size " + width + "x" + height + " and pixel size " + pixelSize);
+
+			int imageSize = width * height * pixelSize;
+			MemorySegment data = MemorySession.openImplicit().allocate(width * height * pixelSize);
+			data.copyFrom(segment.asSlice(offset, imageSize));
+			this.textures[i] = Texture.rgba8(width, height, data.toArray(ValueLayout.JAVA_BYTE));	
+
+			offset += imageSize;
 		}
 	}
 

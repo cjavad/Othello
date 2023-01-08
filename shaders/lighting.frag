@@ -41,8 +41,8 @@ void main() {
 
 	Light light;
 	light.color = lightColor;
-	light.direction = -lightDirection;
-	light.intensity = 1.0;
+	light.direction = -normalize(lightDirection);
+	light.intensity = 10.0;
 	light.attenuation = 1.0;
 	light.occlusion = 1.0;
 

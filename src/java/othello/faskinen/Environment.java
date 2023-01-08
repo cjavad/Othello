@@ -9,7 +9,7 @@ import java.nio.file.Paths;
 import othello.faskinen.opengl.GL;
 
 public class Environment {
-	public float intensity = 1.0f;
+	public float intensity = 0.75f;
 
 	public int irradianceSize;
 	public int irradianceId;
@@ -26,11 +26,6 @@ public class Environment {
 		this.indirectSize = segment.get(ValueLayout.JAVA_INT, 4);
 		this.indirectMipLevels = segment.get(ValueLayout.JAVA_INT, 8);
 		this.skySize = segment.get(ValueLayout.JAVA_INT, 12);
-
-		System.out.println("irradianceSize: " + irradianceSize);
-		System.out.println("indirectSize: " + indirectSize);
-		System.out.println("indirectMipLevels: " + indirectMipLevels);
-		System.out.println("skySize: " + skySize);
 
 		int memoryOffset = 16;
 
