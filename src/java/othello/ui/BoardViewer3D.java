@@ -131,8 +131,12 @@ public class BoardViewer3D extends SceneProvider {
 			}
 		}
 
+		GL.Enable(GL.CULL_FACE);
+
 		this.faskinen.geometryPass();
 		this.faskinen.shadowPass();
+
+		GL.Disable(GL.CULL_FACE);
 
 		this.faskinen.clearRenderStack();
 
