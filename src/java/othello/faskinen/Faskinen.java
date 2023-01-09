@@ -1,6 +1,12 @@
 package othello.faskinen;
 
+import javafx.util.Pair;
 import othello.faskinen.opengl.GL;
+
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * This is FASKINEN.
@@ -42,6 +48,8 @@ public class Faskinen {
 	public Environment environment;
 	public Camera camera = new Camera();
 
+	public HashMap<Model, ArrayList<Pair<Mat4, Integer>>> renderStack;
+
 	/**
 	 * Creates a new Faskinen instance.
 	 *
@@ -78,6 +86,8 @@ public class Faskinen {
 			new Light(new Vec3(-1.0f, -2.0f, 0.5f), new Vec3(1.0f, 1.0f, 1.0f)),
 		};
 		this.environment = Environment.read("sky.env");
+
+		this.renderStack = new HashMap<Model, ArrayList<Pair<Mat4, Integer>>>();
 	}
 
 	/**
@@ -145,84 +155,105 @@ public class Faskinen {
 		this.hdrFramebuffer.clear(0.0f, 0.0f, 0.0f, 0.0f);
 	}
 
-	/**
-	 * Render a model to the gbuffer and shadow maps.
-	 */
-	public void renderModel(Model model, Mat4 transform, int id) {
-		GL.Enable(GL.DEPTH_TEST);
-		GL.Viewport(0, 0, this.supersampledWidth(), this.supersampledHeight());
-
-		float aspect = (float) this.imageWidth / (float) this.imageHeight;
-
-		this.gbuffer.bind();
-
-		for (Primitive primitive : model.primitives) {
-			this.geometryShader.use();
-
-			this.geometryShader.setVec3("baseColor", primitive.material.baseColor);
-			this.geometryShader.setFloat("roughness", primitive.material.roughness);
-			this.geometryShader.setFloat("metallic", primitive.material.metallic);
-			this.geometryShader.setFloat("reflectance", primitive.material.reflectance);
-
-			this.geometryShader.setUint("objectId", id + 1);
-
-			if (primitive.material.baseColorTexture != -1) {
-				Texture texture = model.textures[primitive.material.baseColorTexture];
-				this.geometryShader.setTexture("baseColorMap", texture);
-			} else {
-				this.geometryShader.setTexture("baseColorMap", this.fallbackWhite);
-			}
-
-			if (primitive.material.metallicRoughnessTexture != -1) {
-				Texture texture = model.textures[primitive.material.metallicRoughnessTexture];
-				this.geometryShader.setTexture("metallicRoughnessMap", texture);
-			} else {
-				this.geometryShader.setTexture("metallicRoughnessMap", this.fallbackWhite);
-			}
-
-			if (primitive.material.normalTexture != -1) {
-				Texture texture = model.textures[primitive.material.normalTexture];
-				this.geometryShader.setTexture("normalMap", texture);
-			} else {
-				this.geometryShader.setTexture("normalMap", this.fallbackNormal);
-			}
-
-			this.geometryShader.setMat4("model", transform);
-			this.geometryShader.setCamera(this.camera, aspect);
-
-			primitive.mesh.bind();
-			this.geometryShader.drawElements(primitive.mesh.indexCount, 0);
-			primitive.mesh.unbind();
-		}
-
-		this.gbuffer.unbind();
-
-		for (Light light : this.lights) {
-			this.shadowShader.use();
-
-			GL.Viewport(0, 0, Light.SHADOWMAP_SIZE, Light.SHADOWMAP_SIZE);
-
-			light.shadowFramebuffer.bind();	
-
-			this.shadowShader.setMat4("model", transform);
-			this.shadowShader.setMat4("viewProj", light.viewProj());
-
-			for (Primitive primitive : model.primitives) {
-				primitive.mesh.bind();
-				this.shadowShader.drawElements(primitive.mesh.indexCount, 0);
-				primitive.mesh.unbind();
-			}
-
-			light.shadowFramebuffer.unbind();
-		}
-
-		GL.Disable(GL.DEPTH_TEST);
-
-		GL.assertNoError();
+	public void pushModel(Model model, Mat4 transform) {
+		this.pushModel(model, transform, -1);
 	}
 
-	public void renderModel(Model model, Mat4 transform) {
-		this.renderModel(model, transform, -1);
+	public void pushModel(Model model, Mat4 transform, int id) {
+		ArrayList<Pair<Mat4, Integer>> queue = this.renderStack.get(model);
+
+		if (queue == null) {
+			queue = new ArrayList<Pair<Mat4, Integer>>();
+			this.renderStack.put(model, queue);
+		}
+
+		queue.add(new Pair<Mat4, Integer>(transform, id));
+	}
+
+	public void geometryPass() {
+		GL.Enable(GL.DEPTH_TEST);
+		GL.Viewport(0, 0, this.supersampledWidth(), this.supersampledHeight());
+		this.gbuffer.bind();
+
+		this.geometryShader.use();
+
+		float aspect = (float) this.imageWidth / (float) this.imageHeight;
+		this.geometryShader.setCamera(this.camera, aspect);
+
+		for (Map.Entry<Model, ArrayList<Pair<Mat4, Integer>>> entry : this.renderStack.entrySet()) {
+			Model model = entry.getKey();
+			for (Primitive primitive : model.primitives) {
+				this.geometryShader.setVec3("baseColor", primitive.material.baseColor);
+				this.geometryShader.setFloat("roughness", primitive.material.roughness);
+				this.geometryShader.setFloat("metallic", primitive.material.metallic);
+				this.geometryShader.setFloat("reflectance", primitive.material.reflectance);
+
+				if (primitive.material.baseColorTexture != -1) {
+					Texture texture = model.textures[primitive.material.baseColorTexture];
+					this.geometryShader.setTexture("baseColorMap", texture);
+				} else {
+					this.geometryShader.setTexture("baseColorMap", this.fallbackWhite);
+				}
+
+				if (primitive.material.metallicRoughnessTexture != -1) {
+					Texture texture = model.textures[primitive.material.metallicRoughnessTexture];
+					this.geometryShader.setTexture("metallicRoughnessMap", texture);
+				} else {
+					this.geometryShader.setTexture("metallicRoughnessMap", this.fallbackWhite);
+				}
+
+				if (primitive.material.normalTexture != -1) {
+					Texture texture = model.textures[primitive.material.normalTexture];
+					this.geometryShader.setTexture("normalMap", texture);
+				} else {
+					this.geometryShader.setTexture("normalMap", this.fallbackNormal);
+				}
+
+				primitive.mesh.bind();
+
+				for (Pair<Mat4, Integer> instance : entry.getValue()) {
+					this.geometryShader.setMat4("model", instance.getKey());
+					this.geometryShader.setUint("objectId", instance.getValue() + 1);
+					this.geometryShader.drawElements(primitive.mesh.indexCount, 0);
+				}
+			}
+		}
+	}
+
+	public void shadowPass() {
+		GL.Enable(GL.DEPTH_TEST);
+		GL.Viewport(0, 0, Light.SHADOWMAP_SIZE, Light.SHADOWMAP_SIZE);
+
+		this.shadowShader.use();
+
+		for (Light light : lights) {
+			light.shadowFramebuffer.bind();
+			this.shadowShader.setMat4("viewProj", light.viewProj());
+
+			for (Map.Entry<Model, ArrayList<Pair<Mat4, Integer>>> entry : this.renderStack.entrySet()) {
+				Model model = entry.getKey();
+
+				for (Primitive primitive : model.primitives) {
+					primitive.mesh.bind();
+
+					for (Pair<Mat4, Integer> instance : entry.getValue()) {
+						this.shadowShader.setMat4("model", instance.getKey());
+						this.shadowShader.drawElements(primitive.mesh.indexCount, 0);
+					}
+
+				}
+			}
+		}
+	}
+
+	public void clearRenderStack() {
+		// remove model if zero on stack
+		// set all model stacks to zero size
+		// be nice to gc
+		for (Map.Entry<Model, ArrayList<Pair<Mat4, Integer>>> entry : this.renderStack.entrySet()) {
+			if (entry.getValue().size() == 0) this.renderStack.remove(entry.getKey());
+			else entry.getValue().clear();
+		}
 	}
 
 	/**

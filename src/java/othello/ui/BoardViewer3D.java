@@ -16,6 +16,7 @@ import othello.faskinen.Faskinen;
 import othello.faskinen.Mat4;
 import othello.faskinen.Model;
 import othello.faskinen.Vec3;
+import othello.faskinen.opengl.GL;
 
 public class BoardViewer3D extends SceneProvider {
 	WritableImage image;
@@ -114,21 +115,28 @@ public class BoardViewer3D extends SceneProvider {
 		this.faskinen.clear();
 
 		Vec3 boardPosition = new Vec3(0, -1.25f, 0);
-		this.faskinen.renderModel(this.board, Mat4.translation(boardPosition));
+		this.faskinen.pushModel(this.board, Mat4.translation(boardPosition));
 
 		for (int x = 0; x < 8; x++) {
 			for (int y = 0; y < 8; y++) {
 				Vec3 position = new Vec3(x - 3.5f, 0.05f, y - 3.5f);
 
 				int id = x + y * 8;
-				
+
 				if ((x + y) % 2 == 0) {
-					this.faskinen.renderModel(this.chipWhite, Mat4.translation(position), id);
-				} else {	
-					this.faskinen.renderModel(this.chipBlack, Mat4.translation(position), id);
+					this.faskinen.pushModel(this.chipWhite, Mat4.translation(position), id);
+				} else {
+					this.faskinen.pushModel(this.chipBlack, Mat4.translation(position), id);
 				}
 			}
 		}
+
+		this.faskinen.geometryPass();
+		this.faskinen.shadowPass();
+
+		this.faskinen.clearRenderStack();
+
+		GL.Disable(GL.DEPTH_TEST);
 
 		this.faskinen.light();
 		this.faskinen.tonemap();
