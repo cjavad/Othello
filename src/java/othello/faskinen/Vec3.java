@@ -16,6 +16,10 @@ public class Vec3 {
 		this.z = z;
 	}
 
+	public Vec3(float v) {
+		this(v, v, v);
+	}
+
 	public Vec3() {
 		this(0, 0, 0);
 	}
