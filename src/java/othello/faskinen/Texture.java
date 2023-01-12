@@ -10,6 +10,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 import othello.faskinen.opengl.GL;
+import othello.utils.ResourceLoader;
 
 /**
  * A wrapper around an OpenGL texture.
@@ -209,7 +210,7 @@ public class Texture {
 		byte[] bytes;
 
 		try {
-			bytes = Files.readAllBytes(Path.of("integratedDFG"));
+			bytes = ResourceLoader.getIntegratedDFG();
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}

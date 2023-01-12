@@ -11,6 +11,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import othello.faskinen.opengl.GL;
+import othello.utils.ResourceLoader;
 
 /**
  * A wrapper around an OpenGL shader.
@@ -23,32 +24,31 @@ public class Shader {
 
 	private static Pattern INCLUDE_PATTERN = Pattern.compile("#include \"(.*)\"");
 	private static String VERSION = "#version 450 core";
-	private static Path SHADER_PATH = Path.of("shaders");
 
-	private static String readShaderFile(Path path) {
+	private static String readShaderFile(String shaderName) {
 		try {
-			return Files.readString(path);
+			return ResourceLoader.getShaderResource(shaderName);
 		} catch (Exception e) {
-			throw new RuntimeException("Failed to read shader file: " + path, e);
+			throw new RuntimeException("Failed to read shader file: " + shaderName, e);
 		}
 	}
 
-	private static String preprocessShader(String source, Path path, HashSet<Path> included) {
+	private static String preprocessShader(String source, HashSet<String> included) {
 		Matcher matcher = INCLUDE_PATTERN.matcher(source);
 		StringBuffer sb = new StringBuffer();
 
 		while (matcher.find()) {
-			Path includePath = path.resolveSibling(matcher.group(1));
+			String includeShader = matcher.group(1);
 
-			if (included.contains(includePath)) {
+			if (included.contains(includeShader)) {
 				matcher.appendReplacement(sb, "");
 
 				continue;
 			}
-			included.add(includePath);
+			included.add(includeShader);
 
-			String includeSource = readShaderFile(includePath);
-			includeSource = preprocessShader(includeSource, includePath, included);
+			String includeSource = readShaderFile(includeShader);
+			includeSource = preprocessShader(includeSource, included);
 			matcher.appendReplacement(sb, includeSource);
 		}
 
@@ -67,11 +67,11 @@ public class Shader {
 	 * If shaders have circular dependencies, the stack will overflow
 	 */
 	public Shader(String vertexPath, String fragmentPath) {
-		String vertexSource = readShaderFile(SHADER_PATH.resolve(vertexPath));
-		String fragmentSource = readShaderFile(SHADER_PATH.resolve(fragmentPath));
+		String vertexSource = readShaderFile(vertexPath);
+		String fragmentSource = readShaderFile(fragmentPath);
 
-		vertexSource = preprocessShader(vertexSource, SHADER_PATH.resolve(vertexPath), new HashSet<>());
-		fragmentSource = preprocessShader(fragmentSource, SHADER_PATH.resolve(fragmentPath), new HashSet<>());
+		vertexSource = preprocessShader(vertexSource, new HashSet<>());
+		fragmentSource = preprocessShader(fragmentSource, new HashSet<>());
 
 		vertexSource = VERSION + "\n" + vertexSource;
 		fragmentSource = VERSION + "\n" + fragmentSource;
@@ -144,9 +144,9 @@ public class Shader {
 	 * If shaders have circular dependencies, the stack will overflow
 	 */
 	public Shader(String vertexPath) {
-		String vertexSource = readShaderFile(SHADER_PATH.resolve(vertexPath));
+		String vertexSource = readShaderFile(vertexPath);
 
-		vertexSource = preprocessShader(vertexSource, SHADER_PATH.resolve(vertexPath), new HashSet<>());
+		vertexSource = preprocessShader(vertexSource, new HashSet<>());
 		vertexSource = VERSION + "\n" + vertexSource;
 
 		MemorySegment vertexSources = MemorySession.openImplicit().allocate(8);

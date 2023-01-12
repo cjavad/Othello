@@ -3,7 +3,6 @@ package othello.faskinen;
 import javafx.util.Pair;
 import othello.faskinen.opengl.GL;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -85,7 +84,7 @@ public class Faskinen {
 		this.lights = new Light [] {		
 			new Light(new Vec3(-1.0f, -2.0f, 0.5f), new Vec3(1.0f, 1.0f, 1.0f)),
 		};
-		this.environment = Environment.read("sky.env");
+		this.environment = Environment.read("misc/sky.env");
 
 		this.renderStack = new HashMap<Model, ArrayList<Pair<Mat4, Integer>>>();
 	}
@@ -302,7 +301,7 @@ public class Faskinen {
 		this.environmentShader.setTextureCube("irradianceMap", this.environment.irradianceId);
 		this.environmentShader.setTextureCube("indirectMap", this.environment.indirectId);
 		this.environmentShader.setTextureCube("skyMap", this.environment.skyId);
-		this.environmentShader.setTexture("integratedDFG", this.integratedDFG);
+		this.environmentShader.setTexture("misc/integratedDFG", this.integratedDFG);
 		this.environmentShader.drawArrays(0, 6);
 
 		this.hdrFramebuffer.unbind();

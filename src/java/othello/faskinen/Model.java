@@ -1,5 +1,7 @@
 package othello.faskinen;
 
+import othello.utils.ResourceLoader;
+
 import java.lang.foreign.MemorySegment;
 import java.lang.foreign.MemorySession;
 import java.lang.foreign.ValueLayout;
@@ -73,16 +75,16 @@ public class Model {
 
 	/**
 	 * Reads a model from a file.
-	 * @param path The path to the file.
+	 * @param modelName The name of the model to load.
 	 * @return The model.
 	 *
 	 * If the file is invalid, a fatal error is likely to occur.
 	 */
-	public static Model read(String path) {
+	public static Model read(String modelName) {
 		byte[] bytes;
 
 		try {
-			bytes = Files.readAllBytes(Paths.get(path));
+			bytes = ResourceLoader.getModelResource(modelName);
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}

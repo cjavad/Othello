@@ -55,7 +55,7 @@ public class Light {
 
 	/**
 	 * Calculate the view projection matrix for the light.
-	 * @param return The view projection matrix.
+	 * @return The view projection matrix.
 	 */
 	public Mat4 viewProj() {
 		Mat4 view;

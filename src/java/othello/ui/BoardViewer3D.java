@@ -44,9 +44,9 @@ public class BoardViewer3D extends SceneProvider {
 
 		this.faskinen.camera.position = new Vec3(0, 3, -5);
 
-		this.chipWhite = Model.read("models/chip_white.bin");
-		this.chipBlack = Model.read("models/chip_black.bin");
-		this.board = Model.read("models/chess_board.bin");
+		this.chipWhite = Model.read("chip_white.bin");
+		this.chipBlack = Model.read("chip_black.bin");
+		this.board = Model.read("chess_board.bin");
 
 		this.image = new WritableImage(this.faskinen.imageWidth, this.faskinen.imageHeight);
 		this.writer = this.image.getPixelWriter();

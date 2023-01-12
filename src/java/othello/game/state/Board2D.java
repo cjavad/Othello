@@ -17,7 +17,7 @@ public class Board2D implements othello.game.state.interfaces.Board2D {
     private ArrayList<Space> spaces;
 
     public Board2D(Player[] players, boolean manuel) {
-        this(players.length*4, players.length*4, players, manuel);
+        this(players.length * 4, players.length * 4, players, manuel);
     }
 
     public Board2D(int rows, int columns, Player[] players, boolean manuel) {
@@ -97,7 +97,8 @@ public class Board2D implements othello.game.state.interfaces.Board2D {
         int playerOccupied = this.getCell(space);
         if (playerOccupied == playerId) return 1;
         // If last move was made in this round and the target cell is empty it is not a valid move
-        if (this.getLatestMove() != null && this.getLatestMove().getRound() == this.round && playerOccupied == -1) return 1;
+        if (this.getLatestMove() != null && this.getLatestMove().getRound() == this.round && playerOccupied == -1)
+            return 1;
 
         Space[] neighbors = this.getAllNeighbors(space);
         boolean[] validDirections = new boolean[8];
@@ -152,20 +153,35 @@ public class Board2D implements othello.game.state.interfaces.Board2D {
         if (this.isValidMove(space, this.currentPlayerId) > 0) return null;
         int prevValue = this.getCell(space);
 
-        ArrayList<Change> changes = new ArrayList<>();
+        Move move = this.getLatestMove();
+
+        if (move != null && move.getRound() == this.round && move.getPlayerId() == this.currentPlayerId) {
+            // We have already made a placement this round, and the following moves are flips
+            // These changes will be added to the previous move
+            // Pop move to be readded later
+            this.moves.remove(this.moves.size() - 1);
+        } else {
+            // We are making a new placement
+            // Create a new move
+            move = new Move(this.round, this.currentPlayerId, space, new ArrayList<>());
+            this.setCell(space, this.currentPlayerId);
+        }
+
+        ArrayList<Change> changes = (ArrayList<Change>) move.getChanges();
 
         if (this.manual) {
             // Don't propagate changes if manual
             changes.add(new Change(space, prevValue));
             this.setCell(space, this.currentPlayerId);
         } else {
-            // Automatically propagate changes
-            // TODO
+            // Automatically propagate changes by executing all valid moves
+            for (Space validMove : this.getValidMoves(this.currentPlayerId)) {
+                changes.add(new Change(validMove, this.getCell(validMove)));
+                this.setCell(validMove, this.currentPlayerId);
+            }
         }
 
-        // Create move
-        Move move = new Move(this.round, this.currentPlayerId, changes);
-        // Add to list of moves
+        move.setChanges(changes);
         this.moves.add(move);
         return move;
     }

@@ -7,6 +7,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 
 import othello.faskinen.opengl.GL;
+import othello.utils.ResourceLoader;
 
 /**
  * An pre-baked environment.
@@ -136,7 +137,7 @@ public class Environment {
 		byte[] bytes;
 
 		try {
-			bytes = Files.readAllBytes(Paths.get(path));
+			bytes = ResourceLoader.readAsBytes(path);
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
