@@ -52,6 +52,8 @@ public class BoardViewer3D extends SceneProvider {
 		this.faskinen = new Faskinen(width, height);
 
 		this.faskinen.camera.position = new Vec3(0, 3, -5);
+		this.faskinen.camera.yaw = 3.14f;
+		this.faskinen.camera.pitch = -0.5f;
 
 		this.chipWhite = Model.read("chip_white.bin");
 		this.chipBlack = Model.read("chip_black.bin");
