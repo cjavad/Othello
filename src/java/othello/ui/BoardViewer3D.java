@@ -17,6 +17,9 @@ import othello.faskinen.Mat4;
 import othello.faskinen.Model;
 import othello.faskinen.Vec3;
 import othello.faskinen.opengl.GL;
+import othello.game.state.Board2D;
+import othello.game.state.Player;
+import othello.game.state.Space;
 
 public class BoardViewer3D extends SceneProvider {
 	WritableImage image;
@@ -37,6 +40,10 @@ public class BoardViewer3D extends SceneProvider {
 	Model spaceBlack;
 
 	public BoardViewer3D(SceneManager manager) {
+		this(manager, new Board2D(new Player[0], false));
+	}
+
+	public BoardViewer3D(SceneManager manager, Board2D board) {
 		super(manager, "BoardViewer3D");
 
 		int width = this.getSceneManager().getWidth();
@@ -60,7 +67,7 @@ public class BoardViewer3D extends SceneProvider {
 		AnimationTimer timer = new AnimationTimer() {
 			@Override
 			public void handle(long now) {
-				renderImage();
+				renderImage(board);
 			}
 		};
 		timer.start();
@@ -81,8 +88,6 @@ public class BoardViewer3D extends SceneProvider {
 			this.handleResize(newWidth, newHeight);
 		});
 
-		scene.setOnMousePressed(this::handleMousePressed);
-
 		scene.setOnMouseMoved(this::handleMouseMoved);
 		scene.setOnMouseDragged(this::handleMouseDragged);
 
@@ -92,7 +97,7 @@ public class BoardViewer3D extends SceneProvider {
 		this.setScene(this.scene);
 	}
 
-	public void renderImage() {
+	public void renderImage(Board2D board) {
 		Vec3 movement = new Vec3();
 
 		if (this.keys.contains("W")) {
@@ -132,6 +137,17 @@ public class BoardViewer3D extends SceneProvider {
 				} else {
 					this.faskinen.pushModel(this.spaceBlack, Mat4.translation(position), id);
 				}
+
+				position.y = 0.1f;
+
+				Space space = new Space(x, y);
+				int player = board.getCell(space);
+
+				if (player == 0) {
+					this.faskinen.pushModel(this.chipWhite, Mat4.translation(position), id);
+				} else if (player == 1) {
+					this.faskinen.pushModel(this.chipBlack, Mat4.translation(position), id);
+				}
 			}
 		}
 
@@ -159,13 +175,12 @@ public class BoardViewer3D extends SceneProvider {
 		);
 	}
 
-	public void handleMousePressed(MouseEvent event) {
-		int x = (int) event.getX();
-		int y = (int) event.getY();
+	public int getPixelId(MouseEvent event) {
+		return this.faskinen.getPixelId((int) event.getX(), (int) event.getY());
+	}
 
-		int id = this.faskinen.getPixelId(x, y);
-
-		System.out.println("id: " + id);
+	public int getPixelId(int x, int y) {
+		return this.faskinen.getPixelId(x, y);
 	}
 
 	public void handleResize(int width, int height) {	
