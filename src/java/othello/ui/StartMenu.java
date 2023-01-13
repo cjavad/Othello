@@ -38,7 +38,7 @@ public class StartMenu extends SceneProvider {
         StackPane root = new StackPane();
         root.getChildren().add(grid);
         Scene scene = new Scene(root, manager.getWidth(), manager.getHeight());
-        scene.addEventFilter(KeyEvent.KEY_PRESSED, this::handleKey);
+        //scene.addEventFilter(KeyEvent.KEY_PRESSED, this::handleKey);
         this.setScene(scene);
     }
 

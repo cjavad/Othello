@@ -12,10 +12,7 @@ import java.util.Map;
  *
  * @author Faskinen
  */
-public class Faskinen {
-	/* Window */
-	public Window window;
-
+public class Faskinen {	
 	/* Shader programs */
 	public Shader geometryShader;
 	public Shader shadowShader;
@@ -57,9 +54,6 @@ public class Faskinen {
 	public Faskinen(int width, int height) {
 		this.imageWidth = width;
 		this.imageHeight = height;
-
-		this.window = Window.create("context", 1, 1);
-		this.window.makeContextCurrent();	
 
 		GL.Enable(GL.TEXTURE_CUBE_MAP_SEAMLESS);
 
@@ -375,7 +369,5 @@ public class Faskinen {
 		for (Light light : this.lights) {
 			light.delete();
 		}
-
-		this.window.destroy();
 	}
 }

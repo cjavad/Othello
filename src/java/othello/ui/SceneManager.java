@@ -45,7 +45,7 @@ public class SceneManager {
 
         this.scenes.add(provider);
         this.activeSceneIndex = scenes.size() - 1;
-        setActiveScene(provider.getScene());
+        this.setActiveScene(provider.getScene());
     }
 
     public Scene getActiveScene() {

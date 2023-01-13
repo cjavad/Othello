@@ -40,7 +40,7 @@ public class BoardViewer3D extends SceneProvider {
 	Model spaceBlack;
 
 	public BoardViewer3D(SceneManager manager) {
-		this(manager, new Board2D(new Player[0], false));
+		this(manager, new Board2D(new Player[] { new Player(0), new Player(1) }, false));
 	}
 
 	public BoardViewer3D(SceneManager manager, Board2D board) {
@@ -66,7 +66,7 @@ public class BoardViewer3D extends SceneProvider {
 
 		AnimationTimer timer = new AnimationTimer() {
 			@Override
-			public void handle(long now) {
+			public void handle(long now) {	
 				renderImage(board);
 			}
 		};
@@ -76,28 +76,20 @@ public class BoardViewer3D extends SceneProvider {
 		root.getChildren().add(this.imageView);
 		this.scene = new Scene(this.root, manager.getWidth(), manager.getHeight());
 
-		// handle resize
-		scene.widthProperty().addListener((obs, oldVal, newVal) -> {
-			int newWidth = (int) this.root.getWidth();
-			int newHeight = (int) this.root.getHeight();
-			this.handleResize(newWidth, newHeight);
-		});
-		scene.heightProperty().addListener((obs, oldVal, newVal) -> {	
-			int newWidth = (int) this.root.getWidth();
-			int newHeight = (int) this.root.getHeight();
-			this.handleResize(newWidth, newHeight);
-		});
+		this.scene.setOnMouseMoved(this::handleMouseMoved);
+		this.scene.setOnMouseDragged(this::handleMouseDragged);
 
-		scene.setOnMouseMoved(this::handleMouseMoved);
-		scene.setOnMouseDragged(this::handleMouseDragged);
-
-		scene.setOnKeyPressed(this::handleKeyPressed);
-		scene.setOnKeyReleased(this::handleKeyReleased);
+		this.scene.setOnKeyPressed(this::handleKeyPressed);
+		this.scene.setOnKeyReleased(this::handleKeyReleased);
 
 		this.setScene(this.scene);
 	}
 
 	public void renderImage(Board2D board) {
+		int newWidth = (int) this.scene.getWidth();
+		int newHeight = (int) this.scene.getHeight();
+		this.handleResize(newWidth, newHeight);
+
 		Vec3 movement = new Vec3();
 
 		if (this.keys.contains("W")) {
@@ -126,8 +118,8 @@ public class BoardViewer3D extends SceneProvider {
 		Vec3 boardPosition = new Vec3(0, 0, 0);
 		this.faskinen.pushModel(this.boardFrame, Mat4.translation(boardPosition));
 
-		for (int x = 0; x < 8; x++) {
-			for (int y = 0; y < 8; y++) {
+		for (int x = 0; x < board.getColumns(); x++) {
+			for (int y = 0; y < board.getRows(); y++) {
 				Vec3 position = new Vec3(x - 3.5f, 0, y - 3.5f);
 
 				int id = x + y * 8;
@@ -138,15 +130,20 @@ public class BoardViewer3D extends SceneProvider {
 					this.faskinen.pushModel(this.spaceBlack, Mat4.translation(position), id);
 				}
 
-				position.y = 0.1f;
+				position.y = 0.3f;
 
 				Space space = new Space(x, y);
-				int player = board.getCell(space);
+				int playerId = board.getCell(space);
+				if (playerId == -1) continue;
 
-				if (player == 0) {
+				Player player = board.getPlayer(playerId);
+
+				if (player.getColor() == "#FFFFFF") {
 					this.faskinen.pushModel(this.chipWhite, Mat4.translation(position), id);
-				} else if (player == 1) {
+				} else if (player.getColor() == "#101010") {
 					this.faskinen.pushModel(this.chipBlack, Mat4.translation(position), id);
+				} else {
+					System.out.println("Unknown player color: " + player.getColor());
 				}
 			}
 		}
@@ -184,6 +181,10 @@ public class BoardViewer3D extends SceneProvider {
 	}
 
 	public void handleResize(int width, int height) {	
+		if (this.faskinen.imageWidth == width && this.faskinen.imageHeight == height) {
+			return;
+		}
+
 		this.faskinen.resize(width, height);
 		this.image = new WritableImage(this.faskinen.imageWidth, this.faskinen.imageHeight);
 		this.writer = this.image.getPixelWriter();
