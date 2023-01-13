@@ -32,7 +32,9 @@ public class BoardViewer3D extends SceneProvider {
 
 	Model chipWhite;
 	Model chipBlack;
-	Model board;
+	Model boardFrame;
+	Model spaceWhite;
+	Model spaceBlack;
 
 	public BoardViewer3D(SceneManager manager) {
 		super(manager, "BoardViewer3D");
@@ -46,7 +48,9 @@ public class BoardViewer3D extends SceneProvider {
 
 		this.chipWhite = Model.read("chip_white.bin");
 		this.chipBlack = Model.read("chip_black.bin");
-		this.board = Model.read("chess_board.bin");
+		this.boardFrame = Model.read("board_frame.bin");
+		this.spaceWhite = Model.read("space_white.bin");
+		this.spaceBlack = Model.read("space_black.bin");
 
 		this.image = new WritableImage(this.faskinen.imageWidth, this.faskinen.imageHeight);
 		this.writer = this.image.getPixelWriter();
@@ -114,19 +118,19 @@ public class BoardViewer3D extends SceneProvider {
 
 		this.faskinen.clear();
 
-		Vec3 boardPosition = new Vec3(0, -1.25f, 0);
-		this.faskinen.pushModel(this.board, Mat4.translation(boardPosition));
+		Vec3 boardPosition = new Vec3(0, 0, 0);
+		this.faskinen.pushModel(this.boardFrame, Mat4.translation(boardPosition));
 
 		for (int x = 0; x < 8; x++) {
 			for (int y = 0; y < 8; y++) {
-				Vec3 position = new Vec3(x - 3.5f, 0.05f, y - 3.5f);
+				Vec3 position = new Vec3(x - 3.5f, 0, y - 3.5f);
 
 				int id = x + y * 8;
 
 				if ((x + y) % 2 == 0) {
-					this.faskinen.pushModel(this.chipWhite, Mat4.translation(position), id);
+					this.faskinen.pushModel(this.spaceWhite, Mat4.translation(position), id);
 				} else {
-					this.faskinen.pushModel(this.chipBlack, Mat4.translation(position), id);
+					this.faskinen.pushModel(this.spaceBlack, Mat4.translation(position), id);
 				}
 			}
 		}
