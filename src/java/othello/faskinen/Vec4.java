@@ -26,16 +26,6 @@ public class Vec4 {
 		return segment.toArray(ValueLayout.JAVA_BYTE);
 	}
 
-	public byte[] rgba8() {
-		return new byte[] {
-			(byte)(x * 255),
-			(byte)(y * 255),
-			(byte)(z * 255),
-			(byte)(w * 255)
-		};
-
-	}
-
 	public Vec3 truncate() {
 		return new Vec3(this.x, this.y, this.z);
 	}
