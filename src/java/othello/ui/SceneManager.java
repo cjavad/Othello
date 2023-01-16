@@ -56,6 +56,16 @@ public class SceneManager {
         return this.scenes.get(this.activeSceneIndex - 1).getScene();
     }
 
+    public void resetScene(String name, boolean onlyOnActive) {
+        for (int i = 0; i < this.scenes.size(); i++) {
+            if (this.scenes.get(i).getName().equals(name)) {
+                if (i == this.activeSceneIndex || !onlyOnActive) {
+                    this.setActive(this.scenes.get(i), true);
+                }
+            }
+        }
+    }
+
     public void goBack() {
         this.activeSceneIndex--;
         this.setActiveScene(this.getActiveScene());
