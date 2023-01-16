@@ -6,16 +6,12 @@ import othello.faskinen.Window;
 import othello.ui.SceneManager;
 import othello.ui.StartMenu;
 
-import java.io.File;
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
 import java.net.URISyntaxException;
 import java.nio.file.Paths;
 
 public class App extends Application {
-//    public static void main(String[] args) {
-//        launch(args);
-//    }
 
     @Override
     public void start(Stage stage) throws Exception {
