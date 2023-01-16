@@ -8,6 +8,8 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.Scene;
 import othello.AdvancedReversi;
 import othello.BasicReversi;
+import othello.game.state.Board2D;
+import othello.game.state.Player;
 
 // Start Menu UI
 
@@ -53,7 +55,11 @@ public class StartMenu extends SceneProvider {
     }
 
     private void handleFaskineClick(ActionEvent event) {
-        new BoardViewer3D(this.getSceneManager()).setActive();
+        Board2D board = new Board2D(
+            new Player[] { new Player(0), new Player(1) },
+            false
+        );
+        new BoardViewer2D(this.getSceneManager(), board).setActive();
     }
 
     private void handleKey(KeyEvent event) {

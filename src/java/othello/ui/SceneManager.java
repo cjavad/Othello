@@ -4,6 +4,7 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class SceneManager {
     private int width;
@@ -12,11 +13,14 @@ public class SceneManager {
     private Stage stage;
     private ArrayList<SceneProvider> scenes;
     private int activeSceneIndex;
+
+    private HashMap<String, Boolean> options;
     public SceneManager(Stage stage, int width, int height) {
         this.stage = stage;
         this.width = width;
         this.height = height;
         this.scenes = new ArrayList<>();
+        this.options = new HashMap<>();
     }
 
     public void setActiveScene(Scene scene) {
@@ -78,6 +82,13 @@ public class SceneManager {
         }
     }
 
+    public void setOption(String name, boolean value) {
+        this.options.put(name, value);
+    }
+
+    public boolean getOption(String name) {
+        return this.options.get(name);
+    }
     public Stage getStage() {
         return this.stage;
     }
