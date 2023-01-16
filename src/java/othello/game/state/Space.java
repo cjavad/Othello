@@ -42,4 +42,51 @@ public class Space implements othello.game.state.interfaces.Space {
 
         return new Space(row, column);
     }
+
+    public String toString() {
+        return "[" + this.row + ", " + this.column + "]";
+    }
+
+    @Override
+    public int compareTo(Space space) {
+        if (space == null) return 1;
+        // If the piece appears before the other piece, return -1
+        if (this.row < space.row) {
+            return -1;
+        } else if (this.row > space.row) {
+            return 1;
+        } else if (this.column < space.column) {
+            return -1;
+        } else if (this.column > space.column) {
+            return 1;
+        }
+
+        return 0;
+    }
+
+    public int compareToRow(Space space) {
+        // If the piece appears before the other piece, return -1
+        if (this.row < space.row) {
+            return -1;
+        } else if (this.row > space.row) {
+            return 1;
+        }
+
+        return 0;
+    }
+
+    public int compareToColumn(Space space) {
+        // If the piece appears before the other piece, return -1
+        if (this.column < space.column) {
+            return -1;
+        } else if (this.column > space.column) {
+            return 1;
+        }
+
+        return 0;
+    }
+
+    public int distanceTo(Space space) {
+        return Math.abs(this.row - space.row) + Math.abs(this.column - space.column);
+    }
 }

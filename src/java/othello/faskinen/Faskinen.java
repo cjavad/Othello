@@ -295,7 +295,7 @@ public class Faskinen {
 		this.environmentShader.setTextureCube("irradianceMap", this.environment.irradianceId);
 		this.environmentShader.setTextureCube("indirectMap", this.environment.indirectId);
 		this.environmentShader.setTextureCube("skyMap", this.environment.skyId);
-		this.environmentShader.setTexture("misc/integratedDFG", this.integratedDFG);
+		this.environmentShader.setTexture("integratedDFG", this.integratedDFG);
 		this.environmentShader.drawArrays(0, 6);
 
 		this.hdrFramebuffer.unbind();

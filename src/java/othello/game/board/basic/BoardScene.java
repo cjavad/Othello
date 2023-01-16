@@ -11,6 +11,8 @@ import javafx.scene.paint.Paint;
 import javafx.scene.shape.Ellipse;
 import javafx.scene.text.Text;
 import othello.game.state.Board2D;
+import othello.game.state.Line;
+import othello.game.state.Move;
 import othello.game.state.Space;
 import othello.ui.SceneManager;
 import othello.ui.SceneProvider;

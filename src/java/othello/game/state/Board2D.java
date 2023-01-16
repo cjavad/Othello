@@ -2,6 +2,8 @@ package othello.game.state;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
+import java.util.Objects;
 
 public class Board2D implements othello.game.state.interfaces.Board2D {
     // Determines if moves are made automatically
@@ -42,7 +44,7 @@ public class Board2D implements othello.game.state.interfaces.Board2D {
 
         this.round = 0;
         this.currentPlayerId = 0;
-        this.moves = new ArrayList<Move>();
+        this.moves = new ArrayList<>();
         this.manual = manuel;
 
         // Generate list of valid spaces initially once.
@@ -84,7 +86,6 @@ public class Board2D implements othello.game.state.interfaces.Board2D {
         return currentSpace.getRelativeSpace(stepsX, stepsY, this.rows, this.columns);
     }
 
-
     public Space[] getAllNeighbors(Space space) {
         Space[] neighbors = new Space[8];
         for (int direction = 0; direction < neighbors.length; direction++)
@@ -92,45 +93,105 @@ public class Board2D implements othello.game.state.interfaces.Board2D {
         return neighbors;
     }
 
-    public int isValidMove(Space space, int playerId) {
-        // Determine if move can be played by player
-        int playerOccupied = this.getCell(space);
-        if (playerOccupied == playerId) return 1;
-        // If last move was made in this round and the target cell is empty it is not a valid move
-        if (this.getLatestMove() != null && this.getLatestMove().getRound() == this.round && playerOccupied == -1)
-            return 1;
+    public Line[] findLines(Space placementSpace, int playerId) {
+        // Find all lines that are captured by this move
+        Line[] lines = {
+            new Line(placementSpace, "vertical", this.rows, this.columns),
+            new Line(placementSpace, "horizontal", this.rows, this.columns),
+            new Line(placementSpace, "diagonal", this.rows, this.columns),
+            new Line(placementSpace, "antiDiagonal", this.rows, this.columns)
+        };
 
-        Space[] neighbors = this.getAllNeighbors(space);
-        boolean[] validDirections = new boolean[8];
+        for (int i = 0; i < lines.length; i++) {
+            boolean found = false;
 
-        for (int direction = 0; direction < 8; direction++) {
-            if (neighbors[direction] == null) continue;
-            int neighbor = this.getCell(neighbors[direction]);
-            if (neighbor == -1) continue;
-            if (neighbor == playerId) {
-                validDirections[direction] = true;
-                continue;
+            for (int j = 0; j < lines[i].length(); j++) {
+                Space space = lines[i].at(j);
+                if (space == null) continue;
+                int cell = this.getCell(space);
+
+                if (found && cell == -1) {
+                    // Invalidate line
+                    lines[i] = null;
+                    break;
+                };
+
+                if (space.equals(placementSpace) || cell == playerId) {
+                    // This space is considered owned by playerId
+                    if (found) {
+                        lines[i].setStart(space);
+                        break;
+                    } else {
+                        lines[i].setEnd(space);
+                        found = true;
+                    }
+                }
             }
 
-            // Otherwise loop for own piece in direction (to ensure that there is a line between the two pieces)
-            int steps = 1;
-            Space nextNeighbor;
-            int nextNeighborId;
-
-            do {
-                nextNeighbor = getRelativeSpace(neighbors[direction], direction, steps);
-                nextNeighborId = nextNeighbor == null ? -1 : this.getCell(nextNeighbor);
-                // If we find our own piece we can flip or place the piece
-                if (nextNeighborId == playerId) return 0;
-                steps++;
-            } while (nextNeighborId != -1);
+            // If line is not valid, set it to null
+            if (lines[i] != null && (lines[i].length() < 1 || !found))
+                lines[i] = null;
         }
 
-        // If there are two opposing valid directions we can flip or place the piece
-        if (validDirections[0] && validDirections[4]) return 0;
-        if (validDirections[1] && validDirections[5]) return 0;
-        if (validDirections[2] && validDirections[6]) return 0;
-        if (validDirections[3] && validDirections[7]) return 0;
+        // Find all non-null lines
+        return Arrays.stream(lines).filter(Objects::nonNull).toArray(Line[]::new);
+    }
+
+    public int isValidMove(Space space, int playerId) {
+        // Get state of space
+        int playerOccupied = this.getCell(space);
+        // If the player already occupies the space, then the move is invalid (1)
+        if (playerOccupied == playerId) return 1;
+        // Find last move
+        Move lastMove = this.getLatestMove();
+        // If last move was made in this round, then the following moves can only be flips
+        if (lastMove != null && lastMove.getRound() == this.round) {
+            // If the space is empty, then the move is invalid, as it is not a flip (1)
+            if (playerOccupied == -1) return 1;
+
+            // Flips can only be made on existing lines
+            // Fetch precalculated lines
+            Line[] lines = lastMove.getLines();
+
+            // For each line if the space is on the line, then the move is valid (0)
+            for (Line line : lines) {
+                if (line == null) continue;
+                if (line.contains(space)) {
+                    System.out.println("Space: " + space + " is valid due to line: " + line + " " + line.contains(space));
+                    return 0;
+                }
+            }
+        } else if (playerOccupied == -1) {
+            // If the target space is empty, then the move is valid if it is adjacent to a space occupied by another player
+            // Get all neighbors
+            Space[] neighbors = this.getAllNeighbors(space);
+            // For each neighbor, if the neighbor is occupied by another player
+            // Then the move is valid if a line can be formed including the neighbor and the target space
+
+            Line[] lines = this.findLines(space, playerId);
+
+            for (Line line : lines) {
+                boolean lineContainsNeighbor = false;
+                if (line == null) continue;
+
+                for (Space neighbor : neighbors) {
+                    if (neighbor == null) continue;
+                    int neighborOccupied = this.getCell(neighbor);
+
+                    if (neighborOccupied != -1 && neighborOccupied != playerId && space.distanceTo(neighbor) == 1) {
+                        if (line.contains(neighbor) && line.contains(space)) {
+                            lineContainsNeighbor = true;
+                            break;
+                        }
+                    }
+                }
+
+                if (lineContainsNeighbor && line.length() > 2) {
+                    System.out.println("Space: " + space + " is valid due to line: " + line);
+                    return 0;
+                }
+            }
+        }
 
         // Otherwise the move is invalid
         return 1;
@@ -149,6 +210,28 @@ public class Board2D implements othello.game.state.interfaces.Board2D {
         return validMoves;
     }
 
+    // MAke above function an iterator that calls isValidMove every run
+    public Iterator<Space> getValidMovesIterator(int playerId) {
+        final int[] spaceIndex = {0};
+        return new Iterator<>() {
+            @Override
+            public boolean hasNext() {
+                return spaceIndex[0] < spaces.size();
+            }
+
+            @Override
+            public Space next() {
+                Space space = spaces.get(spaceIndex[0]);
+                if (isValidMove(space, playerId) == 0) {
+                    return space;
+                }
+                spaceIndex[0]++;
+                return null;
+            }
+        };
+    }
+
+
     public Move move(Space space) {
         if (this.isValidMove(space, this.currentPlayerId) > 0) return null;
         int prevValue = this.getCell(space);
@@ -163,7 +246,7 @@ public class Board2D implements othello.game.state.interfaces.Board2D {
         } else {
             // We are making a new placement
             // Create a new move
-            move = new Move(this.round, this.currentPlayerId, space, new ArrayList<>());
+            move = new Move(this.round, this.currentPlayerId, space, this.findLines(space, this.currentPlayerId), new ArrayList<>());
             this.setCell(space, this.currentPlayerId);
         }
 
@@ -172,11 +255,17 @@ public class Board2D implements othello.game.state.interfaces.Board2D {
         if (this.manual) {
             // Don't propagate changes if manual
             changes.add(new Change(space, prevValue));
+            move.invalidateLinesMove(space);
             this.setCell(space, this.currentPlayerId);
         } else {
             // Automatically propagate changes by executing all valid moves
-            for (Space validMove : this.getValidMoves(this.currentPlayerId)) {
+            Iterator<Space> validMovesIterator = this.getValidMovesIterator(this.currentPlayerId);
+
+            while (validMovesIterator.hasNext()) {
+                Space validMove = validMovesIterator.next();
+                if (validMove == null) continue;
                 changes.add(new Change(validMove, this.getCell(validMove)));
+                move.invalidateLinesMove(space);
                 this.setCell(validMove, this.currentPlayerId);
             }
         }
