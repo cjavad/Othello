@@ -3,7 +3,6 @@ package othello.game.state;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
-import java.util.Objects;
 
 public class Board2D implements othello.game.state.interfaces.Board2D {
     // Determines if moves are made automatically
@@ -20,6 +19,11 @@ public class Board2D implements othello.game.state.interfaces.Board2D {
 
     public Board2D(Player[] players, boolean manuel) {
         this(players.length * 4, players.length * 4, players, manuel);
+    }
+
+    public Board2D(Player[] players, int[] startingBoard, boolean manuel) {
+        this(players.length * 4, players.length * 4, players, manuel);
+        this.board = startingBoard;
     }
 
     public Board2D(int rows, int columns, Player[] players, boolean manuel) {
@@ -102,39 +106,85 @@ public class Board2D implements othello.game.state.interfaces.Board2D {
             new Line(placementSpace, "antiDiagonal", this.rows, this.columns)
         };
 
+        boolean debug = placementSpace.equals(new Space(5, 3));
+
+
         for (int i = 0; i < lines.length; i++) {
             boolean found = false;
 
-            for (int j = 0; j < lines[i].length(); j++) {
+            int len = lines[i].length();
+            Space currentStart = lines[i].getStart();
+            Space currentEnd = lines[i].getEnd();
+
+            for (int j = 0; j < len; j++) {
                 Space space = lines[i].at(j);
                 if (space == null) continue;
                 int cell = this.getCell(space);
-
-                if (found && cell == -1) {
-                    // Invalidate line
-                    lines[i] = null;
-                    break;
-                };
+                if (found && !space.equals(placementSpace) && cell == -1) break;
 
                 if (space.equals(placementSpace) || cell == playerId) {
                     // This space is considered owned by playerId
                     if (found) {
-                        lines[i].setStart(space);
-                        break;
+                        // This space is the end of the line
+                        currentEnd = space;
                     } else {
-                        lines[i].setEnd(space);
+                        currentStart = space;
                         found = true;
                     }
                 }
             }
 
-            // If line is not valid, set it to null
-            if (lines[i] != null && (lines[i].length() < 1 || !found))
+
+            if (lines[i] == null) {
+                continue;
+            }
+
+            lines[i].setStart(currentStart);
+            lines[i].setEnd(currentEnd);
+
+            if (
+                    (this.getCell(currentStart) == -1 && !currentStart.equals(placementSpace)) ||
+                    (this.getCell(currentEnd) == -1 && !currentEnd.equals(placementSpace)) ||
+                    !found ||
+                    !lines[i].contains(placementSpace)
+                    || lines[i].length() < 3
+            ) {
                 lines[i] = null;
+            }
         }
 
         // Find all non-null lines
-        return Arrays.stream(lines).filter(Objects::nonNull).toArray(Line[]::new);
+        return Arrays.stream(lines).filter(line -> this.isValidLine(line, placementSpace, playerId)).toArray(Line[]::new);
+    }
+
+    public boolean isValidLine(Line line, Space placementSpace, int playerId) {
+        if (line == null) return false;
+        // Line cannot contain any empty spaces
+        for (int i = 0; i < line.length(); i++) {
+            Space space = line.at(i);
+            if (space == null) continue;
+            if (this.getCell(space) == -1 && i != 0 && i != line.length() - 1) return false;
+        }
+
+        // Start and end of line must be owned by the same player or empty
+        int startCell = this.getCell(line.getStart());
+        int endCell = this.getCell(line.getEnd());
+
+        // The line is invalid if the first and last space are not owned by the same player
+        // In the case of the first or last space being empty, and it is equal to the placement space
+        // it is valid if the playerId is the same as the player who owns the opposite end of the line
+
+        if (line.getStart().equals(placementSpace)) {
+            startCell = playerId;
+        }
+
+        if (line.getEnd().equals(placementSpace)) {
+            endCell = playerId;
+        }
+
+        if (startCell != -1 && endCell != -1 && startCell != endCell) return false;
+
+        return true;
     }
 
     public int isValidMove(Space space, int playerId) {
@@ -144,6 +194,7 @@ public class Board2D implements othello.game.state.interfaces.Board2D {
         if (playerOccupied == playerId) return 1;
         // Find last move
         Move lastMove = this.getLatestMove();
+
         // If last move was made in this round, then the following moves can only be flips
         if (lastMove != null && lastMove.getRound() == this.round) {
             // If the space is empty, then the move is invalid, as it is not a flip (1)
@@ -151,44 +202,30 @@ public class Board2D implements othello.game.state.interfaces.Board2D {
 
             // Flips can only be made on existing lines
             // Fetch precalculated lines
-            Line[] lines = lastMove.getLines();
+            Line[] lines = findLines(lastMove.getPlacementSpace(), playerId);
 
             // For each line if the space is on the line, then the move is valid (0)
             for (Line line : lines) {
                 if (line == null) continue;
                 if (line.contains(space)) {
-                    System.out.println("Space: " + space + " is valid due to line: " + line + " " + line.contains(space));
                     return 0;
                 }
             }
         } else if (playerOccupied == -1) {
-            // If the target space is empty, then the move is valid if it is adjacent to a space occupied by another player
-            // Get all neighbors
-            Space[] neighbors = this.getAllNeighbors(space);
-            // For each neighbor, if the neighbor is occupied by another player
-            // Then the move is valid if a line can be formed including the neighbor and the target space
-
             Line[] lines = this.findLines(space, playerId);
 
             for (Line line : lines) {
-                boolean lineContainsNeighbor = false;
                 if (line == null) continue;
-
-                for (Space neighbor : neighbors) {
-                    if (neighbor == null) continue;
-                    int neighborOccupied = this.getCell(neighbor);
-
-                    if (neighborOccupied != -1 && neighborOccupied != playerId && space.distanceTo(neighbor) == 1) {
-                        if (line.contains(neighbor) && line.contains(space)) {
-                            lineContainsNeighbor = true;
-                            break;
-                        }
+                if (line.length() < 3) continue;
+                if (line.at(1) != null && this.getCell(line.at(1)) == playerId) continue;
+                if (line.at(line.length() - 2) != null && this.getCell(line.at(line.length() - 2)) == playerId) continue;
+                // If line contains any spaces that are not occupied by the player and the move is a flip the move is valid
+                for (int i = 0; i < line.length(); i++) {
+                    Space lineSpace = line.at(i);
+                    if (lineSpace == null) continue;
+                    if (!space.equals(lineSpace) && this.getCell(lineSpace) != playerId && this.getCell(lineSpace) != -1) {
+                        return 0;
                     }
-                }
-
-                if (lineContainsNeighbor && line.length() > 2) {
-                    System.out.println("Space: " + space + " is valid due to line: " + line);
-                    return 0;
                 }
             }
         }
@@ -255,7 +292,7 @@ public class Board2D implements othello.game.state.interfaces.Board2D {
         if (this.manual) {
             // Don't propagate changes if manual
             changes.add(new Change(space, prevValue));
-            move.invalidateLinesMove(space);
+            // move.invalidateLinesMove(space);
             this.setCell(space, this.currentPlayerId);
         } else {
             // Automatically propagate changes by executing all valid moves
@@ -265,7 +302,7 @@ public class Board2D implements othello.game.state.interfaces.Board2D {
                 Space validMove = validMovesIterator.next();
                 if (validMove == null) continue;
                 changes.add(new Change(validMove, this.getCell(validMove)));
-                move.invalidateLinesMove(space);
+                // move.invalidateLinesMove(space);
                 this.setCell(validMove, this.currentPlayerId);
             }
         }
@@ -342,5 +379,17 @@ public class Board2D implements othello.game.state.interfaces.Board2D {
         }
 
         return score;
+    }
+
+    public String toString() {
+        StringBuilder boardString = new StringBuilder();
+        int i = 0;
+        for (Space s : this.getSpaces()) {
+            // pad width of each cell to 3 characters
+            boardString.append(String.format("%3s", this.getCell(s)));
+            i++;
+            if (i % this.columns == 0) boardString.append("\n");
+        }
+        return boardString.toString();
     }
 }

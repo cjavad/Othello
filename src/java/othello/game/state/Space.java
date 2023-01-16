@@ -64,6 +64,10 @@ public class Space implements othello.game.state.interfaces.Space {
         return 0;
     }
 
+    public boolean equals(Space space) {
+        return this.compareTo(space) == 0;
+    }
+
     public int compareToRow(Space space) {
         // If the piece appears before the other piece, return -1
         if (this.row < space.row) {

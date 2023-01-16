@@ -18,6 +18,10 @@ public class Move implements othello.game.state.interfaces.Move {
         this.lines = lines;
     }
 
+    public Space getPlacementSpace() {
+        return this.placementSpace;
+    }
+
     public int getRound() {
         return this.round;
     }
