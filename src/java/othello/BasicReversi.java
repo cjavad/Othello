@@ -22,7 +22,7 @@ public class BasicReversi extends SceneProvider {
         }
 
         // Create simple scene
-        Board2D board = new Board2D(players, true);
+        Board2D board = new Board2D(players, false);
         GameScene gameUI = new GameScene(manager, board);
         // Set scene
         this.setScene(gameUI.getScene());

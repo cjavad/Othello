@@ -91,6 +91,6 @@ public class Space implements othello.game.state.interfaces.Space {
     }
 
     public int distanceTo(Space space) {
-        return Math.abs(this.row - space.row) + Math.abs(this.column - space.column);
+        return Math.max(Math.abs(this.row - space.row), Math.abs(this.column - space.column));
     }
 }

@@ -33,12 +33,25 @@ public class Line implements othello.game.state.interfaces.Line {
                 this.end = new Space(maxRow - 1, offset.getColumn());
             }
             case "diagonal" -> {
-                this.start = new Space(0, 0);
-                this.end = new Space(maxRow - 1, maxColumn - 1);
+                int row = offset.getRow();
+                int column = offset.getColumn();
+                int rowStart = row - Math.min(row, column);
+                int columnStart = column - Math.min(row, column);
+                int min = Math.min(maxRow - row - 1, maxColumn - column - 1);
+                int rowEnd = row + min;
+                int columnEnd = column + min;
+                this.start = new Space(rowStart, columnStart);
+                this.end = new Space(rowEnd, columnEnd);
             }
             case "antiDiagonal" -> {
-                this.start = new Space(0, maxColumn - 1);
-                this.end = new Space(maxRow - 1, 0);
+                int row = offset.getRow();
+                int column = offset.getColumn();
+                int rowStart = row - Math.min(row, maxColumn - column - 1);
+                int columnStart = column + Math.min(row, maxColumn - column - 1);
+                int rowEnd = row + Math.min(maxRow - row - 1, column);
+                int columnEnd = column - Math.min(maxRow - row - 1, column);
+                this.start = new Space(rowStart, columnStart);
+                this.end = new Space(rowEnd, columnEnd);
             }
             default -> throw new IllegalArgumentException("Invalid direction: " + direction);
         }

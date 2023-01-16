@@ -106,7 +106,7 @@ public class Board2D implements othello.game.state.interfaces.Board2D {
             new Line(placementSpace, "antiDiagonal", this.rows, this.columns)
         };
 
-        boolean debug = placementSpace.equals(new Space(5, 3));
+        boolean debug = placementSpace.equals(new Space(5, 4));
 
 
         for (int i = 0; i < lines.length; i++) {
@@ -115,6 +115,7 @@ public class Board2D implements othello.game.state.interfaces.Board2D {
             int len = lines[i].length();
             Space currentStart = lines[i].getStart();
             Space currentEnd = lines[i].getEnd();
+            Space lastOwnOffset = null;
 
             for (int j = 0; j < len; j++) {
                 Space space = lines[i].at(j);
@@ -127,8 +128,16 @@ public class Board2D implements othello.game.state.interfaces.Board2D {
                     if (found) {
                         // This space is the end of the line
                         currentEnd = space;
+
+                        if (currentEnd.distanceTo(lastOwnOffset) > 1) {
+                            break;
+                        } else {
+                            lastOwnOffset = currentEnd;
+                        }
                     } else {
+                        // This space is the start of the line
                         currentStart = space;
+                        lastOwnOffset = space;
                         found = true;
                     }
                 }
@@ -138,6 +147,8 @@ public class Board2D implements othello.game.state.interfaces.Board2D {
             if (lines[i] == null) {
                 continue;
             }
+
+
 
             lines[i].setStart(currentStart);
             lines[i].setEnd(currentEnd);
@@ -166,30 +177,14 @@ public class Board2D implements othello.game.state.interfaces.Board2D {
             if (this.getCell(space) == -1 && i != 0 && i != line.length() - 1) return false;
         }
 
-        // Start and end of line must be owned by the same player or empty
-        int startCell = this.getCell(line.getStart());
-        int endCell = this.getCell(line.getEnd());
-
-        // The line is invalid if the first and last space are not owned by the same player
-        // In the case of the first or last space being empty, and it is equal to the placement space
-        // it is valid if the playerId is the same as the player who owns the opposite end of the line
-
-        if (line.getStart().equals(placementSpace)) {
-            startCell = playerId;
-        }
-
-        if (line.getEnd().equals(placementSpace)) {
-            endCell = playerId;
-        }
-
-        if (startCell != -1 && endCell != -1 && startCell != endCell) return false;
-
         return true;
     }
 
     public int isValidMove(Space space, int playerId) {
+        boolean debug = space.equals(new Space(5, 4));
         // Get state of space
         int playerOccupied = this.getCell(space);
+
         // If the player already occupies the space, then the move is invalid (1)
         if (playerOccupied == playerId) return 1;
         // Find last move
@@ -202,7 +197,7 @@ public class Board2D implements othello.game.state.interfaces.Board2D {
 
             // Flips can only be made on existing lines
             // Fetch precalculated lines
-            Line[] lines = findLines(lastMove.getPlacementSpace(), playerId);
+            Line[] lines = lastMove.getLines();
 
             // For each line if the space is on the line, then the move is valid (0)
             for (Line line : lines) {
@@ -217,8 +212,8 @@ public class Board2D implements othello.game.state.interfaces.Board2D {
             for (Line line : lines) {
                 if (line == null) continue;
                 if (line.length() < 3) continue;
-                if (line.at(1) != null && this.getCell(line.at(1)) == playerId) continue;
-                if (line.at(line.length() - 2) != null && this.getCell(line.at(line.length() - 2)) == playerId) continue;
+                if (line.at(1) != null && line.at(1).equals(space) && this.getCell(line.at(1)) == playerId) continue;
+                if (line.at(line.length() - 2) != null && line.at(line.length() - 2).equals(space) && this.getCell(line.at(line.length() - 2)) == playerId) continue;
                 // If line contains any spaces that are not occupied by the player and the move is a flip the move is valid
                 for (int i = 0; i < line.length(); i++) {
                     Space lineSpace = line.at(i);
@@ -276,15 +271,12 @@ public class Board2D implements othello.game.state.interfaces.Board2D {
         Move move = this.getLatestMove();
 
         if (move != null && move.getRound() == this.round && move.getPlayerId() == this.currentPlayerId) {
-            // We have already made a placement this round, and the following moves are flips
-            // These changes will be added to the previous move
-            // Pop move to be readded later
-            this.moves.remove(this.moves.size() - 1);
         } else {
             // We are making a new placement
             // Create a new move
-            move = new Move(this.round, this.currentPlayerId, space, this.findLines(space, this.currentPlayerId), new ArrayList<>());
             this.setCell(space, this.currentPlayerId);
+            move = new Move(this.round, this.currentPlayerId, space, this.findLines(space, this.currentPlayerId), new ArrayList<>());
+            this.moves.add(move);
         }
 
         ArrayList<Change> changes = (ArrayList<Change>) move.getChanges();
@@ -302,13 +294,18 @@ public class Board2D implements othello.game.state.interfaces.Board2D {
                 Space validMove = validMovesIterator.next();
                 if (validMove == null) continue;
                 changes.add(new Change(validMove, this.getCell(validMove)));
+                move.setChanges(changes);
+                // Update valid lines
                 // move.invalidateLinesMove(space);
                 this.setCell(validMove, this.currentPlayerId);
             }
+
+            // Automatically switch player
+            this.nextPlayer();
         }
 
         move.setChanges(changes);
-        this.moves.add(move);
+
         return move;
     }
 
@@ -382,13 +379,23 @@ public class Board2D implements othello.game.state.interfaces.Board2D {
     }
 
     public String toString() {
-        StringBuilder boardString = new StringBuilder();
+        StringBuilder boardString = new StringBuilder("Cols:  ");
         int i = 0;
+        int lc = 0;
+
+        for (int j = 0; j < this.columns; j++) {
+            boardString.append(String.format("%3s", j));
+        }
+
         for (Space s : this.getSpaces()) {
+            if (i % this.columns == 0) {
+                boardString.append(String.format("\n%s\nRow %1s: ", "-".repeat(this.columns * 5), s.row));
+            }
+
+
             // pad width of each cell to 3 characters
             boardString.append(String.format("%3s", this.getCell(s)));
             i++;
-            if (i % this.columns == 0) boardString.append("\n");
         }
         return boardString.toString();
     }
