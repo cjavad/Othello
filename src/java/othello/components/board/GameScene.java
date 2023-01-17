@@ -19,7 +19,7 @@ public class GameScene extends SceneProvider {
 	public Board2D board;
 
 	public othello.components.board.basic.BoardScene basicBoard;
-	public othello.components.board.advanced.BoardScene advancedBoard;
+	public BoardViewer3D advancedBoard;
 
 	public SceneManager manager;
 
@@ -55,9 +55,9 @@ public class GameScene extends SceneProvider {
 		this.setScene(this.basicBoard.getScene());
 	}
 
-	public othello.components.board.advanced.BoardScene getAdvancedBoard() {
+	public BoardViewer3D getAdvancedBoard() {
 		if (this.advancedBoard == null) {
-			this.advancedBoard = new othello.components.board.advanced.BoardScene(this.manager, this.board);
+			this.advancedBoard = new BoardViewer3D(this.manager, this.board);
 			this.advancedPane.setCenter(advancedBoard.getRoot());
 			this.advancedBoard.getScene().setRoot(this.advancedPane);
 		}

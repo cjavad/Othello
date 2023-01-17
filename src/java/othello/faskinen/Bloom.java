@@ -33,14 +33,14 @@ public class Bloom {
 		Vec3 curve = new Vec3(
 			threshold - knee,
 			knee * 2,
-			0.25f / (knee * knee)
+			0.25f / knee
 		);
 
 		int maxLevel = this.downsample.levels() - 2;
-		float scale = Math.max(
+		float scale = 16.0f / Math.max(
 			this.downsample.width(maxLevel), 
 			this.downsample.height(maxLevel)
-		) / 2.0f;	
+		);
 
 		this.downsampleShader.setInt("mip", 0);
 		this.downsampleShader.setFloat("scale", scale);

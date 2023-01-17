@@ -9,7 +9,6 @@ import java.lang.foreign.MemorySegment;
 import java.lang.foreign.MemorySession;
 import java.lang.invoke.MethodType;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -58,11 +57,28 @@ public class Faskinen {
 	 */
 	public Faskinen(int width, int height) {
 		GL.DebugMessageCallback(Lib.getJavaFuncPointer(
-				Faskinen.class,
-				"debugCallback",
-				MethodType.methodType(void.class, int.class, int.class, int.class, int.class, int.class, MemoryAddress.class, MemoryAddress.class),
-				FunctionDescriptor.ofVoid(Lib.C_UINT32_T, Lib.C_UINT32_T, Lib.C_UINT32_T, Lib.C_UINT32_T, Lib.C_UINT32_T, Lib.C_POINTER_T, Lib.C_POINTER_T))
-		);
+			Faskinen.class,
+			"debugCallback",
+			MethodType.methodType(
+				void.class, 
+				int.class, 
+				int.class, 
+				int.class, 
+				int.class, 
+				int.class, 
+				MemoryAddress.class, 
+				MemoryAddress.class
+			),
+			FunctionDescriptor.ofVoid(
+				Lib.C_UINT32_T, 
+				Lib.C_UINT32_T, 
+				Lib.C_UINT32_T, 
+				Lib.C_UINT32_T, 
+				Lib.C_UINT32_T, 
+				Lib.C_POINTER_T, 
+				Lib.C_POINTER_T
+			)
+		));
 
 		this.imageWidth = width;
 		this.imageHeight = height;
@@ -318,7 +334,7 @@ public class Faskinen {
 	 * Tone maps the HDR framebuffer to the SDR framebuffer.
 	 */
 	public void tonemap() {
-		this.bloom.render(this.hdrFramebuffer, 3.5f, 1.0f);
+		this.bloom.render(this.hdrFramebuffer, 3.0f, 0.5f);
 
 		GL.Viewport(0, 0, this.imageWidth, this.imageHeight);
 

@@ -23,6 +23,7 @@ uniform uint objectId;
 uniform sampler2D baseColorMap;
 uniform sampler2D metallicRoughnessMap;
 uniform sampler2D normalMap;
+uniform sampler2D emissiveMap;
 
 void main() {
 	vec2 uv = fract(w_uv);
@@ -35,8 +36,9 @@ void main() {
 
 	o_baseColor = texture(baseColorMap, uv) * vec4(baseColor, 1.0);
 
-	float metallic = texture(metallicRoughnessMap, uv).x * metallic;
-	float roughness = texture(metallicRoughnessMap, uv).y * roughness;
+	vec4 metallicRoughness = texture(metallicRoughnessMap, uv);
+	float metallic = metallicRoughness.x * metallic;
+	float roughness = metallicRoughness.y * roughness;
 
 	o_material = uvec4(
 		uintFromRgba(vec4(metallic, roughness, reflectance, 1.0)),
@@ -45,5 +47,5 @@ void main() {
 		objectId
 	);
 
-	o_emissive = vec4(emissive, 1.0);
+	o_emissive = texture(emissiveMap, uv) * vec4(emissive, 1.0);
 }
