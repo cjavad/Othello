@@ -1,11 +1,8 @@
 package othello.components.board;
 
 import java.util.HashSet;
-import java.util.Objects;
 
 import javafx.animation.AnimationTimer;
-import javafx.geometry.Bounds;
-import javafx.geometry.Point2D;
 import javafx.scene.Scene;
 import javafx.scene.image.ImageView;
 import javafx.scene.image.PixelFormat;
@@ -126,7 +123,7 @@ public class BoardViewer3D extends SceneProvider {
 
 			int id = space.x + space.y * 8;
 
-				if ((x + y) % 2 == 0) {
+				if ((space.x + space.y) % 2 == 0) {
 					stack.pushModel(this.spaceWhite, Mat4.translation(position), id);
 				} else {
 					stack.pushModel(this.spaceBlack, Mat4.translation(position), id);
@@ -139,13 +136,12 @@ public class BoardViewer3D extends SceneProvider {
 
 			Player player = board.getPlayer(playerId);
 
-				if (player.getColor() == "#FFFFFF") {
-					stack.pushModel(this.chipWhite, Mat4.translation(position), id);
-				} else if (player.getColor() == "#101010") {
-					stack.pushModel(this.chipBlack, Mat4.translation(position), id);
-				} else {
-					System.out.println("Unknown player color: " + player.getColor());
-				}
+			if (player.getColor() == "#FFFFFF") {
+				stack.pushModel(this.chipWhite, Mat4.translation(position), id);
+			} else if (player.getColor() == "#101010") {
+				stack.pushModel(this.chipBlack, Mat4.translation(position), id);
+			} else {
+				System.out.println("Unknown player color: " + player.getColor());
 			}
 		}
 
