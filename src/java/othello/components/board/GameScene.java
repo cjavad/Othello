@@ -1,4 +1,4 @@
-package othello.game;
+package othello.components.board;
 
 import javafx.event.ActionEvent;
 
@@ -7,10 +7,10 @@ import javafx.event.ActionEvent;
 import javafx.scene.control.Button;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
-import othello.game.state.Board2D;
-import othello.ui.GoBackOnce;
-import othello.ui.SceneManager;
-import othello.ui.SceneProvider;
+import othello.components.ui.GoBackOnce;
+import othello.game.Board2D;
+import othello.components.SceneManager;
+import othello.components.SceneProvider;
 
 public class GameScene extends SceneProvider {
 	public boolean rtxOn = false;
@@ -18,8 +18,8 @@ public class GameScene extends SceneProvider {
 	public BorderPane advancedPane;
 	public Board2D board;
 
-	public othello.game.board.basic.BoardScene basicBoard;
-	public othello.game.board.advanced.BoardScene advancedBoard;
+	public othello.components.board.basic.BoardScene basicBoard;
+	public othello.components.board.advanced.BoardScene advancedBoard;
 
     public GameScene(SceneManager manager, Board2D board) {
         super(manager, "GameScene");
@@ -32,7 +32,7 @@ public class GameScene extends SceneProvider {
 		rtxButton.setOnAction(this::toggleRTX);
 		grid.add(rtxButton, 1, 0);
 
-        this.basicBoard = new othello.game.board.basic.BoardScene(manager, this.board);	
+        this.basicBoard = new othello.components.board.basic.BoardScene(manager, this.board);
 
 		this.basicPane = new BorderPane(); 
 		this.basicPane.setCenter(basicBoard.getRoot());
@@ -45,7 +45,7 @@ public class GameScene extends SceneProvider {
 		rtxButton.setOnAction(this::toggleRTX);
 		grid.add(rtxButton, 1, 0);
 
-		this.advancedBoard = new othello.game.board.advanced.BoardScene(manager, this.board);
+		this.advancedBoard = new othello.components.board.advanced.BoardScene(manager, this.board);
 
 		this.advancedPane = new BorderPane();
 		this.advancedPane.setCenter(advancedBoard.getRoot());

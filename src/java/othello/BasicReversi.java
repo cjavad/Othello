@@ -1,10 +1,10 @@
 package othello;
 
-import othello.game.GameScene;
-import othello.game.state.Board2D;
-import othello.game.state.Player;
-import othello.ui.SceneManager;
-import othello.ui.SceneProvider;
+import othello.components.SceneManager;
+import othello.components.SceneProvider;
+import othello.components.board.GameScene;
+import othello.game.Board2D;
+import othello.game.Player;
 
 /**
  * Required preset class for assignment
@@ -14,12 +14,24 @@ public class BasicReversi extends SceneProvider {
     public BasicReversi(SceneManager manager) {
         super(manager, "BasicReversi");
 
-        int playerCount = 2;
-        Player[] players = new Player[playerCount];
+        int[] emptyStartingBoard8x8 = {
+                -1,-1, -1, -1, -1, -1, -1, -1,
+                -1, 1, -1, -1, -1, -1, -1, -1,
+                -1,-1,  0, -1, -1, -1, -1, -1,
+                -1,-1, -1,  1, -1, -1, -1, -1,
+                -1,-1, -1, -1,  0, -1, -1, -1,
+                -1,-1, -1, -1, -1,  1, -1, -1,
+                -1,-1, -1, -1, -1, -1,  0, -1,
+                -1,-1, -1, -1, -1, -1, -1,  -1,
+        };
 
-        for (int i = 0; i < playerCount; i++) {
-            players[i] = new Player(i);
-        }
+        // 1 0 1 0 1 0 1 Diag
+        //  Diagonal bugs
+
+        Player[] players = {
+                new Player(0),
+                new Player(1),
+        };
 
         // Create simple scene
         Board2D board = new Board2D(players, false);

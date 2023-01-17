@@ -1,6 +1,6 @@
-package othello.game.state;
+package othello.game;
 
-public class Line implements othello.game.state.interfaces.Line {
+public class Line implements othello.game.interfaces.Line {
     private int maxRow;
     private int maxColumn;
     private Space start;
@@ -8,7 +8,7 @@ public class Line implements othello.game.state.interfaces.Line {
     private int dr;
     private int dc;
 
-    public Line(Space start, Space end, int maxRow, int maxColumn) {
+    public Line(Space start, Space end, int maxColumn, int maxRow) {
         this.start = start;
         this.end = end;
         this.maxRow = maxRow;
@@ -22,26 +22,26 @@ public class Line implements othello.game.state.interfaces.Line {
         this.dc = end.compareToColumn(start);
     }
 
-    public Line(Space offset, String direction, int maxRow, int maxColumn) {
+    public Line(Space offset, String direction, int maxColumn, int maxRow) {
         switch (direction) {
             case "vertical" -> {
-                this.start = new Space(offset.getRow(), 0);
-                this.end = new Space(offset.getRow(), maxColumn - 1);
+                this.start = new Space(0, offset.getRow());
+                this.end = new Space(maxColumn - 1, offset.getRow());
             }
             case "horizontal" -> {
-                this.start = new Space(0, offset.getColumn());
-                this.end = new Space(maxRow - 1, offset.getColumn());
+                this.start = new Space(offset.getColumn(), 0);
+                this.end = new Space(offset.getColumn(), maxRow - 1);
             }
             case "diagonal" -> {
-                int row = offset.getRow();
                 int column = offset.getColumn();
-                int rowStart = row - Math.min(row, column);
+                int row = offset.getRow();
                 int columnStart = column - Math.min(row, column);
+                int rowStart = row - Math.min(row, column);
                 int min = Math.min(maxRow - row - 1, maxColumn - column - 1);
-                int rowEnd = row + min;
                 int columnEnd = column + min;
-                this.start = new Space(rowStart, columnStart);
-                this.end = new Space(rowEnd, columnEnd);
+                int rowEnd = row + min;
+                this.start = new Space(columnStart, rowStart);
+                this.end = new Space(columnEnd, rowEnd);
             }
             case "antiDiagonal" -> {
                 int row = offset.getRow();
@@ -50,8 +50,8 @@ public class Line implements othello.game.state.interfaces.Line {
                 int columnStart = column + Math.min(row, maxColumn - column - 1);
                 int rowEnd = row + Math.min(maxRow - row - 1, column);
                 int columnEnd = column - Math.min(maxRow - row - 1, column);
-                this.start = new Space(rowStart, columnStart);
-                this.end = new Space(rowEnd, columnEnd);
+                this.start = new Space(columnStart, rowStart);
+                this.end = new Space(columnEnd, rowEnd);
             }
             default -> throw new IllegalArgumentException("Invalid direction: " + direction);
         }
@@ -81,7 +81,7 @@ public class Line implements othello.game.state.interfaces.Line {
             return null;
         }
 
-        return new Space(row, column);
+        return new Space(column, row);
     }
 
     public Space getStart() {

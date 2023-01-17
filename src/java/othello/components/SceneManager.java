@@ -1,4 +1,4 @@
-package othello.ui;
+package othello.components;
 
 import javafx.scene.Scene;
 import javafx.stage.Stage;
@@ -21,6 +21,15 @@ public class SceneManager {
         this.height = height;
         this.scenes = new ArrayList<>();
         this.options = new HashMap<>();
+
+        // Update width and height on resize
+        this.stage.widthProperty().addListener((observable, oldValue, newValue) -> {
+            this.width = newValue.intValue();
+        });
+
+        this.stage.heightProperty().addListener((observable, oldValue, newValue) -> {
+            this.height = newValue.intValue();
+        });
     }
 
     public void setActiveScene(Scene scene) {

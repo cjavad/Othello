@@ -2,8 +2,8 @@ package othello;
 
 import javafx.scene.Scene;
 import javafx.scene.layout.Pane;
-import othello.ui.SceneManager;
-import othello.ui.SceneProvider;
+import othello.components.SceneManager;
+import othello.components.SceneProvider;
 
 /**
  * Required preset class for assignment

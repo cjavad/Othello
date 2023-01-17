@@ -1,6 +1,6 @@
-package othello.game.state.interfaces;
+package othello.game.interfaces;
 
-import othello.game.state.Change;
+import othello.game.Change;
 
 public interface Move {
     public int getRound();

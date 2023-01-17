@@ -1,4 +1,4 @@
-package othello.ui;
+package othello.components.ui;
 
 import javafx.event.*;
 import javafx.scene.control.Button;
@@ -8,8 +8,11 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.Scene;
 import othello.AdvancedReversi;
 import othello.BasicReversi;
-import othello.game.state.Board2D;
-import othello.game.state.Player;
+import othello.components.SceneManager;
+import othello.components.SceneProvider;
+import othello.components.board.BoardViewer2D;
+import othello.game.Board2D;
+import othello.game.Player;
 
 // Start Menu UI
 

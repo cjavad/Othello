@@ -1,6 +1,6 @@
-package othello.game.state;
+package othello.game;
 
-public class Change implements othello.game.state.interfaces.Change {
+public class Change implements othello.game.interfaces.Change {
     private Space space;
     private int prevPlayerId;
 

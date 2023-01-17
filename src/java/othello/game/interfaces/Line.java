@@ -1,6 +1,6 @@
-package othello.game.state.interfaces;
+package othello.game.interfaces;
 
-import othello.game.state.Space;
+import othello.game.Space;
 
 public interface Line {
     public Space at(int i);

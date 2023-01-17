@@ -1,4 +1,4 @@
-package othello.ui;
+package othello.components.board;
 
 import java.util.HashSet;
 
@@ -12,14 +12,16 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.StackPane;
 
+import othello.components.SceneManager;
+import othello.components.SceneProvider;
 import othello.faskinen.Faskinen;
 import othello.faskinen.Mat4;
 import othello.faskinen.Model;
 import othello.faskinen.Vec3;
 import othello.faskinen.opengl.GL;
-import othello.game.state.Board2D;
-import othello.game.state.Player;
-import othello.game.state.Space;
+import othello.game.Board2D;
+import othello.game.Player;
+import othello.game.Space;
 
 public class BoardViewer3D extends SceneProvider {
 	WritableImage image;

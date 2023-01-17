@@ -1,4 +1,4 @@
-package othello.game.state;
+package othello.game;
 
 
 /**
@@ -6,21 +6,21 @@ package othello.game.state;
  * We store the board as a 1D array for performance reasons.
  */
 
-public class Space implements othello.game.state.interfaces.Space {
-    public int row;
+public class Space implements othello.game.interfaces.Space {
     public int column;
+    public int row;
 
-    public Space(int row, int column) {
-        this.row = row;
+    public Space(int column, int row) {
         this.column = column;
-    }
-
-    public int getRow() {
-        return this.row;
+        this.row = row;
     }
 
     public int getColumn() {
         return this.column;
+    }
+
+    public int getRow() {
+        return this.row;
     }
 
     /**
@@ -33,18 +33,19 @@ public class Space implements othello.game.state.interfaces.Space {
      */
 
     public Space getRelativeSpace(int stepsX, int stepsY, int maxX, int maxY) {
-        int row = this.row + stepsY;
         int column = this.column + stepsX;
+        int row = this.row + stepsY;
+
 
         if (row < 0 || row >= maxY || column < 0 || column >= maxX) {
             return null;
         }
 
-        return new Space(row, column);
+        return new Space(column, row);
     }
 
     public String toString() {
-        return "[" + this.row + ", " + this.column + "]";
+        return "[" + this.column + ", " + this.row + "]";
     }
 
     @Override
@@ -68,22 +69,22 @@ public class Space implements othello.game.state.interfaces.Space {
         return this.compareTo(space) == 0;
     }
 
-    public int compareToRow(Space space) {
+    public int compareToColumn(Space space) {
         // If the piece appears before the other piece, return -1
-        if (this.row < space.row) {
+        if (this.column < space.column) {
             return -1;
-        } else if (this.row > space.row) {
+        } else if (this.column > space.column) {
             return 1;
         }
 
         return 0;
     }
 
-    public int compareToColumn(Space space) {
+    public int compareToRow(Space space) {
         // If the piece appears before the other piece, return -1
-        if (this.column < space.column) {
+        if (this.row < space.row) {
             return -1;
-        } else if (this.column > space.column) {
+        } else if (this.row > space.row) {
             return 1;
         }
 
