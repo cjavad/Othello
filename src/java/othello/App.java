@@ -80,7 +80,6 @@ public class App extends Application {
         System.exit(0);
     }
 
-    // re run the program with jdk.incubator.vector (preserving given JVM args and program args)
     private static void runWithJVMArgs(String[] args)
     {
         try {

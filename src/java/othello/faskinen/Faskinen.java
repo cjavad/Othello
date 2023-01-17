@@ -3,6 +3,11 @@ package othello.faskinen;
 import javafx.util.Pair;
 import othello.faskinen.opengl.GL;
 
+import java.lang.foreign.FunctionDescriptor;
+import java.lang.foreign.MemoryAddress;
+import java.lang.foreign.MemorySegment;
+import java.lang.foreign.MemorySession;
+import java.lang.invoke.MethodType;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -44,14 +49,19 @@ public class Faskinen {
 	public Environment environment;
 	public Camera camera = new Camera();
 
-	public HashMap<Model, ArrayList<Pair<Mat4, Integer>>> renderStack;
-
 	/**
 	 * Creates a new Faskinen instance.
 	 *
 	 * This creates a new window and a valid OpenGL context.
 	 */
 	public Faskinen(int width, int height) {
+		GL.DebugMessageCallback(Lib.getJavaFuncPointer(
+				Faskinen.class,
+				"debugCallback",
+				MethodType.methodType(void.class, int.class, int.class, int.class, int.class, int.class, MemoryAddress.class, MemoryAddress.class),
+				FunctionDescriptor.ofVoid(Lib.C_UINT32_T, Lib.C_UINT32_T, Lib.C_UINT32_T, Lib.C_UINT32_T, Lib.C_UINT32_T, Lib.C_POINTER_T, Lib.C_POINTER_T))
+		);
+
 		this.imageWidth = width;
 		this.imageHeight = height;
 
@@ -79,8 +89,17 @@ public class Faskinen {
 			new Light(new Vec3(-1.0f, -2.0f, 0.5f), new Vec3(1.0f, 1.0f, 1.0f)),
 		};
 		this.environment = Environment.read("misc/sky.env");
+	}
 
-		this.renderStack = new HashMap<Model, ArrayList<Pair<Mat4, Integer>>>();
+	/*
+		typedef void APIENTRY funcname(GLenum source, GLenum type, GLuint id,
+	   GLenum severity, GLsizei length, const GLchar* message, const void* userParam);
+	 */
+	public static void debugCallback(
+			int source, int type, int id, int severity, int length, MemoryAddress message, MemoryAddress userParam
+	) {
+		System.out.println("GLError ::=\n\tSource="+source+"\n\tType="+type+"\n\tId="+id+"\n\tSeverity");
+		System.out.println(Lib.strToJava(MemorySegment.ofAddress(message, length, MemorySession.global())));
 	}
 
 	/**
@@ -148,22 +167,8 @@ public class Faskinen {
 		this.hdrFramebuffer.clear(0.0f, 0.0f, 0.0f, 0.0f);
 	}
 
-	public void pushModel(Model model, Mat4 transform) {
-		this.pushModel(model, transform, -1);
-	}
 
-	public void pushModel(Model model, Mat4 transform, int id) {
-		ArrayList<Pair<Mat4, Integer>> queue = this.renderStack.get(model);
-
-		if (queue == null) {
-			queue = new ArrayList<Pair<Mat4, Integer>>();
-			this.renderStack.put(model, queue);
-		}
-
-		queue.add(new Pair<Mat4, Integer>(transform, id));
-	}
-
-	public void geometryPass() {
+	public void geometryPass(RenderStack stack) {
 		GL.Enable(GL.DEPTH_TEST);
 		GL.Viewport(0, 0, this.supersampledWidth(), this.supersampledHeight());
 		this.gbuffer.bind();
@@ -173,7 +178,7 @@ public class Faskinen {
 		float aspect = (float) this.imageWidth / (float) this.imageHeight;
 		this.geometryShader.setCamera(this.camera, aspect);
 
-		for (Map.Entry<Model, ArrayList<Pair<Mat4, Integer>>> entry : this.renderStack.entrySet()) {
+		for (Map.Entry<Model, ArrayList<Pair<Mat4, Integer>>> entry : stack.renderStack.entrySet()) {
 			Model model = entry.getKey();
 			for (Primitive primitive : model.primitives) {
 				this.geometryShader.setVec3("baseColor", primitive.material.baseColor);
@@ -213,7 +218,7 @@ public class Faskinen {
 		}
 	}
 
-	public void shadowPass() {
+	public void shadowPass(RenderStack stack) {
 		GL.Enable(GL.DEPTH_TEST);
 		GL.Viewport(0, 0, Light.SHADOWMAP_SIZE, Light.SHADOWMAP_SIZE);
 
@@ -223,7 +228,8 @@ public class Faskinen {
 			light.shadowFramebuffer.bind();
 			this.shadowShader.setMat4("viewProj", light.viewProj());
 
-			for (Map.Entry<Model, ArrayList<Pair<Mat4, Integer>>> entry : this.renderStack.entrySet()) {
+
+			for (Map.Entry<Model, ArrayList<Pair<Mat4, Integer>>> entry : stack.renderStack.entrySet()) {
 				Model model = entry.getKey();
 
 				for (Primitive primitive : model.primitives) {
@@ -236,16 +242,6 @@ public class Faskinen {
 
 				}
 			}
-		}
-	}
-
-	public void clearRenderStack() {
-		// remove model if zero on stack
-		// set all model stacks to zero size
-		// be nice to gc
-		for (Map.Entry<Model, ArrayList<Pair<Mat4, Integer>>> entry : this.renderStack.entrySet()) {
-			if (entry.getValue().size() == 0) this.renderStack.remove(entry.getKey());
-			else entry.getValue().clear();
 		}
 	}
 

@@ -11,6 +11,8 @@ import othello.game.Player;
  */
 
 public class BasicReversi extends SceneProvider {
+
+    public GameScene gameUI;
     public BasicReversi(SceneManager manager) {
         super(manager, "BasicReversi");
 
@@ -35,8 +37,8 @@ public class BasicReversi extends SceneProvider {
 
         // Create simple scene
         Board2D board = new Board2D(players, false);
-        GameScene gameUI = new GameScene(manager, board);
+        this.gameUI = new GameScene(manager, board);
         // Set scene
-        this.setScene(gameUI.getScene());
+        this.setScene(this.gameUI.getScene());
     }
 }

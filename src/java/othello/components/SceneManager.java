@@ -109,4 +109,6 @@ public class SceneManager {
     public int getHeight() {
         return this.height;
     }
+
+    public SceneProvider getActiveProvider() { return this.scenes.get(this.activeSceneIndex); }
 }

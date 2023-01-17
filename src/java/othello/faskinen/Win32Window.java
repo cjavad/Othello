@@ -198,9 +198,6 @@ public class Win32Window extends Window {
 				attribs.setAtIndex(ValueLayout.JAVA_INT, 4, 0);
 
 				window.ghRC = ARB.wglCreateContextAttribsARB(window.ghDC, MemoryAddress.NULL, attribs.address());
-//		        Win32.wglMakeCurrent(window.ghDC, window.ghRC);
-//		        Win32.GetClientRect(hWnd, &rect);
-//		        Win32.initializeGL(rect.right, rect.bottom);
 				break;
 
 			case Win32.WM_PAINT:

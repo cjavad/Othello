@@ -2,6 +2,8 @@ package othello.faskinen.opengl;
 
 import java.lang.foreign.MemoryAddress;
 import java.lang.foreign.MemoryLayout;
+import java.lang.foreign.MemorySegment;
+import java.lang.foreign.MemorySession;
 import java.lang.invoke.MethodHandle;
 
 import othello.faskinen.Lib;
@@ -26,16 +28,6 @@ public class GL {
                 throw new RuntimeException("Unsupported platform, not a real gamer");
         }
     }
-
-	/*
-		typedef void APIENTRY funcname(GLenum source, GLenum type, GLuint id,
-	   GLenum severity, GLsizei length, const GLchar* message, const void* userParam);
-	 */
-	public static void debugCallback(
-			int source, int type, int id, int severity, int length, MemoryAddress message, MemoryAddress userParam
-	) {
-		
-	}
 
 	protected static MethodHandle loadFuncGL(String name, MemoryLayout ret, MemoryLayout... params) {
 		if (Platform.get() == Platform.Windows) {
@@ -69,6 +61,21 @@ public class GL {
 				throw new RuntimeException("GL_CONTEXT_LOST");
 			default:
 				throw new RuntimeException("Unknown GL error");
+		}
+	}
+
+	private static MethodHandle HANDLE_glDebugMessageCallback = loadFuncGL(
+			"glDebugMessageCallback",
+			null,
+			Lib.C_POINTER_T,
+			Lib.C_POINTER_T
+	);
+
+	public static void DebugMessageCallback(MemorySegment function) {
+		try {
+			HANDLE_glDebugMessageCallback.invoke(function.address(), Lib.NULLPTR);
+		} catch (Throwable e) {
+			throw new RuntimeException(e);
 		}
 	}
 

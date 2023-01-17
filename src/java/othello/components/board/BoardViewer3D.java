@@ -16,10 +16,7 @@ import javafx.scene.layout.StackPane;
 
 import othello.components.SceneManager;
 import othello.components.SceneProvider;
-import othello.faskinen.Faskinen;
-import othello.faskinen.Mat4;
-import othello.faskinen.Model;
-import othello.faskinen.Vec3;
+import othello.faskinen.*;
 import othello.faskinen.opengl.GL;
 import othello.game.Board2D;
 import othello.game.Player;
@@ -120,8 +117,10 @@ public class BoardViewer3D extends SceneProvider {
 
 		this.faskinen.clear();
 
+		RenderStack stack = new RenderStack();
+
 		Vec3 boardPosition = new Vec3(0, 0, 0);
-		this.faskinen.pushModel(this.boardFrame, Mat4.translation(boardPosition));
+		stack.pushModel(this.boardFrame, Mat4.translation(boardPosition));
 
 		for (int x = 0; x < board.getColumns(); x++) {
 			for (int y = 0; y < board.getRows(); y++) {
@@ -130,9 +129,9 @@ public class BoardViewer3D extends SceneProvider {
 				int id = x + y * 8;
 
 				if ((x + y) % 2 == 0) {
-					this.faskinen.pushModel(this.spaceWhite, Mat4.translation(position), id);
+					stack.pushModel(this.spaceWhite, Mat4.translation(position), id);
 				} else {
-					this.faskinen.pushModel(this.spaceBlack, Mat4.translation(position), id);
+					stack.pushModel(this.spaceBlack, Mat4.translation(position), id);
 				}
 
 				position.y = 0.3f;
@@ -144,9 +143,9 @@ public class BoardViewer3D extends SceneProvider {
 				Player player = board.getPlayer(playerId);
 
 				if (player.getColor() == "#FFFFFF") {
-					this.faskinen.pushModel(this.chipWhite, Mat4.translation(position), id);
+					stack.pushModel(this.chipWhite, Mat4.translation(position), id);
 				} else if (player.getColor() == "#101010") {
-					this.faskinen.pushModel(this.chipBlack, Mat4.translation(position), id);
+					stack.pushModel(this.chipBlack, Mat4.translation(position), id);
 				} else {
 					System.out.println("Unknown player color: " + player.getColor());
 				}
@@ -155,12 +154,10 @@ public class BoardViewer3D extends SceneProvider {
 
 		GL.Enable(GL.CULL_FACE);
 
-		this.faskinen.geometryPass();
-		this.faskinen.shadowPass();
+		this.faskinen.geometryPass(stack);
+		this.faskinen.shadowPass(stack);
 
 		GL.Disable(GL.CULL_FACE);
-
-		this.faskinen.clearRenderStack();
 
 		GL.Disable(GL.DEPTH_TEST);
 
@@ -178,10 +175,10 @@ public class BoardViewer3D extends SceneProvider {
 	}
 
 	public int getPixelId(MouseEvent event) {
-		Point2D point = this.imageView.localToScene(0, 0);
-		System.out.println("x="+event.getX()+" y="+event.getY());
-		System.out.println("x = " + event.getX() + ", y = " + (event.getScreenY() - this.getScene().getWindow().getY() - this.getScene().getY()));
-		return this.faskinen.getPixelId((int) event.getX(), (int) event.getY());
+//		Point2D point = this.imageView.localToScene(0, 0);
+//		System.out.println("x="+event.getX()+" y="+event.getY());
+//		System.out.println("x = " + event.getX() + ", y = " + (event.getScreenY() - this.getScene().getWindow().getY() - this.getScene().getY()));
+		return this.faskinen.getPixelId((int) event.getX(), (int) event.getY() - 28);
 	}
 
 	public int getPixelId(int x, int y) {
