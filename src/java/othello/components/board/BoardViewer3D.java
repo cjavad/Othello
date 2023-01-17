@@ -39,6 +39,8 @@ public class BoardViewer3D extends SceneProvider {
 	static Model boardFrame = Model.read("board_frame.bin");
 	static Model spaceWhite = Model.read("space_white.bin");
 	static Model spaceBlack = Model.read("space_black.bin");
+
+	ParticleSystem particles = new ParticleSystem(1000);
                             
 	Board2D board;
 	float[] animations;

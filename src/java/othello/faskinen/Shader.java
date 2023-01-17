@@ -140,7 +140,7 @@ public class Shader {
 	 * The shader will be preprocessed to include other shaders.
 	 * If shaders have circular dependencies, the stack will overflow
 	 */
-	public Shader(String vertexPath) {
+	public Shader(String vertexPath, int kind) {
 		String vertexSource = readShaderFile(vertexPath);
 
 		vertexSource = preprocessShader(vertexSource, new HashSet<>());
@@ -149,24 +149,24 @@ public class Shader {
 		MemorySegment vertexSources = MemorySession.openImplicit().allocate(8);
 		vertexSources.set(ValueLayout.ADDRESS, 0, Lib.javaToStr(vertexSource).address());
 
-		int vertexShader = GL.CreateShader(GL.VERTEX_SHADER);
+		int shader = GL.CreateShader(kind);
 
-		GL.ShaderSource(vertexShader, 1, vertexSources.address(), Lib.NULLPTR);
-		GL.CompileShader(vertexShader);
+		GL.ShaderSource(shader, 1, vertexSources.address(), Lib.NULLPTR);
+		GL.CompileShader(shader);
 
-		MemorySegment vertexStatus = MemorySession.openImplicit().allocate(4);
-		GL.GetShaderiv(vertexShader, GL.COMPILE_STATUS, vertexStatus.address());
+		MemorySegment status = MemorySession.openImplicit().allocate(4);
+		GL.GetShaderiv(shader, GL.COMPILE_STATUS, status.address());
 
-		if (vertexStatus.get(ValueLayout.JAVA_INT, 0) != GL.TRUE) {
+		if (status.get(ValueLayout.JAVA_INT, 0) != GL.TRUE) {
 			MemorySegment log = MemorySession.openImplicit().allocate(1024);
-			GL.GetShaderInfoLog(vertexShader, 1024, Lib.NULLPTR, log.address());
+			GL.GetShaderInfoLog(shader, 1024, Lib.NULLPTR, log.address());
 
 			System.out.println(Lib.strToJava(log));
 			throw new RuntimeException("Failed to compile vertex shader");
 		}
 
 		this.programId = GL.CreateProgram();
-		GL.AttachShader(this.programId, vertexShader);
+		GL.AttachShader(this.programId, shader);
 
 		GL.LinkProgram(this.programId);
 
@@ -182,8 +182,12 @@ public class Shader {
 			throw new RuntimeException("Failed to link shader");
 		}
 
-		GL.DeleteShader(vertexShader);
+		GL.DeleteShader(shader);
 		GL.assertNoError();
+	}
+
+	public Shader(String vertexPath) {
+		this(vertexPath, GL.VERTEX_SHADER);
 	}
 
 	/**
