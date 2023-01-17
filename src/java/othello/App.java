@@ -21,8 +21,7 @@ public class App extends Application {
 
         stage.setTitle("Othello");
         SceneManager sceneManager = new SceneManager(stage, 800, 600);
-        StartMenu startMenu = new StartMenu(sceneManager);
-        sceneManager.setActive(startMenu);
+        new StartMenu(sceneManager).setActive();
     }
 
     private static final String[] JVM_ARGS = {"--enable-preview", "--enable-native-access=ALL-UNNAMED"};

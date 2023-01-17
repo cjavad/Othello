@@ -170,8 +170,11 @@ public class Board2D implements othello.game.interfaces.Board2D {
             for (Line line : lines) {
                 if (line == null) continue;
                 if (line.length() < 3) continue;
+
                 // Cannot be neighbour to own piece
-                if (line.at(1) != null && line.at(1).equals(space) && this.getSpace(line.at(1)) == playerId) continue;
+                if (line.at(1) != null && line.at(1).equals(space) && this.getSpace(line.at(1)) == playerId)
+                    continue;
+
                 if (line.at(line.length() - 2) != null && line.at(line.length() - 2).equals(space) && this.getSpace(line.at(line.length() - 2)) == playerId)
                     continue;
 
@@ -238,7 +241,6 @@ public class Board2D implements othello.game.interfaces.Board2D {
                 Space validMove = validMovesIterator.next();
                 if (validMove == null) continue;
                 changes.add(new Change(validMove, this.getSpace(validMove)));
-                move.setChanges(changes);
                 // Update valid lines
                 // move.invalidateLinesMove(space);
                 this.setSpace(validMove, this.currentPlayerId);

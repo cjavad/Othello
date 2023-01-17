@@ -2,6 +2,8 @@ package othello.game.interfaces;
 
 import othello.game.Space;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 
 /**
@@ -61,6 +63,36 @@ public interface Board2D extends Iterable<Space> {
     othello.game.Move getLatestMove();
     othello.game.Move getMove(int moveIndex);
     Iterable<othello.game.Move> getMoves(); // Chains moves
+
+    static int[] createCopyFromMoves(Iterable<othello.game.Move> moves, int columns, int rows) {
+        int[] copy = new int[columns * rows];
+        for (othello.game.Move move : moves) {
+            Space placementSpace = move.getPlacementSpace();
+            copy[placementSpace.row * columns + placementSpace.column] = move.getPlayerId();
+            for (othello.game.Change change : move.getChanges()) {
+                copy[change.getRow() * columns + change.getColumn()] = move.getPlayerId();
+            }
+        }
+        return copy;
+    }
+
+    static int[] reverseStateFromMoves(int[] state, ArrayList<othello.game.Move> moves) {
+        // Make copy of state
+        int[] copy = new int[state.length];
+        System.arraycopy(state, 0, copy, 0, state.length);
+
+        Collections.reverse(moves);
+
+        for (othello.game.Move move : moves) {
+            Space placementSpace = move.getPlacementSpace();
+            copy[placementSpace.row * copy.length + placementSpace.column] = -1;
+            for (othello.game.Change change : move.getChanges()) {
+                copy[change.getRow() * copy.length + change.getColumn()] = change.getPrevPlayerId();
+            }
+        }
+
+        return copy;
+    }
 
     int getScore();
     int getScore(int playerId);

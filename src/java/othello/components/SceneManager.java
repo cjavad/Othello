@@ -37,6 +37,41 @@ public class SceneManager {
         this.stage.show();
     }
 
+    public void getScene(String name) {
+        for (SceneProvider scene : this.scenes) {
+            if (scene.getName().equals(name)) {
+                this.setActiveScene(scene.getScene());
+                return;
+            }
+        }
+    }
+
+    public void registerScene(SceneProvider scene) {
+        if (!this.scenes.contains(scene)) {
+            this.scenes.add(scene);
+        }
+    }
+
+    public <T> T getNode(String name) {
+        for (SceneProvider scene : this.scenes) {
+            if (scene.hasNode(name)) {
+                return (T) scene.getNode(name);
+            }
+        }
+
+        return null;
+    }
+
+    public boolean hasNode(String name) {
+        for (SceneProvider scene : this.scenes) {
+            if (scene.hasNode(name)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     public void setActive(SceneProvider provider) {
        this.setActive(provider, false);
     }
@@ -69,11 +104,11 @@ public class SceneManager {
         return this.scenes.get(this.activeSceneIndex - 1).getScene();
     }
 
-    public void resetScene(String name, boolean onlyOnActive) {
+    public void resetScene(SceneProvider provider, boolean onlyOnActive) {
         for (int i = 0; i < this.scenes.size(); i++) {
-            if (this.scenes.get(i).getName().equals(name)) {
+            if (this.scenes.get(i).getName().equals(provider.getName())) {
                 if (i == this.activeSceneIndex || !onlyOnActive) {
-                    this.setActive(this.scenes.get(i), true);
+                    this.setActive(provider, true);
                 }
             }
         }
@@ -81,6 +116,9 @@ public class SceneManager {
 
     public void goBack() {
         this.activeSceneIndex--;
+        if (this.activeSceneIndex < 0) {
+            this.activeSceneIndex = 0;
+        }
         this.setActiveScene(this.getActiveScene());
     }
 

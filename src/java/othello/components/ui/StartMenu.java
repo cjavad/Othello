@@ -10,7 +10,7 @@ import othello.AdvancedReversi;
 import othello.BasicReversi;
 import othello.components.SceneManager;
 import othello.components.SceneProvider;
-import othello.components.board.BoardViewer2D;
+import othello.components.board.basic.BoardScene2D;
 import othello.game.Board2D;
 import othello.game.Player;
 
@@ -62,7 +62,7 @@ public class StartMenu extends SceneProvider {
             new Player[] { new Player(0), new Player(1) },
             false
         );
-        new BoardViewer2D(this.getSceneManager(), board).setActive();
+        new BoardScene2D(this.getSceneManager(), board).setActive();
     }
 
     private void handleKey(KeyEvent event) {

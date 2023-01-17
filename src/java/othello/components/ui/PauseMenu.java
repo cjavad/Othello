@@ -7,8 +7,9 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import othello.components.SceneManager;
 import othello.components.SceneProvider;
-import othello.components.board.BoardViewer2D;
-import othello.components.board.BoardViewer3D;
+import othello.components.board.GameScene;
+import othello.components.board.advanced.BoardViewer3D;
+import othello.components.board.basic.BoardScene2D;
 import othello.game.Board2D;
 import othello.game.Player;
 
@@ -41,7 +42,7 @@ public class PauseMenu extends SceneProvider {
                     new Player[] { new Player(0), new Player(1) },
                     false
             );
-            new BoardViewer2D(this.getSceneManager(), board).setActive();
+            new BoardScene2D(this.getSceneManager(), board).setActive();
         });
         homeButton.setOnAction(event -> {
             new StartMenu(this.getSceneManager()).setActive();
@@ -59,11 +60,19 @@ public class PauseMenu extends SceneProvider {
                             new Player[] { new Player(0), new Player(1) },
                             false
                     );
-                    new BoardViewer2D(this.getSceneManager(), board).setActive();
+                    new BoardScene2D(this.getSceneManager(), board).setActive();
                 }
         });
         NewGameButton.setOnAction(event -> {
-            this.getSceneManager().resetScene("BoardViewer2D", false);
+            Player[] players = {
+                    new Player(0),
+                    new Player(1),
+            };
+
+            // Create simple scene
+            Board2D board = new Board2D(players, false);
+
+            this.getSceneManager().resetScene(new GameScene(this.getSceneManager(), board), false);
         });
         pane.add(resumeButton, 0, 0);
         pane.add(homeButton, 0, 1);
