@@ -3,6 +3,8 @@ package othello.components.board;
 import java.util.HashSet;
 
 import javafx.animation.AnimationTimer;
+import javafx.geometry.Bounds;
+import javafx.geometry.Point2D;
 import javafx.scene.Scene;
 import javafx.scene.image.ImageView;
 import javafx.scene.image.PixelFormat;
@@ -176,6 +178,9 @@ public class BoardViewer3D extends SceneProvider {
 	}
 
 	public int getPixelId(MouseEvent event) {
+		Point2D point = this.imageView.localToScene(0, 0);
+		System.out.println("x="+event.getX()+" y="+event.getY());
+		System.out.println("x = " + event.getX() + ", y = " + (event.getScreenY() - this.getScene().getWindow().getY() - this.getScene().getY()));
 		return this.faskinen.getPixelId((int) event.getX(), (int) event.getY());
 	}
 

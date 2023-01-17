@@ -21,6 +21,7 @@ public class BoardScene extends SceneProvider {
 	}
 
 	public void handleMousePressed(MouseEvent event) {
+		System.out.println(this.viewer.getScene().getY());
 		int id = this.viewer.getPixelId(event);
 		if (id == -1) return;
 

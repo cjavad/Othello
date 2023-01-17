@@ -13,6 +13,8 @@ import othello.faskinen.win32.Win32;
  */
 public class GL {
     static {
+		System.out.println("OpenGL Loaded");
+
         switch (Platform.get()) {
             case Windows:
                 System.loadLibrary("opengl32");
@@ -24,6 +26,16 @@ public class GL {
                 throw new RuntimeException("Unsupported platform, not a real gamer");
         }
     }
+
+	/*
+		typedef void APIENTRY funcname(GLenum source, GLenum type, GLuint id,
+	   GLenum severity, GLsizei length, const GLchar* message, const void* userParam);
+	 */
+	public static void debugCallback(
+			int source, int type, int id, int severity, int length, MemoryAddress message, MemoryAddress userParam
+	) {
+		
+	}
 
 	protected static MethodHandle loadFuncGL(String name, MemoryLayout ret, MemoryLayout... params) {
 		if (Platform.get() == Platform.Windows) {

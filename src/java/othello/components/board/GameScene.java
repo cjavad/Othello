@@ -21,6 +21,8 @@ public class GameScene extends SceneProvider {
 	public othello.components.board.basic.BoardScene basicBoard;
 	public othello.components.board.advanced.BoardScene advancedBoard;
 
+	public SceneManager manager;
+
     public GameScene(SceneManager manager, Board2D board) {
         super(manager, "GameScene");
 
@@ -45,21 +47,28 @@ public class GameScene extends SceneProvider {
 		rtxButton.setOnAction(this::toggleRTX);
 		grid.add(rtxButton, 1, 0);
 
-		this.advancedBoard = new othello.components.board.advanced.BoardScene(manager, this.board);
-
 		this.advancedPane = new BorderPane();
-		this.advancedPane.setCenter(advancedBoard.getRoot());
 		this.advancedPane.setTop(grid);
-		this.advancedBoard.getScene().setRoot(this.advancedPane);
+
+		this.manager = manager;
 
 		this.setScene(this.basicBoard.getScene());
+	}
+
+	public othello.components.board.advanced.BoardScene getAdvancedBoard() {
+		if (this.advancedBoard == null) {
+			this.advancedBoard = new othello.components.board.advanced.BoardScene(this.manager, this.board);
+			this.advancedPane.setCenter(advancedBoard.getRoot());
+			this.advancedBoard.getScene().setRoot(this.advancedPane);
+		}
+		return this.advancedBoard;
 	}
 
 	public void toggleRTX(ActionEvent event) {
 		this.rtxOn = !this.rtxOn;
 
 		if (this.rtxOn) {
-			this.getSceneManager().setActiveScene(this.advancedBoard.getScene());
+			this.getSceneManager().setActiveScene(this.getAdvancedBoard().getScene());
 		} else {
 			this.getSceneManager().setActiveScene(this.basicBoard.getScene());
 		}
