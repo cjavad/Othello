@@ -1,6 +1,6 @@
-package othello.game.state;
+package othello.game;
 
-public class Move implements othello.game.state.interfaces.Move {
+public class Move implements othello.game.interfaces.Move {
     private int round;
     private int playerId;
 
@@ -36,6 +36,10 @@ public class Move implements othello.game.state.interfaces.Move {
 
     public void setChanges(Iterable<Change> changes) {
         this.changes = changes;
+    }
+
+    public void setLines(Line[] lines) {
+        this.lines = lines;
     }
 
     public Line[] getLines() {

@@ -3,9 +3,9 @@ package othello;
 import javafx.application.Application;
 import javafx.stage.Stage;
 import othello.faskinen.Platform;
+import othello.components.SceneManager;
 import othello.faskinen.Window;
-import othello.ui.SceneManager;
-import othello.ui.StartMenu;
+import othello.components.ui.StartMenu;
 
 import java.io.IOException;
 import java.lang.management.ManagementFactory;

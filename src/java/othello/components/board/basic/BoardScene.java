@@ -1,4 +1,4 @@
-package othello.ui;
+package othello.components.board.basic;
 
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -6,50 +6,36 @@ import javafx.scene.control.Button;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.Ellipse;
 import javafx.scene.text.Text;
-import othello.game.state.Board2D;
-import othello.game.state.Space;
+import othello.game.Board2D;
+import othello.game.Space;
+import othello.components.SceneManager;
+import othello.components.SceneProvider;
 
-import javax.swing.*;
 import java.util.concurrent.atomic.AtomicReference;
 
-public class BoardViewer2D extends SceneProvider {
-    public Board2D board;
-    public GridPane grid;
-    public GridPane bottomPane;
-    public GridPane topPane;
-    public BoardViewer2D(SceneManager manager, Board2D board) {
-        super(manager, "BoardViewer2D");
+public class BoardScene extends SceneProvider {
+    Board2D board; // Board Model
+    BorderPane root; // Board View
+    GridPane grid; // Board View
+    GridPane bottomPane; // Board View
+
+    public BoardScene(SceneManager manager, Board2D board) {
+        super(manager, "Board2DScene");
         this.board = board;
+        this.root = new BorderPane();
         this.grid = this.createGrid();
+        this.grid.setAlignment(javafx.geometry.Pos.CENTER);
+        this.root.setCenter(this.grid);
         this.bottomPane = this.createBottomPane();
         this.bottomPane.setAlignment(javafx.geometry.Pos.TOP_CENTER);
-        BorderPane pane = new BorderPane();
-
-        this.topPane = this.createTopPane();
-        //this.topPane.setAlignment(javafx.geometry.Pos.TOP_CENTER);
-
-        pane.setTop(this.topPane);
-        pane.setCenter(this.grid);
-        pane.setBottom(this.bottomPane);
-
-        this.setScene(new Scene(pane, manager.getWidth(), manager.getHeight()));
+        this.root.setBottom(this.bottomPane);
+        this.setScene(new Scene(this.root, manager.getWidth(), manager.getHeight()));
     }
-    public GridPane createTopPane(){
-        GridPane pane = new GridPane();
-        Text menuText = new Text("Menu");
-        //pane.add(menuText, 0, 0);
 
-        //creates menu button
-        Button menuButton = new Button("Menu");
-        menuButton.setOnAction(event -> {
-            new PauseMenu(this.getSceneManager()).setActive();
-        });
-    pane.add(menuButton, 0, 0);
-        return pane;
-    }
     public GridPane createBottomPane() {
         // Text box to display current player
         Text currentPlayerText = new Text("Current player: " + this.board.getCurrentPlayerId());
@@ -76,73 +62,85 @@ public class BoardViewer2D extends SceneProvider {
 
         return bottomPane;
     }
+
     public GridPane createGrid() {
-        GridPane grid = new GridPane();
-        grid.setAlignment(Pos.CENTER);
+        GridPane boardGrid = new GridPane();
 
         for (Space space : this.board.getSpaces()) {
             Pane cell = new Pane();
             this.updateCell(cell, space);
+            // Calculate cell size based on width of screen
+            // Only based on width (square)
             int cellSize = (this.getSceneManager().getWidth() * 2/3) / this.board.getColumns();
             cell.setPrefSize(cellSize, cellSize);
             cell.setOnMouseClicked(event -> { this.handleCellClick(space); });
-
-            grid.add(cell, space.getColumn(), space.getRow());
+            // Add (row, column) text to cell
+            Text cellText = new Text("(" + space.column + "," + space.row + ")");
+            // Give text white outline
+            cellText.setStyle("-fx-stroke: white; -fx-stroke-width: 0.3;");
+            StackPane cellStack = new StackPane();
+            cellStack.setAlignment(Pos.CENTER);
+            cellStack.getChildren().addAll(cellText);
+            cell.getChildren().add(cellStack);
+            boardGrid.add(cell, space.column, space.row);
+            // Don't ask me why, but this is necessary to make the grid work
+            if (space.column == 0) boardGrid.setHgap(-1);
         }
 
-        return grid;
+        return boardGrid;
     }
+
     public void updateGrid() {
         for (Space space : this.board.getSpaces()) {
-            Pane cell = (Pane) this.grid.getChildren().get(space.row * this.board.getColumns() + space.column);
+            Pane cell = (Pane) this.grid.getChildren().get(space.column * this.board.getColumns() + space.row);
             this.updateCell(cell, space);
         }
     }
+
     public void updateCell(Pane cell, Space space) {
-        int cellOccupant = this.board.getCell(space);
+        var cellOccupant = this.board.getSpace(space);
         AtomicReference<Ellipse> pieceRef = new AtomicReference<>();
 
-        String borderColour = this.board.isValidMove(space, this.board.getCurrentPlayerId()) == 0 ? "black":"green";
-        String cellStyle = "-fx-border-width: 1; -fx-border-color: "+ borderColour + "; -fx-background-color: darkgreen;";
+        String borderColor = this.board.isValidMove(space, this.board.getCurrentPlayerId()) == 0 ? "gold" : "green";
+        String cellStyle = "-fx-border-width: 1; -fx-border-color: "+ borderColor + "; -fx-background-color: darkgreen;";
         cell.setStyle(cellStyle);
         cell.getChildren().forEach(child -> {
             if (child instanceof Ellipse ellipse) {
-                pieceRef.set((ellipse));
+                pieceRef.set(ellipse);
             }
         });
 
-        if(pieceRef.get() == null) {
+        if (pieceRef.get() == null) {
             pieceRef.set(new Ellipse(cell.getWidth(), cell.getHeight()));
         }
 
         Ellipse piece = pieceRef.get();
         piece.setFill(cellOccupant > -1 ? Paint.valueOf(this.board.getPlayer(cellOccupant).getColor()) : javafx.scene.paint.Color.TRANSPARENT);
 
-        if (cellOccupant > -1){
-            //Black outline
-            piece.setStroke((javafx.scene.paint.Color.BLACK));
+        if (cellOccupant > -1) {
+            // Black outline
+            piece.setStroke(javafx.scene.paint.Color.BLACK);
             piece.setStrokeWidth(1);
 
-            //Center the piece
+            // Center the piece
             piece.centerXProperty().bind(cell.widthProperty().divide(2));
             piece.centerYProperty().bind(cell.heightProperty().divide(2));
-
-            //Make piece fit cell
+            // Make piece fit in cell
             piece.radiusXProperty().bind(cell.widthProperty().divide(2).subtract(2));
             piece.radiusYProperty().bind(cell.heightProperty().divide(2).subtract(2));
 
-            //Set piece on top of cell
+            // Set piece to be on top of cell
             piece.toFront();
         }
 
-        //Add piece to cell if it's not already there
+        // Add piece to cell if it's not already there
         if (!cell.getChildren().contains(piece)) {
             cell.getChildren().add(piece);
         }
     }
+
     public void handleCellClick(Space space) {
         this.board.move(space);
         this.updateGrid();
     }
 }
-

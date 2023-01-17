@@ -1,6 +1,6 @@
-package othello.game.state;
+package othello.game;
 
-public class Player implements othello.game.state.interfaces.Player {
+public class Player implements othello.game.interfaces.Player {
     private int playerId;
     private String hexColor;
 

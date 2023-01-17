@@ -1,4 +1,4 @@
-package othello.game.state.interfaces;
+package othello.game.interfaces;
 
 public interface Change {
     public int getRow();

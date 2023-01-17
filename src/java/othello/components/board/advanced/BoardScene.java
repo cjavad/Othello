@@ -1,11 +1,11 @@
-package othello.game.board.advanced;
+package othello.components.board.advanced;
 
 import javafx.scene.input.MouseEvent;
-import othello.game.state.Board2D;
-import othello.game.state.Space;
-import othello.ui.BoardViewer3D;
-import othello.ui.SceneManager;
-import othello.ui.SceneProvider;
+import othello.game.Board2D;
+import othello.game.Space;
+import othello.components.board.BoardViewer3D;
+import othello.components.SceneManager;
+import othello.components.SceneProvider;
 
 public class BoardScene extends SceneProvider {
 	Board2D board;

@@ -1,15 +1,16 @@
-package othello.ui;
+package othello.components.ui;
 
-import javafx.event.ActionEvent;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
-import othello.AdvancedReversi;
-import othello.game.state.Board2D;
-import othello.game.state.Player;
-import othello.game.state.interfaces.Board3D;
+import othello.components.SceneManager;
+import othello.components.SceneProvider;
+import othello.components.board.BoardViewer2D;
+import othello.components.board.BoardViewer3D;
+import othello.game.Board2D;
+import othello.game.Player;
 
 public class PauseMenu extends SceneProvider {
     public GridPane centerPane;

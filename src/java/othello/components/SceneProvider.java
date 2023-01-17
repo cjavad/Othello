@@ -1,4 +1,4 @@
-package othello.ui;
+package othello.components;
 
 // Basic class that exports a single Scene
 

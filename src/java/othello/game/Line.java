@@ -1,6 +1,8 @@
-package othello.game.state;
+package othello.game;
 
-public class Line implements othello.game.state.interfaces.Line {
+import java.util.Iterator;
+
+public class Line implements othello.game.interfaces.Line {
     private int maxRow;
     private int maxColumn;
     private Space start;
@@ -8,7 +10,7 @@ public class Line implements othello.game.state.interfaces.Line {
     private int dr;
     private int dc;
 
-    public Line(Space start, Space end, int maxRow, int maxColumn) {
+    public Line(Space start, Space end, int maxColumn, int maxRow) {
         this.start = start;
         this.end = end;
         this.maxRow = maxRow;
@@ -22,23 +24,36 @@ public class Line implements othello.game.state.interfaces.Line {
         this.dc = end.compareToColumn(start);
     }
 
-    public Line(Space offset, String direction, int maxRow, int maxColumn) {
+    public Line(Space offset, String direction, int maxColumn, int maxRow) {
         switch (direction) {
             case "vertical" -> {
-                this.start = new Space(offset.getRow(), 0);
-                this.end = new Space(offset.getRow(), maxColumn - 1);
+                this.start = new Space(0, offset.getRow());
+                this.end = new Space(maxColumn - 1, offset.getRow());
             }
             case "horizontal" -> {
-                this.start = new Space(0, offset.getColumn());
-                this.end = new Space(maxRow - 1, offset.getColumn());
+                this.start = new Space(offset.getColumn(), 0);
+                this.end = new Space(offset.getColumn(), maxRow - 1);
             }
             case "diagonal" -> {
-                this.start = new Space(0, 0);
-                this.end = new Space(maxRow - 1, maxColumn - 1);
+                int column = offset.getColumn();
+                int row = offset.getRow();
+                int columnStart = column - Math.min(row, column);
+                int rowStart = row - Math.min(row, column);
+                int min = Math.min(maxRow - row - 1, maxColumn - column - 1);
+                int columnEnd = column + min;
+                int rowEnd = row + min;
+                this.start = new Space(columnStart, rowStart);
+                this.end = new Space(columnEnd, rowEnd);
             }
             case "antiDiagonal" -> {
-                this.start = new Space(0, maxColumn - 1);
-                this.end = new Space(maxRow - 1, 0);
+                int row = offset.getRow();
+                int column = offset.getColumn();
+                int rowStart = row - Math.min(row, maxColumn - column - 1);
+                int columnStart = column + Math.min(row, maxColumn - column - 1);
+                int rowEnd = row + Math.min(maxRow - row - 1, column);
+                int columnEnd = column - Math.min(maxRow - row - 1, column);
+                this.start = new Space(columnStart, rowStart);
+                this.end = new Space(columnEnd, rowEnd);
             }
             default -> throw new IllegalArgumentException("Invalid direction: " + direction);
         }
@@ -64,11 +79,27 @@ public class Line implements othello.game.state.interfaces.Line {
         int column = this.start.getColumn() + (i * this.dc);
 
         // Check if the space is out of bounds
-        if (row < 0 || row >= this.maxRow || column < 0 || column >= this.maxColumn) {
+        if (column < 0 || column >= this.maxColumn || row < 0 || row >= this.maxRow) {
             return null;
         }
 
-        return new Space(row, column);
+        return new Space(column, row);
+    }
+
+    public Iterator<Space> iterator() {
+        return new Iterator<>() {
+            private int i = 0;
+
+            @Override
+            public boolean hasNext() {
+                return i < length();
+            }
+
+            @Override
+            public Space next() {
+                return at(i++);
+            }
+        };
     }
 
     public Space getStart() {
@@ -89,8 +120,10 @@ public class Line implements othello.game.state.interfaces.Line {
 
     public boolean contains(Space space) {
         // Check if the space is within the line
-        for (int i = 0; i < this.length(); i++) {
-            if (this.at(i, true).equals(space)) {
+
+        for (Space s : this) {
+            if (s == null) continue;
+            if (s.equals(space)) {
                 return true;
             }
         }
@@ -103,14 +136,13 @@ public class Line implements othello.game.state.interfaces.Line {
         // If the line is horizontal or vertical, the length is the difference between the start and end
         // If the line is diagonal, the length is the difference between the start and end
         if (this.start == null || this.end == null) return 0;
-        return Math.max(Math.abs(this.start.getRow() - this.end.getRow()), Math.abs(this.start.getColumn() - this.end.getColumn()) )+ 1;
+        return Math.max(Math.abs(this.start.getRow() - this.end.getRow()), Math.abs(this.start.getColumn() - this.end.getColumn()) ) + 1;
     }
 
     public String toString() {
         StringBuilder s = new StringBuilder("Line between " + this.start + " and " + this.end + " c: " + this.length());
 
-        for (int i = 0; i < this.length(); i++) {
-            Space space = this.at(i);
+        for (Space space : this) {
             if (space == null) continue;
             s.append(" ").append(space);
         }
