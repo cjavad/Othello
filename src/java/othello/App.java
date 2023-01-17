@@ -2,6 +2,7 @@ package othello;
 
 import javafx.application.Application;
 import javafx.stage.Stage;
+import othello.faskinen.Platform;
 import othello.faskinen.Window;
 import othello.ui.SceneManager;
 import othello.ui.StartMenu;
@@ -84,10 +85,10 @@ public class App extends Application {
     {
         try {
             String jar = App.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath();
-            if (System.getProperty("os.name").startsWith("Windows")) jar = jar.substring(1, jar.length());
+            if (Platform.isWindows()) jar = jar.substring(1, jar.length());
 
             String java = System.getProperty("java.home") + "/bin/java";
-            if (System.getProperty("os.name").startsWith("Windows")) java += ".exe";
+            if (Platform.isWindows()) java += ".exe";
 
             ProcessBuilder builder = new ProcessBuilder(java);
             builder.command().addAll(ManagementFactory.getRuntimeMXBean().getInputArguments());
@@ -100,7 +101,9 @@ public class App extends Application {
             }
             else
             {
-                jar += ";" + Paths.get(".").toAbsolutePath().normalize().toString() + "/build/resources/main";
+                if (Platform.isWindows()) jar += ';';
+                else jar += ':';
+                jar += Paths.get(".").toAbsolutePath().normalize().toString() + "/build/resources/main";
 
                 builder.command().add("-cp");
                 builder.command().add(jar);
