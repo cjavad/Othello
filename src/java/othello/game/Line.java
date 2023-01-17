@@ -3,8 +3,8 @@ package othello.game;
 import java.util.Iterator;
 
 public class Line implements othello.game.interfaces.Line {
-    private int maxRow;
-    private int maxColumn;
+    private final int maxRow;
+    private final int maxColumn;
     private Space start;
     private Space end;
     private int dr;
@@ -27,33 +27,23 @@ public class Line implements othello.game.interfaces.Line {
     public Line(Space offset, String direction, int maxColumn, int maxRow) {
         switch (direction) {
             case "vertical" -> {
-                this.start = new Space(0, offset.getRow());
-                this.end = new Space(maxColumn - 1, offset.getRow());
+                this.start = new Space(0, offset.row);
+                this.end = new Space(maxColumn - 1, offset.row);
             }
             case "horizontal" -> {
-                this.start = new Space(offset.getColumn(), 0);
-                this.end = new Space(offset.getColumn(), maxRow - 1);
+                this.start = new Space(offset.column, 0);
+                this.end = new Space(offset.column, maxRow - 1);
             }
             case "diagonal" -> {
-                int column = offset.getColumn();
-                int row = offset.getRow();
-                int columnStart = column - Math.min(row, column);
-                int rowStart = row - Math.min(row, column);
-                int min = Math.min(maxRow - row - 1, maxColumn - column - 1);
-                int columnEnd = column + min;
-                int rowEnd = row + min;
-                this.start = new Space(columnStart, rowStart);
-                this.end = new Space(columnEnd, rowEnd);
+                int min = Math.min(maxRow - offset.row - 1, maxColumn - offset.column - 1);
+                this.start = new Space( offset.column - Math.min(offset.row, offset.column),offset.row - Math.min(offset.row, offset.column));
+                this.end = new Space(offset.column + min,  offset.row + min);
             }
             case "antiDiagonal" -> {
-                int row = offset.getRow();
-                int column = offset.getColumn();
-                int rowStart = row - Math.min(row, maxColumn - column - 1);
-                int columnStart = column + Math.min(row, maxColumn - column - 1);
-                int rowEnd = row + Math.min(maxRow - row - 1, column);
-                int columnEnd = column - Math.min(maxRow - row - 1, column);
-                this.start = new Space(columnStart, rowStart);
-                this.end = new Space(columnEnd, rowEnd);
+                int minEnd = Math.min(maxRow - offset.row - 1, offset.column);
+                int minStart = Math.min(offset.row, maxColumn - offset.column - 1);
+                this.start = new Space(offset.column + minStart, offset.row - minStart);
+                this.end = new Space(offset.column - minEnd, offset.row + minEnd);
             }
             default -> throw new IllegalArgumentException("Invalid direction: " + direction);
         }
@@ -75,8 +65,8 @@ public class Line implements othello.game.interfaces.Line {
             this.dc = end.compareToColumn(start);
         }
 
-        int row = this.start.getRow() + (i * this.dr);
-        int column = this.start.getColumn() + (i * this.dc);
+        int row = this.start.row + (i * this.dr);
+        int column = this.start.column + (i * this.dc);
 
         // Check if the space is out of bounds
         if (column < 0 || column >= this.maxColumn || row < 0 || row >= this.maxRow) {
@@ -136,7 +126,7 @@ public class Line implements othello.game.interfaces.Line {
         // If the line is horizontal or vertical, the length is the difference between the start and end
         // If the line is diagonal, the length is the difference between the start and end
         if (this.start == null || this.end == null) return 0;
-        return Math.max(Math.abs(this.start.getRow() - this.end.getRow()), Math.abs(this.start.getColumn() - this.end.getColumn()) ) + 1;
+        return Math.max(Math.abs(this.start.row - this.end.row), Math.abs(this.start.column - this.end.column) ) + 1;
     }
 
     public String toString() {

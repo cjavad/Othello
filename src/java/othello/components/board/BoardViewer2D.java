@@ -22,6 +22,7 @@ public class BoardViewer2D extends SceneProvider {
     public GridPane grid;
     public GridPane bottomPane;
     public GridPane topPane;
+
     public BoardViewer2D(SceneManager manager, Board2D board) {
         super(manager, "BoardViewer2D");
         this.board = board;
@@ -39,19 +40,19 @@ public class BoardViewer2D extends SceneProvider {
 
         this.setScene(new Scene(pane, manager.getWidth(), manager.getHeight()));
     }
-    public GridPane createTopPane(){
+
+    public GridPane createTopPane() {
         GridPane pane = new GridPane();
         Text menuText = new Text("Menu");
         //pane.add(menuText, 0, 0);
 
         //creates menu button
         Button menuButton = new Button("Menu");
-        menuButton.setOnAction(event -> {
-            new PauseMenu(this.getSceneManager()).setActive();
-        });
-    pane.add(menuButton, 0, 0);
+        menuButton.setOnAction(event -> new PauseMenu(this.getSceneManager()).setActive());
+        pane.add(menuButton, 0, 0);
         return pane;
     }
+
     public GridPane createBottomPane() {
         // Text box to display current player
         Text currentPlayerText = new Text("Current player: " + this.board.getCurrentPlayerId());
@@ -78,34 +79,37 @@ public class BoardViewer2D extends SceneProvider {
 
         return bottomPane;
     }
+
     public GridPane createGrid() {
         GridPane grid = new GridPane();
         grid.setAlignment(Pos.CENTER);
 
-        for (Space space : this.board.getSpaces()) {
+        for (Space space : this.board) {
             Pane cell = new Pane();
             this.updateCell(cell, space);
-            int cellSize = (this.getSceneManager().getWidth() * 2/3) / this.board.getColumns();
+            int cellSize = (this.getSceneManager().getWidth() * 2 / 3) / this.board.getColumns();
             cell.setPrefSize(cellSize, cellSize);
-            cell.setOnMouseClicked(event -> { this.handleCellClick(space); });
+            cell.setOnMouseClicked(event -> this.handleCellClick(space));
 
-            grid.add(cell, space.getColumn(), space.getRow());
+            grid.add(cell, space.column, space.row);
         }
 
         return grid;
     }
+
     public void updateGrid() {
-        for (Space space : this.board.getSpaces()) {
+        for (Space space : this.board) {
             Pane cell = (Pane) this.grid.getChildren().get(space.row * this.board.getColumns() + space.column);
             this.updateCell(cell, space);
         }
     }
+
     public void updateCell(Pane cell, Space space) {
         int cellOccupant = this.board.getSpace(space);
         AtomicReference<Ellipse> pieceRef = new AtomicReference<>();
 
-        String borderColour = this.board.isValidMove(space, this.board.getCurrentPlayerId()) == 0 ? "black":"green";
-        String cellStyle = "-fx-border-width: 1; -fx-border-color: "+ borderColour + "; -fx-background-color: darkgreen;";
+        String borderColour = this.board.isValidMove(space, this.board.getCurrentPlayerId()) == 0 ? "black" : "green";
+        String cellStyle = "-fx-border-width: 1; -fx-border-color: " + borderColour + "; -fx-background-color: darkgreen;";
         cell.setStyle(cellStyle);
         cell.getChildren().forEach(child -> {
             if (child instanceof Ellipse ellipse) {
@@ -113,14 +117,14 @@ public class BoardViewer2D extends SceneProvider {
             }
         });
 
-        if(pieceRef.get() == null) {
+        if (pieceRef.get() == null) {
             pieceRef.set(new Ellipse(cell.getWidth(), cell.getHeight()));
         }
 
         Ellipse piece = pieceRef.get();
         piece.setFill(cellOccupant > -1 ? Paint.valueOf(this.board.getPlayer(cellOccupant).getColor()) : javafx.scene.paint.Color.TRANSPARENT);
 
-        if (cellOccupant > -1){
+        if (cellOccupant > -1) {
             //Black outline
             piece.setStroke((javafx.scene.paint.Color.BLACK));
             piece.setStrokeWidth(1);
@@ -142,6 +146,7 @@ public class BoardViewer2D extends SceneProvider {
             cell.getChildren().add(piece);
         }
     }
+
     public void handleCellClick(Space space) {
         this.board.move(space);
         this.updateGrid();

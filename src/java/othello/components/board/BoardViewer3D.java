@@ -1,6 +1,7 @@
 package othello.components.board;
 
 import java.util.HashSet;
+import java.util.Objects;
 
 import javafx.animation.AnimationTimer;
 import javafx.geometry.Bounds;
@@ -35,7 +36,7 @@ public class BoardViewer3D extends SceneProvider {
 	Faskinen faskinen;
 
 	float mouseX, mouseY;
-	HashSet<String> keys = new HashSet<String>();
+	HashSet<String> keys = new HashSet<>();
 
 	Model chipWhite;
 	Model chipBlack;
@@ -115,41 +116,36 @@ public class BoardViewer3D extends SceneProvider {
 
 		movement.y = 0.0f;
 
-		Vec3 newPosition = this.faskinen.camera.position.add(movement.normalize().mul(0.1f));
-		this.faskinen.camera.position = newPosition;
-
+		this.faskinen.camera.position = this.faskinen.camera.position.add(movement.normalize().mul(0.1f));
 		this.faskinen.clear();
 
 		Vec3 boardPosition = new Vec3(0, 0, 0);
 		this.faskinen.pushModel(this.boardFrame, Mat4.translation(boardPosition));
 
-		for (int x = 0; x < board.getColumns(); x++) {
-			for (int y = 0; y < board.getRows(); y++) {
-				Vec3 position = new Vec3(x - 3.5f, 0, y - 3.5f);
+		for (Space space : board) {
+			Vec3 position = new Vec3(space.x - 3.5f, 0, space.y - 3.5f);
 
-				int id = x + y * 8;
+			int id = space.x + space.y * 8;
 
-				if ((x + y) % 2 == 0) {
-					this.faskinen.pushModel(this.spaceWhite, Mat4.translation(position), id);
-				} else {
-					this.faskinen.pushModel(this.spaceBlack, Mat4.translation(position), id);
-				}
+			if ((space.x + space.y) % 2 == 0) {
+				this.faskinen.pushModel(this.spaceWhite, Mat4.translation(position), id);
+			} else {
+				this.faskinen.pushModel(this.spaceBlack, Mat4.translation(position), id);
+			}
 
-				position.y = 0.3f;
+			position.y = 0.3f;
 
-				Space space = new Space(x, y);
-				int playerId = board.getSpace(space);
-				if (playerId == -1) continue;
+			int playerId = board.getSpace(space);
+			if (playerId == -1) continue;
 
-				Player player = board.getPlayer(playerId);
+			Player player = board.getPlayer(playerId);
 
-				if (player.getColor() == "#FFFFFF") {
-					this.faskinen.pushModel(this.chipWhite, Mat4.translation(position), id);
-				} else if (player.getColor() == "#101010") {
-					this.faskinen.pushModel(this.chipBlack, Mat4.translation(position), id);
-				} else {
-					System.out.println("Unknown player color: " + player.getColor());
-				}
+			if (Objects.equals(player.getColor(), "#FFFFFF")) {
+				this.faskinen.pushModel(this.chipWhite, Mat4.translation(position), id);
+			} else if (Objects.equals(player.getColor(), "#101010")) {
+				this.faskinen.pushModel(this.chipBlack, Mat4.translation(position), id);
+			} else {
+				System.out.println("Unknown player color: " + player.getColor());
 			}
 		}
 

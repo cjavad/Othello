@@ -7,20 +7,18 @@ package othello.game;
  */
 
 public class Space implements othello.game.interfaces.Space {
-    public int column;
-    public int row;
+    public final int column;
+    public final int row;
+
+    // Make read only copies of column and row called x and y
+    public final int x;
+    public final int y;
 
     public Space(int column, int row) {
         this.column = column;
         this.row = row;
-    }
-
-    public int getColumn() {
-        return this.column;
-    }
-
-    public int getRow() {
-        return this.row;
+        this.x = column;
+        this.y = row;
     }
 
     public String toString() {

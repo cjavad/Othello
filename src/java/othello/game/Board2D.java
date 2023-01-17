@@ -17,8 +17,6 @@ public class Board2D implements othello.game.interfaces.Board2D {
     private Player[] players;
     private ArrayList<Move> moves;
 
-    private ArrayList<Space> spaces;
-
     public Board2D(Player[] players, boolean manual) {
         this(players.length * 4, players.length * 4, players, manual);
     }
@@ -52,14 +50,6 @@ public class Board2D implements othello.game.interfaces.Board2D {
         this.currentPlayerId = 0;
         this.moves = new ArrayList<>();
         this.manual = manual;
-
-        // Generate list of valid spaces initially once.
-        this.spaces = new ArrayList<>();
-        for (int column = 0; column < this.columns; column++) {
-            for (int row = 0; row < this.rows; row++) {
-                this.spaces.add(new Space(column, row));
-            }
-        }
     }
 
     public int getColumns() {
@@ -68,10 +58,6 @@ public class Board2D implements othello.game.interfaces.Board2D {
 
     public int getRows() {
         return this.rows;
-    }
-
-    public Iterable<Space> getSpaces() {
-        return this.spaces;
     }
 
     public int getSpace(Space space) {
@@ -203,40 +189,25 @@ public class Board2D implements othello.game.interfaces.Board2D {
         return 1;
     }
 
-    public Iterable<Space> getValidMoves(int playerId) {
-        // Loop over entire board and determine valid moves
-        ArrayList<Space> validMoves = new ArrayList<>();
-
-        for (Space space : this.getSpaces()) {
-            if (this.isValidMove(space, playerId) == 0) {
-                validMoves.add(space);
-            }
-        }
-
-        return validMoves;
-    }
-
     // Make above function an iterator that calls isValidMove every run
-    public Iterator<Space> getValidMovesIterator(int playerId) {
-        final int[] spaceIndex = {0};
+    public Iterator<Space> validMoves(int playerId) {
+        final var iter = iterator();
         return new Iterator<>() {
             @Override
             public boolean hasNext() {
-                return spaceIndex[0] < spaces.size();
+                return iter.hasNext();
             }
 
             @Override
             public Space next() {
-                Space space = spaces.get(spaceIndex[0]);
+                Space space = iter.next();
                 if (isValidMove(space, playerId) == 0) {
                     return space;
                 }
-                spaceIndex[0]++;
                 return null;
             }
         };
     }
-
 
     public Move move(Space space) {
         if (this.isValidMove(space, this.currentPlayerId) > 0) return null;
@@ -261,7 +232,7 @@ public class Board2D implements othello.game.interfaces.Board2D {
             this.setSpace(space, this.currentPlayerId);
         } else {
             // Automatically propagate changes by executing all valid moves
-            Iterator<Space> validMovesIterator = this.getValidMovesIterator(this.currentPlayerId);
+            Iterator<Space> validMovesIterator = this.validMoves(this.currentPlayerId);
 
             while (validMovesIterator.hasNext()) {
                 Space validMove = validMovesIterator.next();
@@ -342,12 +313,25 @@ public class Board2D implements othello.game.interfaces.Board2D {
 
     public int getScore(int playerId) {
         // Count amount of playerId in board
-        int score = 0;
+        return (int) Arrays.stream(this.board).filter(i -> i == playerId).count();
+    }
 
-        for (Space space : this.getSpaces()) {
-            if (this.getSpace(space) == playerId) score++;
-        }
+    @Override
+    public Iterator<Space> iterator() {
+        return new Iterator<>() {
+            int index = 0;
+            @Override
+            public boolean hasNext() {
+                return index < rows * columns;
+            }
 
-        return score;
+            @Override
+            public Space next() {
+                int column = index % columns;
+                int row = index / columns;
+                index++;
+                return new Space(column, row);
+            }
+        };
     }
 }

@@ -1,8 +1,8 @@
 package othello.game;
 
 public class Change implements othello.game.interfaces.Change {
-    private Space space;
-    private int prevPlayerId;
+    private final Space space;
+    private final int prevPlayerId;
 
     public Change(Space space, int prevPlayerId) {
         this.space = space;

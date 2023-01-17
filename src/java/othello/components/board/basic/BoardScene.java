@@ -66,14 +66,14 @@ public class BoardScene extends SceneProvider {
     public GridPane createGrid() {
         GridPane boardGrid = new GridPane();
 
-        for (Space space : this.board.getSpaces()) {
+        for (Space space : this.board) {
             Pane cell = new Pane();
             this.updateCell(cell, space);
             // Calculate cell size based on width of screen
             // Only based on width (square)
             int cellSize = (this.getSceneManager().getWidth() * 2/3) / this.board.getColumns();
             cell.setPrefSize(cellSize, cellSize);
-            cell.setOnMouseClicked(event -> { this.handleCellClick(space); });
+            cell.setOnMouseClicked(event -> this.handleCellClick(space));
             // Add (row, column) text to cell
             Text cellText = new Text("(" + space.column + "," + space.row + ")");
             // Give text white outline
@@ -91,8 +91,8 @@ public class BoardScene extends SceneProvider {
     }
 
     public void updateGrid() {
-        for (Space space : this.board.getSpaces()) {
-            Pane cell = (Pane) this.grid.getChildren().get(space.column * this.board.getColumns() + space.row);
+        for (Space space : this.board) {
+            Pane cell = (Pane) this.grid.getChildren().get(space.row * this.board.getColumns() + space.column);
             this.updateCell(cell, space);
         }
     }

@@ -1,13 +1,13 @@
 package othello.game;
 
 public class Move implements othello.game.interfaces.Move {
-    private int round;
-    private int playerId;
+    private final int round;
+    private final int playerId;
 
-    private Space placementSpace;
+    private final Space placementSpace;
 
     // Lines this move captures
-    private Line[] lines;
+    private final Line[] lines;
     private Iterable<Change> changes;
 
     public Move(int round, int playerId, Space space, Line[] lines, Iterable<Change> changes) {
@@ -37,11 +37,7 @@ public class Move implements othello.game.interfaces.Move {
     public void setChanges(Iterable<Change> changes) {
         this.changes = changes;
     }
-
-    public void setLines(Line[] lines) {
-        this.lines = lines;
-    }
-
+    
     public Line[] getLines() {
         return this.lines;
     }
