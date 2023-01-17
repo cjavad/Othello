@@ -40,9 +40,11 @@ struct Material {
     base_color: Vec3,
     roughness: f32,
     metallic: f32,
+    emissive: Vec3,
     base_color_texture: i32,
     metallic_roughness_texture: i32,
     normal_texture: i32,
+    emissive_texture: i32,
 }
 
 impl Material {
@@ -139,13 +141,21 @@ impl Model {
                 -1
             };
 
+            let emissive_texture = if let Some(tex) = material.emissive_texture() {
+                tex.texture().index() as i32
+            } else {
+                -1
+            };
+
             let material = Material {
                 base_color: Vec4::from(pbr.base_color_factor()).truncate(),
                 roughness: pbr.roughness_factor(),
                 metallic: pbr.metallic_factor(),
+                emissive: Vec3::from(material.emissive_factor()),
                 base_color_texture,
                 metallic_roughness_texture,
                 normal_texture,
+                emissive_texture,
             };
 
             self.primitives.push(Primitive {

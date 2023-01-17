@@ -4,6 +4,7 @@ import javafx.application.Application;
 import javafx.stage.Stage;
 import othello.faskinen.Platform;
 import othello.components.SceneManager;
+import othello.faskinen.Platform;
 import othello.faskinen.Window;
 import othello.components.ui.StartMenu;
 

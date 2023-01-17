@@ -36,6 +36,8 @@ public class Faskinen {
 	public Texture hdrTexture;
 	public Framebuffer hdrFramebuffer;
 
+	public Bloom bloom;
+
 	public Texture sdrTexture;
 	public Framebuffer sdrFramebuffer;
 
@@ -73,10 +75,12 @@ public class Faskinen {
 		this.environmentShader = new Shader("quad.vert", "environment.frag");
 		this.tonemapShader = new Shader("quad.vert", "tonemap.frag");
 
-		this.gbuffer = new GBuffer(this.supersampledWidth(), this.supersampledHeight());
-
 		this.hdrTexture = Texture.rgba16f(this.supersampledWidth(), this.supersampledHeight());
 		this.hdrFramebuffer = new Framebuffer(new Texture[] { this.hdrTexture });
+
+
+		this.gbuffer = new GBuffer(this.hdrTexture);
+		this.bloom = new Bloom(this.imageWidth, this.imageHeight);
 
 		this.sdrTexture = Texture.sbgra8(this.imageWidth, this.imageHeight);
 		this.sdrFramebuffer = new Framebuffer(new Texture[] { this.sdrTexture });	
@@ -116,13 +120,16 @@ public class Faskinen {
 		this.hdrTexture.delete();
 		this.hdrFramebuffer.delete();
 
+		this.bloom.delete();
+
 		this.sdrTexture.delete();
 		this.sdrFramebuffer.delete();
 
-		this.gbuffer = new GBuffer(this.supersampledWidth(), this.supersampledHeight());
-
 		this.hdrTexture = Texture.rgba16f(this.supersampledWidth(), this.supersampledHeight());
 		this.hdrFramebuffer = new Framebuffer(new Texture[] { this.hdrTexture });
+
+		this.gbuffer = new GBuffer(this.hdrTexture);
+		this.bloom = new Bloom(this.imageWidth, this.imageHeight);
 
 		this.sdrTexture = Texture.sbgra8(this.imageWidth, this.imageHeight);
 		this.sdrFramebuffer = new Framebuffer(new Texture[] { this.sdrTexture });	
@@ -184,6 +191,7 @@ public class Faskinen {
 				this.geometryShader.setVec3("baseColor", primitive.material.baseColor);
 				this.geometryShader.setFloat("roughness", primitive.material.roughness);
 				this.geometryShader.setFloat("metallic", primitive.material.metallic);
+				this.geometryShader.setVec3("emissive", primitive.material.emissive);
 				this.geometryShader.setFloat("reflectance", primitive.material.reflectance);
 
 				if (primitive.material.baseColorTexture != -1) {
@@ -205,6 +213,13 @@ public class Faskinen {
 					this.geometryShader.setTexture("normalMap", texture);
 				} else {
 					this.geometryShader.setTexture("normalMap", this.fallbackNormal);
+				}
+
+				if (primitive.material.emissiveTexture != -1) {
+					Texture texture = model.textures[primitive.material.emissiveTexture];
+					this.geometryShader.setTexture("emissiveMap", texture);
+				} else {
+					this.geometryShader.setTexture("emissiveMap", this.fallbackWhite);
 				}
 
 				primitive.mesh.bind();
@@ -250,7 +265,7 @@ public class Faskinen {
 	 */
 	public void light() {
 		GL.Enable(GL.BLEND);
-		GL.BlendFunc(GL.ONE, GL.ONE);
+		GL.BlendFunc(GL.SRC_ALPHA, GL.ONE);
 		GL.Viewport(0, 0, this.supersampledWidth(), this.supersampledHeight());
 
 		float aspect = (float) this.imageWidth / (float) this.imageHeight;
@@ -303,6 +318,8 @@ public class Faskinen {
 	 * Tone maps the HDR framebuffer to the SDR framebuffer.
 	 */
 	public void tonemap() {
+		this.bloom.render(this.hdrFramebuffer, 3.5f, 1.0f);
+
 		GL.Viewport(0, 0, this.imageWidth, this.imageHeight);
 
 		this.sdrFramebuffer.bind();

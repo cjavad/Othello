@@ -40,9 +40,10 @@ public class GL {
 	}		
 
 	public static void assertNoError() {
-		switch (GL.GetError()) {
-			case GL.NO_ERROR:
-				return;
+		int error = GL.GetError();
+		if (error == GL.NO_ERROR) return;
+
+		switch (error) {
 			case GL.INVALID_ENUM:
 				throw new RuntimeException("GL_INVALID_ENUM");
 			case GL.INVALID_VALUE:
@@ -879,6 +880,22 @@ public class GL {
 	public static void TexParameterf(int target, int pname, float param) {
 		try {
 			HANDLE_glTexParameterf.invoke(target, pname, param);
+		} catch (Throwable e) {
+			e.printStackTrace();
+			System.exit(1);
+		}
+	}
+
+	private static MethodHandle HANDLE_glGetTexParameteriv = loadFuncGL(
+		"glGetTexParameteriv", 
+		null,
+		Lib.C_UINT32_T,
+		Lib.C_UINT32_T,
+		Lib.C_POINTER_T
+	);
+	public static void GetTexParameteriv(int target, int pname, MemoryAddress params) {
+		try {
+			HANDLE_glGetTexParameteriv.invoke(target, pname, params);
 		} catch (Throwable e) {
 			e.printStackTrace();
 			System.exit(1);
