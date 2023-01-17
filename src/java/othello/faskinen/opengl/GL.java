@@ -3,7 +3,6 @@ package othello.faskinen.opengl;
 import java.lang.foreign.MemoryAddress;
 import java.lang.foreign.MemoryLayout;
 import java.lang.foreign.MemorySegment;
-import java.lang.foreign.MemorySession;
 import java.lang.invoke.MethodHandle;
 
 import othello.faskinen.Lib;
@@ -764,6 +763,21 @@ public class GL {
 		}
 	}
 
+	private static MethodHandle HANDLE_glVertexAttribDivisor = loadFuncGL(
+		"glVertexAttribDivisor", 
+		null,
+		Lib.C_UINT32_T,
+		Lib.C_UINT32_T
+	);
+	public static void VertexAttribDivisor(int index, int divisor) {
+		try {
+			HANDLE_glVertexAttribDivisor.invoke(index, divisor);
+		} catch (Throwable e) {
+			e.printStackTrace();
+			System.exit(1);
+		}
+	}
+
 	private static MethodHandle HANDLE_glEnableVertexAttribArray = loadFuncGL(
 		"glEnableVertexAttribArray", 
 		null,
@@ -1138,6 +1152,24 @@ public class GL {
 	public static void DrawArrays(int mode, int first, int count) {
 		try {
 			HANDLE_glDrawArrays.invoke(mode, first, count);
+		} catch (Throwable e) {
+			e.printStackTrace();
+			System.exit(1);
+		}
+	}
+
+	private static MethodHandle HANDLE_glDrawElementsInstanced = loadFuncGL(
+		"glDrawElementsInstanced", 
+		null,
+		Lib.C_UINT32_T,
+		Lib.C_INT32_T,
+		Lib.C_UINT32_T,
+		Lib.C_UINT64_T,
+		Lib.C_INT32_T
+	);
+	public static void DrawElementsInstanced(int mode, int count, int type, long indices, int instancecount) {
+		try {
+			HANDLE_glDrawElementsInstanced.invoke(mode, count, type, indices, instancecount);
 		} catch (Throwable e) {
 			e.printStackTrace();
 			System.exit(1);

@@ -196,13 +196,19 @@ public class Texture {
 		return rgba8(1, 1, new byte[] { (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF });
 	}
 
+	public static Texture RGBA8WHITE = rgba8White();
+
 	public static Texture rgba8Black() {
 		return rgba8(1, 1, new byte[] { (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0xFF });
 	}
 
+	public static Texture RGBA8BLACK = rgba8Black();
+
 	public static Texture rgba8Normal() {
 		return rgba8(1, 1, new byte[] { (byte) 0x80, (byte) 0x80, (byte) 0xFF, (byte) 0xFF });
 	}
+
+	public static Texture RGBA8NORMAL = rgba8Normal();
 
 	public static Texture integratedDFG() {
 		byte[] bytes;
@@ -215,6 +221,8 @@ public class Texture {
 
 		return new Texture(GL.RGBA8, GL.RGBA, GL.UNSIGNED_BYTE, 256, 256, bytes);
 	}
+
+	public static Texture INTEGRATED_DFG = integratedDFG();
 
 	/**
 	 * Reads the texture data from the GPU and returns it as a byte array.

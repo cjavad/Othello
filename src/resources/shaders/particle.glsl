@@ -1,6 +1,7 @@
 struct Particle {
 	mat4 model;
 	vec3 velocity;
+	float life;
 	// ...
 };
 

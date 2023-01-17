@@ -39,6 +39,7 @@ public class BoardViewer3D extends SceneProvider {
 	static Model boardFrame = Model.read("board_frame.bin");
 	static Model spaceWhite = Model.read("space_white.bin");
 	static Model spaceBlack = Model.read("space_black.bin");
+	static Model rock = Model.read("rock.bin");
 
 	ParticleSystem particles = new ParticleSystem(1000);
                             
@@ -95,6 +96,11 @@ public class BoardViewer3D extends SceneProvider {
 		this.scene.setOnKeyPressed(this::handleKeyPressed);
 		this.scene.setOnKeyReleased(this::handleKeyReleased);
 
+		Particle particle = new Particle();
+		particle.position = new Vec3(0, 3, 0);
+
+		this.particles.pushParticle(particle);
+
 		this.setScene(this.scene);
 	}
 
@@ -148,6 +154,8 @@ public class BoardViewer3D extends SceneProvider {
 		this.faskinen.camera.position = this.faskinen.camera.position.add(cameraShake);
 
 		this.faskinen.clear();
+
+		this.particles.update(0.032f);
 
 		RenderStack stack = new RenderStack();
 
@@ -203,6 +211,7 @@ public class BoardViewer3D extends SceneProvider {
 		GL.Enable(GL.CULL_FACE);
 
 		this.faskinen.geometryPass(stack);
+		this.particles.draw(rock, this.faskinen.camera);
 		this.faskinen.shadowPass(stack);
 
 		GL.Disable(GL.CULL_FACE);

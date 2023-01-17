@@ -40,11 +40,6 @@ public class Faskinen {
 	public Texture sdrTexture;
 	public Framebuffer sdrFramebuffer;
 
-	/* Integrated textures */
-	public Texture integratedDFG;
-	public Texture fallbackWhite;
-	public Texture fallbackNormal;
-
 	/* Scene */
 	public Light[] lights;
 	public Environment environment;
@@ -100,10 +95,6 @@ public class Faskinen {
 
 		this.sdrTexture = Texture.sbgra8(this.imageWidth, this.imageHeight);
 		this.sdrFramebuffer = new Framebuffer(new Texture[] { this.sdrTexture });	
-
-		this.integratedDFG = Texture.integratedDFG();	
-		this.fallbackWhite = Texture.rgba8White();
-		this.fallbackNormal = Texture.rgba8Normal();
 
 		this.lights = new Light [] {		
 			new Light(new Vec3(-1.0f, -2.0f, 0.5f), new Vec3(1.0f, 1.0f, 1.0f)),
@@ -214,28 +205,28 @@ public class Faskinen {
 					Texture texture = model.textures[primitive.material.baseColorTexture];
 					this.geometryShader.setTexture("baseColorMap", texture);
 				} else {
-					this.geometryShader.setTexture("baseColorMap", this.fallbackWhite);
+					this.geometryShader.setTexture("baseColorMap", Texture.RGBA8WHITE);
 				}
 
 				if (primitive.material.metallicRoughnessTexture != -1) {
 					Texture texture = model.textures[primitive.material.metallicRoughnessTexture];
 					this.geometryShader.setTexture("metallicRoughnessMap", texture);
 				} else {
-					this.geometryShader.setTexture("metallicRoughnessMap", this.fallbackWhite);
+					this.geometryShader.setTexture("metallicRoughnessMap", Texture.RGBA8WHITE);
 				}
 
 				if (primitive.material.normalTexture != -1) {
 					Texture texture = model.textures[primitive.material.normalTexture];
 					this.geometryShader.setTexture("normalMap", texture);
 				} else {
-					this.geometryShader.setTexture("normalMap", this.fallbackNormal);
+					this.geometryShader.setTexture("normalMap", Texture.RGBA8NORMAL);
 				}
 
 				if (primitive.material.emissiveTexture != -1) {
 					Texture texture = model.textures[primitive.material.emissiveTexture];
 					this.geometryShader.setTexture("emissiveMap", texture);
 				} else {
-					this.geometryShader.setTexture("emissiveMap", this.fallbackWhite);
+					this.geometryShader.setTexture("emissiveMap", Texture.RGBA8WHITE);
 				}
 
 				primitive.mesh.bind();
@@ -322,7 +313,7 @@ public class Faskinen {
 		this.environmentShader.setTextureCube("irradianceMap", this.environment.irradianceId);
 		this.environmentShader.setTextureCube("indirectMap", this.environment.indirectId);
 		this.environmentShader.setTextureCube("skyMap", this.environment.skyId);
-		this.environmentShader.setTexture("integratedDFG", this.integratedDFG);
+		this.environmentShader.setTexture("integratedDFG", Texture.INTEGRATED_DFG);
 		this.environmentShader.drawArrays(0, 6);
 
 		this.hdrFramebuffer.unbind();
@@ -388,10 +379,6 @@ public class Faskinen {
 
 		this.sdrTexture.delete();
 		this.sdrFramebuffer.delete();
-
-		this.fallbackWhite.delete();
-		this.fallbackNormal.delete();
-		this.integratedDFG.delete();
 
 		this.environment.delete();
 
