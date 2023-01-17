@@ -6,8 +6,6 @@ import java.lang.foreign.MemorySegment;
 import java.lang.foreign.MemorySession;
 import java.lang.foreign.ValueLayout;
 import java.nio.ByteBuffer; 
-import java.nio.file.Files;
-import java.nio.file.Path;
 
 import othello.faskinen.opengl.GL;
 import othello.utils.ResourceLoader;
@@ -66,8 +64,8 @@ public class Texture {
 		GL.TexImage2D(GL.TEXTURE_2D, 0, internal, width, height, 0, format, type, address);
 		GL.GenerateMipmap(GL.TEXTURE_2D);
 
-		GL.TexParameteri(GL.TEXTURE_2D, GL.TEXTURE_WRAP_S, GL.REPEAT);
-		GL.TexParameteri(GL.TEXTURE_2D, GL.TEXTURE_WRAP_T, GL.REPEAT);
+		GL.TexParameteri(GL.TEXTURE_2D, GL.TEXTURE_WRAP_S, GL.CLAMP_TO_EDGE);
+		GL.TexParameteri(GL.TEXTURE_2D, GL.TEXTURE_WRAP_T, GL.CLAMP_TO_EDGE);
 
 		if (format == GL.RGBA || format == GL.BGRA || format == GL.DEPTH_COMPONENT) {
 			GL.TexParameteri(GL.TEXTURE_2D, GL.TEXTURE_MIN_FILTER, GL.LINEAR_MIPMAP_LINEAR);

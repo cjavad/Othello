@@ -33,18 +33,19 @@ public class GBuffer {
 	 * @param width The width of the GBuffer.
 	 * @param height The height of the GBuffer.
 	 */
-	public GBuffer(int width, int height) {
-		this.position = Texture.rgba16f(width, height);
-		this.normal = Texture.rgba16f(width, height);
-		this.baseColor = Texture.rgba8(width, height);
-		this.material = Texture.rgba32u(width, height);
-		this.depth = Texture.depth32f(width, height);
+	public GBuffer(Texture target) {
+		this.position  =  Texture.rgba16f(target.width, target.height);
+		this.normal    =  Texture.rgba16f(target.width, target.height);
+		this.baseColor =    Texture.rgba8(target.width, target.height);
+		this.material  =  Texture.rgba32u(target.width, target.height);
+		this.depth     = Texture.depth32f(target.width, target.height);
 
 		Texture[] colorTextures = new Texture[] {
 			this.position,
 			this.normal,
 			this.baseColor,
-			this.material
+			this.material,
+			target
 		};
 
 		this.framebuffer = new Framebuffer(colorTextures, this.depth);
