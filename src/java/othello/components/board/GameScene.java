@@ -66,7 +66,7 @@ public class GameScene extends SceneProvider {
 
 	public BoardViewer3D getAdvancedBoard() {
 		if (this.advancedBoard == null) {
-			this.advancedBoard = new BoardViewer3D(this.manager, this.board);
+			this.advancedBoard = new BoardViewer3D(this.getSceneManager(), this.board);
 			this.advancedPane.setCenter(advancedBoard.getRoot());
 			this.advancedBoard.getScene().setRoot(this.advancedPane);
 		}
