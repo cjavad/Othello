@@ -25,6 +25,7 @@ public class Line implements othello.game.interfaces.Line {
     }
 
     public Line(Space offset, String direction, int maxColumn, int maxRow) {
+        // Derive the start and end spaces from the offset and direction
         switch (direction) {
             case "vertical" -> {
                 this.start = new Space(0, offset.row);
@@ -44,6 +45,43 @@ public class Line implements othello.game.interfaces.Line {
                 int minStart = Math.min(offset.row, maxColumn - offset.column - 1);
                 this.start = new Space(offset.column + minStart, offset.row - minStart);
                 this.end = new Space(offset.column - minEnd, offset.row + minEnd);
+            }
+            // We split the above cases into two to avoid a default case
+            case "verticalLeft" -> {
+                this.start = new Space(0, offset.row);
+                this.end = new Space(offset.column, offset.row);
+            }
+            case "verticalRight" -> {
+                this.start = new Space(offset.column, offset.row);
+                this.end = new Space(maxColumn - 1, offset.row);
+            }
+            case "horizontalTop" -> {
+                this.start = new Space(offset.column, 0);
+                this.end = new Space(offset.column, offset.row);
+            }
+            case "horizontalBottom" -> {
+                this.start = new Space(offset.column, offset.row);
+                this.end = new Space(offset.column, maxRow - 1);
+            }
+            case "diagonalTopLeft" -> {
+                int min = Math.min(offset.row, offset.column);
+                this.start = new Space(offset.column - min, offset.row - min);
+                this.end = new Space(offset.column, offset.row);
+            }
+            case "diagonalTopRight" -> {
+                int min = Math.min(offset.row, maxColumn - offset.column - 1);
+                this.start = new Space(offset.column, offset.row - min);
+                this.end = new Space(offset.column + min, offset.row);
+            }
+            case "diagonalBottomLeft" -> {
+                int min = Math.min(maxRow - offset.row - 1, offset.column);
+                this.start = new Space(offset.column - min, offset.row);
+                this.end = new Space(offset.column, offset.row + min);
+            }
+            case "diagonalBottomRight" -> {
+                int min = Math.min(maxRow - offset.row - 1, maxColumn - offset.column - 1);
+                this.start = new Space(offset.column, offset.row);
+                this.end = new Space(offset.column + min, offset.row + min);
             }
             default -> throw new IllegalArgumentException("Invalid direction: " + direction);
         }

@@ -2,6 +2,7 @@ package othello.game;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Iterator;
 
 public class Board2D implements othello.game.interfaces.Board2D {
@@ -17,7 +18,28 @@ public class Board2D implements othello.game.interfaces.Board2D {
     private Player[] players;
     private ArrayList<Move> moves;
 
-    public boolean isInSetup = true;
+    public boolean isInSetup;
+
+    public Board2D(Player[] players, HashMap<String, Integer> options) {
+        this.players = players;
+
+        this.columns = options.getOrDefault("columns", players.length * 4);
+        this.rows = options.getOrDefault("rows", players.length * 4);
+
+        this.board = new int[this.columns * this.rows];
+        Arrays.fill(this.board, -1);
+
+        this.round = 0;
+        this.currentPlayerId = 0;
+        this.manual = options.getOrDefault("manual", 0) == 1;
+        this.moves = new ArrayList<Move>();
+
+        if (options.getOrDefault("setup", 0) == 1) {
+            this.startSetup(options.getOrDefault("maxPlacements", players.length));
+        } else {
+            this.setStartingPositions();
+        }
+    }
 
     public Board2D(Player[] players, boolean manual) {
         this(players.length * 4, players.length * 4, players, manual);
@@ -36,24 +58,11 @@ public class Board2D implements othello.game.interfaces.Board2D {
 
         // Fill board with empty spaces
         Arrays.fill(this.board, -1);
-
-        // Set starting positions
-        if (!this.isInSetup) {
-            for (Player player : players) {
-                int playerId = player.getPlayerId();
-                // Find starting positions
-                int[] startingPositions = this.getStartingPositions(playerId);
-                // Set starting positions
-                for (int position : startingPositions) {
-                    this.board[position] = playerId;
-                }
-            }
-        }
-
         this.round = 0;
         this.currentPlayerId = 0;
         this.moves = new ArrayList<>();
         this.manual = manual;
+        this.setStartingPositions();
     }
 
     public int getColumns() {
@@ -75,10 +84,14 @@ public class Board2D implements othello.game.interfaces.Board2D {
     public Line[] findLines(Space placementSpace, int playerId) {
         // Find all lines that are captured by this move
         Line[] lines = {
-                new Line(placementSpace, "vertical", this.columns, this.rows),
-                new Line(placementSpace, "horizontal", this.columns, this.rows),
-                new Line(placementSpace, "diagonal", this.columns, this.rows),
-                new Line(placementSpace, "antiDiagonal", this.columns, this.rows)
+                new Line(placementSpace, "verticalLeft", this.columns, this.rows),
+                new Line(placementSpace, "verticalRight", this.columns, this.rows),
+                new Line(placementSpace, "horizontalTop", this.columns, this.rows),
+                new Line(placementSpace, "horizontalBottom", this.columns, this.rows),
+                new Line(placementSpace, "diagonalTopLeft", this.columns, this.rows),
+                new Line(placementSpace, "diagonalTopRight", this.columns, this.rows),
+                new Line(placementSpace, "diagonalBottomLeft", this.columns, this.rows),
+                new Line(placementSpace, "diagonalBottomRight", this.columns, this.rows),
         };
 
         for (int i = 0; i < lines.length; i++) {
@@ -100,14 +113,24 @@ public class Board2D implements othello.game.interfaces.Board2D {
                     continue;
                 }
 
+                if (startSpace != null && endSpace != null && !startSpace.equals(endSpace) && !endSpace.equals(placementSpace)) {
+                    startSpace = endSpace;
+                    endSpace = null;
+                }
+
                 if (space.equals(placementSpace) || cell == playerId) {
-                    if (startSpace == null) startSpace = space;
-                    else if (space.distanceTo(startSpace) < 2) startSpace = space;
-                    else {
-                        endSpace = space;
-                        // If the distance between the last own space and the current own space is greater than 1, then the line is finished.
-                        if (endSpace.distanceTo(lastOwnSpace) > 1 && (startSpace.equals(placementSpace) || endSpace.equals(placementSpace)))
-                            break;
+                    if (startSpace == null) {
+                        startSpace = space;
+                    } else {
+                        if (space.distanceTo(startSpace) < 2) {
+                            startSpace = space;
+                        } else {
+                            endSpace = space;
+                            // If the distance between the last own space and the current own space is greater than 1, then the line is finished.
+                            if (endSpace.distanceTo(lastOwnSpace) > 1 && (startSpace.equals(placementSpace) || endSpace.equals(placementSpace))) {
+                                break;
+                            }
+                        }
                     }
 
                     lastOwnSpace = space;
@@ -219,8 +242,18 @@ public class Board2D implements othello.game.interfaces.Board2D {
 
     public Move move(Space space) {
         if (this.isInSetup) {
+            if (this.getCurrentPlayer().maxPlacements < 1) {
+                // Forcefully switch to the next player with placements left
+                Arrays.stream(this.players).filter(player -> player.maxPlacements > 0).findFirst().ifPresentOrElse(player -> this.currentPlayerId = player.getPlayerId(), () -> {
+                    this.isInSetup = false;
+                    this.currentPlayerId = 0;
+                });
+                return null;
+            }
+
             // When in setup simply place the piece
             this.setSpace(space, this.currentPlayerId);
+            this.players[this.currentPlayerId].maxPlacements--;
             return null;
         }
 
@@ -266,19 +299,26 @@ public class Board2D implements othello.game.interfaces.Board2D {
         return move;
     }
 
-    public int[] getStartingPositions(int playerId) {
-        // Create player count x player count grid in the middle of the board with diagonals of players
-        int[] startingPositions = new int[this.players.length];
-        int topStartColumn = (this.columns / 2) - (this.players.length / 2);
-        int topStartRow = (this.rows / 2) - (this.players.length / 2);
+    public void setStartingPositions() {
+        for (Player player : players) {
+            int playerId = player.getPlayerId();
+            // Find starting positions
+            // Create player count x player count grid in the middle of the board with diagonals of players
+            int[] startingPositions = new int[this.players.length];
+            int topStartColumn = (this.columns / 2) - (this.players.length / 2);
+            int topStartRow = (this.rows / 2) - (this.players.length / 2);
 
-        for (int i = 0; i < this.players.length; i++) {
-            int column = topStartColumn + i;
-            int row = topStartRow + (playerId + i) % this.players.length;
-            startingPositions[i] = row * this.columns + column;
+            for (int i = 0; i < this.players.length; i++) {
+                int column = topStartColumn + i;
+                int row = topStartRow + (playerId + i) % this.players.length;
+                startingPositions[i] = row * this.columns + column;
+            }
+
+            // Set starting positions
+            for (int position : startingPositions) {
+                this.board[position] = playerId;
+            }
         }
-
-        return startingPositions;
     }
 
     public void nextPlayer() {
@@ -292,6 +332,29 @@ public class Board2D implements othello.game.interfaces.Board2D {
 
     public Player getPlayer(int playerId) {
         return this.players[playerId];
+    }
+
+    @Override
+    public boolean inSetup() {
+        return isInSetup;
+    }
+
+    @Override
+    public boolean isGameOver() {
+        for (Player player : this.players) {
+            if (validMoves(player.getPlayerId()).hasNext()) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    @Override
+    public void startSetup(int maxPlacements) {
+        this.isInSetup = true;
+        for (Player p : this.players) {
+            p.maxPlacements = maxPlacements;
+        }
     }
 
     public int getCurrentPlayerId() {

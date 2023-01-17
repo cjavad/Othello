@@ -2,6 +2,8 @@ package othello.components;
 
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import othello.game.Board2D;
+import othello.utils.SettingsManager;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -11,16 +13,17 @@ public class SceneManager {
     private int height;
 
     private Stage stage;
+
+    private SettingsManager settings;
     private ArrayList<SceneProvider> scenes;
     private int activeSceneIndex;
 
-    private HashMap<String, Boolean> options;
     public SceneManager(Stage stage, int width, int height) {
         this.stage = stage;
         this.width = width;
         this.height = height;
         this.scenes = new ArrayList<>();
-        this.options = new HashMap<>();
+        this.settings = new SettingsManager();
 
         // Update width and height on resize
         this.stage.widthProperty().addListener((observable, oldValue, newValue) -> {
@@ -44,6 +47,10 @@ public class SceneManager {
                 return;
             }
         }
+    }
+
+    public Board2D getNewBoard() {
+        return this.settings.getBoardState();
     }
 
     public void registerScene(SceneProvider scene) {
@@ -130,11 +137,11 @@ public class SceneManager {
     }
 
     public void setOption(String name, boolean value) {
-        this.options.put(name, value);
+        this.settings.setOption(name, value);
     }
 
     public boolean getOption(String name) {
-        return this.options.get(name);
+        return this.settings.getOption(name);
     }
     public Stage getStage() {
         return this.stage;

@@ -10,6 +10,7 @@ import othello.components.SceneProvider;
 
 public class BoardScene2D extends SceneProvider {
     private Board2D board; // Board Model
+    BoardGrid boardGrid;
     private BoardButtons bP;
 
     public BoardScene2D(SceneManager manager, Board2D board) {
@@ -18,12 +19,11 @@ public class BoardScene2D extends SceneProvider {
 
         // Create required nodes
         BorderPane root = new BorderPane();
-        BoardGrid boardGrid = new BoardGrid(this.board, (manager.getWidth() * 2/3) / this.board.getColumns());
         BoardTopbar boardTopbar = new BoardTopbar(manager);
 
-        bP = new BoardButtons(this.board);
-
-        boardGrid.addEventHandler(MoveEvent.UPDATE, event -> {
+        this.boardGrid = new BoardGrid(this.board, (manager.getWidth() * 2/3) / this.board.getColumns());
+        this.bP = new BoardButtons(this.board);
+        this.bP.addEventHandler(MoveEvent.UPDATE, event -> {
             this.handleUpdate(event.space);
         });
 
@@ -33,10 +33,14 @@ public class BoardScene2D extends SceneProvider {
         root.setBottom(bP);
 
         this.setScene(new Scene(root, manager.getWidth(), manager.getHeight()));
-    }
 
+        this.getScene().addEventHandler(MoveEvent.UPDATE, event -> {
+            this.handleUpdate(event.space);
+        });
+    }
 
     public void handleUpdate(Space space) {
         this.bP.update();
+        this.boardGrid.update();
     }
 }

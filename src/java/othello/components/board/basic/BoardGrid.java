@@ -21,12 +21,13 @@ public class BoardGrid extends GridPane {
 
         this.addEventHandler(MoveEvent.MOVE, event -> {
             this.board.move(event.space);
-
-            this.getChildren().forEach(node -> {
-                ((SpacePane) node).update();
-            });
-
+            this.update();
             this.fireEvent(new MoveEvent(MoveEvent.UPDATE, event.space));
+        });
+    }
+    public void update() {
+        this.getChildren().forEach(node -> {
+            ((SpacePane) node).update();
         });
     }
 }

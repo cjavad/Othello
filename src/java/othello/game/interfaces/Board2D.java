@@ -48,7 +48,7 @@ public interface Board2D extends Iterable<Space> {
      * Player
      */
 
-    int[] getStartingPositions(int playerId);
+    void setStartingPositions();
     void nextPlayer();
     int getPlayerCount();
     int getCurrentPlayerId();
@@ -58,6 +58,10 @@ public interface Board2D extends Iterable<Space> {
     /**
      * Board state
      */
+
+    boolean inSetup();
+    boolean isGameOver();
+    void startSetup(int maxPlacements);
 
     int getRound();
     othello.game.Move getLatestMove();

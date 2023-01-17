@@ -38,10 +38,7 @@ public class PauseMenu extends SceneProvider {
 
 
         resumeButton.setOnAction(event -> {
-            Board2D board = new Board2D(
-                    new Player[] { new Player(0), new Player(1) },
-                    false
-            );
+            Board2D board = this.getSceneManager().getNewBoard();
             new BoardScene2D(this.getSceneManager(), board).setActive();
         });
         homeButton.setOnAction(event -> {
@@ -50,27 +47,16 @@ public class PauseMenu extends SceneProvider {
         RTXButton.setOnAction(event ->{
         this.getSceneManager().setOption("RTX", !this.getSceneManager().getOption("RTX"));
                 if (this.getSceneManager().getOption("RTX")==true) {
-                    Board2D board = new Board2D(
-                            new Player[] { new Player(0), new Player(1) },
-                            false
-                    );
+                    Board2D board = this.getSceneManager().getNewBoard();
                     new BoardViewer3D(this.getSceneManager(), board).setActive();
                 } else {
-                    Board2D board = new Board2D(
-                            new Player[] { new Player(0), new Player(1) },
-                            false
-                    );
+                    Board2D board = this.getSceneManager().getNewBoard();
                     new BoardScene2D(this.getSceneManager(), board).setActive();
                 }
         });
         NewGameButton.setOnAction(event -> {
-            Player[] players = {
-                    new Player(0),
-                    new Player(1),
-            };
-
             // Create simple scene
-            Board2D board = new Board2D(players, false);
+            Board2D board = this.getSceneManager().getNewBoard();
 
             this.getSceneManager().resetScene(new GameScene(this.getSceneManager(), board), false);
         });

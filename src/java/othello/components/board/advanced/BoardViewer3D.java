@@ -50,7 +50,7 @@ public class BoardViewer3D extends SceneProvider {
 	float cameraShake = 0.0f;
 
 	public BoardViewer3D(SceneManager manager) {
-		this(manager, new Board2D(new Player[] { new Player(0), new Player(1) }, false));
+		this(manager, manager.getNewBoard());
 	}
 
 	public BoardViewer3D(SceneManager manager, Board2D board) {

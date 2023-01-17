@@ -28,6 +28,7 @@ public class BoardButtons extends GridPane {
         switchPlayerButton.setOnAction(event -> {
             this.board.nextPlayer();
             this.update();
+            this.fireEvent(new MoveEvent(MoveEvent.UPDATE, null));
         });
 
         Button endSetupButton = new Button("End setup");

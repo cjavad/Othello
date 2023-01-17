@@ -58,10 +58,7 @@ public class StartMenu extends SceneProvider {
     }
 
     private void handleFaskineClick(ActionEvent event) {
-        Board2D board = new Board2D(
-            new Player[] { new Player(0), new Player(1) },
-            false
-        );
+        Board2D board = this.getSceneManager().getNewBoard();
         new BoardScene2D(this.getSceneManager(), board).setActive();
     }
 
