@@ -2,6 +2,8 @@ package othello.game.interfaces;
 
 import othello.game.Space;
 
+import java.util.Iterator;
+
 /**
  * @author
  *
@@ -9,30 +11,28 @@ import othello.game.Space;
  *
  */
 
-public interface Board2D {
+public interface Board2D extends Iterable<Space> {
     /**
      * Geometry of board
      */
-    public int getColumns();
-    public int getRows();
-
-    public Iterable<othello.game.Space> getSpaces();
+    int getColumns();
+    int getRows();
 
     /**
      * These functions always refer to current player id
      * @return Player ID that occupies the cell, or -1 if empty
      */
-    public int getSpace(othello.game.Space space);
-    public void setSpace(othello.game.Space space, int playerId);
+    int getSpace(othello.game.Space space);
+    void setSpace(othello.game.Space space, int playerId);
 
-    public Line[] findLines(othello.game.Space space, int playerId);
+    Line[] findLines(othello.game.Space space, int playerId);
     /**
      *
      * @return Returns 0 is playable, 1 if something is wrong.
      */
-    public int isValidMove(othello.game.Space space, int playerId);
+    int isValidMove(othello.game.Space space, int playerId);
     // Return list of all valid moves
-    public Iterable<othello.game.Space> getValidMoves(int playerId);
+    Iterator<Space> validMoves(int playerId);
 
     /**
      * Handles moves
@@ -40,28 +40,28 @@ public interface Board2D {
      * Returns the move made, and the changes made to the board.
      */
 
-    public Move move(Space space);
+    Move move(Space space);
 
     /**
      * Player
      */
 
-    public int[] getStartingPositions(int playerId);
-    public void nextPlayer();
-    public int getPlayerCount();
-    public int getCurrentPlayerId();
-    public Player getCurrentPlayer();
-    public Player getPlayer(int playerId);
+    int[] getStartingPositions(int playerId);
+    void nextPlayer();
+    int getPlayerCount();
+    int getCurrentPlayerId();
+    Player getCurrentPlayer();
+    Player getPlayer(int playerId);
 
     /**
      * Board state
      */
 
-    public int getRound();
-    public othello.game.Move getLatestMove();
-    public othello.game.Move getMove(int moveIndex);
-    public Iterable<othello.game.Move> getMoves(); // Chains moves
+    int getRound();
+    othello.game.Move getLatestMove();
+    othello.game.Move getMove(int moveIndex);
+    Iterable<othello.game.Move> getMoves(); // Chains moves
 
-    public int getScore();
-    public int getScore(int playerId);
+    int getScore();
+    int getScore(int playerId);
 }
