@@ -98,7 +98,7 @@ public class BoardScene extends SceneProvider {
     }
 
     public void updateCell(Pane cell, Space space) {
-        var cellOccupant = this.board.getCell(space);
+        var cellOccupant = this.board.getSpace(space);
         AtomicReference<Ellipse> pieceRef = new AtomicReference<>();
 
         String borderColor = this.board.isValidMove(space, this.board.getCurrentPlayerId()) == 0 ? "gold" : "green";

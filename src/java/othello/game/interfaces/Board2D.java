@@ -22,8 +22,8 @@ public interface Board2D {
      * These functions always refer to current player id
      * @return Player ID that occupies the cell, or -1 if empty
      */
-    public int getCell(othello.game.Space space);
-    public void setCell(othello.game.Space space, int playerId);
+    public int getSpace(othello.game.Space space);
+    public void setSpace(othello.game.Space space, int playerId);
 
     public Line[] findLines(othello.game.Space space, int playerId);
     /**

@@ -136,7 +136,7 @@ public class BoardViewer3D extends SceneProvider {
 				position.y = 0.3f;
 
 				Space space = new Space(x, y);
-				int playerId = board.getCell(space);
+				int playerId = board.getSpace(space);
 				if (playerId == -1) continue;
 
 				Player player = board.getPlayer(playerId);

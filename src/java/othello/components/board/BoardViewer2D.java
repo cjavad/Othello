@@ -101,7 +101,7 @@ public class BoardViewer2D extends SceneProvider {
         }
     }
     public void updateCell(Pane cell, Space space) {
-        int cellOccupant = this.board.getCell(space);
+        int cellOccupant = this.board.getSpace(space);
         AtomicReference<Ellipse> pieceRef = new AtomicReference<>();
 
         String borderColour = this.board.isValidMove(space, this.board.getCurrentPlayerId()) == 0 ? "black":"green";

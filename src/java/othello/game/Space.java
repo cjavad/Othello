@@ -23,27 +23,6 @@ public class Space implements othello.game.interfaces.Space {
         return this.row;
     }
 
-    /**
-     *
-     * @param stepsX The number of steps to move in the X direction.
-     * @param stepsY The number of steps to move in the Y direction.
-     * @param maxX The maximum value of X, typically the max width or row length.
-     * @param maxY The maximum value of Y, typically the max height or column length.
-     * @return The neighboring space, or null if the space is out of bounds.
-     */
-
-    public Space getRelativeSpace(int stepsX, int stepsY, int maxX, int maxY) {
-        int column = this.column + stepsX;
-        int row = this.row + stepsY;
-
-
-        if (row < 0 || row >= maxY || column < 0 || column >= maxX) {
-            return null;
-        }
-
-        return new Space(column, row);
-    }
-
     public String toString() {
         return "[" + this.column + ", " + this.row + "]";
     }
