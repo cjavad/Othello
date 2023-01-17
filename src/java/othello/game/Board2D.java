@@ -17,6 +17,8 @@ public class Board2D implements othello.game.interfaces.Board2D {
     private Player[] players;
     private ArrayList<Move> moves;
 
+    public boolean isInSetup = true;
+
     public Board2D(Player[] players, boolean manual) {
         this(players.length * 4, players.length * 4, players, manual);
     }
@@ -36,13 +38,15 @@ public class Board2D implements othello.game.interfaces.Board2D {
         Arrays.fill(this.board, -1);
 
         // Set starting positions
-        for (Player player : players) {
-            int playerId = player.getPlayerId();
-            // Find starting positions
-            int[] startingPositions = this.getStartingPositions(playerId);
-            // Set starting positions
-            for (int position : startingPositions) {
-                this.board[position] = playerId;
+        if (!this.isInSetup) {
+            for (Player player : players) {
+                int playerId = player.getPlayerId();
+                // Find starting positions
+                int[] startingPositions = this.getStartingPositions(playerId);
+                // Set starting positions
+                for (int position : startingPositions) {
+                    this.board[position] = playerId;
+                }
             }
         }
 
@@ -140,6 +144,7 @@ public class Board2D implements othello.game.interfaces.Board2D {
     }
 
     public int isValidMove(Space space, int playerId) {
+        if (this.isInSetup) return 1;
         // Get state of space
         int playerOccupied = this.getSpace(space);
 
@@ -213,6 +218,12 @@ public class Board2D implements othello.game.interfaces.Board2D {
     }
 
     public Move move(Space space) {
+        if (this.isInSetup) {
+            // When in setup simply place the piece
+            this.setSpace(space, this.currentPlayerId);
+            return null;
+        }
+
         if (this.isValidMove(space, this.currentPlayerId) > 0) return null;
         int prevValue = this.getSpace(space);
 

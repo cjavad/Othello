@@ -72,9 +72,10 @@ public class MoveList extends SceneProvider  {
         int i = 0;
 
         // Get index of latest move
-        this.selectedMove = this.board.getLatestMove().getRound();
+        this.selectedMove = this.board.getLatestMove() == null ? this.selectedMove : this.board.getLatestMove().getRound();
 
         for (Move move : this.board.getMoves()) {
+            if (move == null) continue;
             this.movesBox.getChildren().add(this.moveElement(i++, move));
         }
 
