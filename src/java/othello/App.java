@@ -4,7 +4,6 @@ import javafx.application.Application;
 import javafx.stage.Stage;
 import othello.faskinen.Platform;
 import othello.components.SceneManager;
-import othello.faskinen.Platform;
 import othello.faskinen.Window;
 import othello.components.ui.StartMenu;
 
@@ -48,10 +47,6 @@ public class App extends Application {
             if (arg.equals(name)) return true;
         }
         return false;
-    }
-
-    private static boolean checkModule(String name) {
-        return ModuleLayer.boot().findModule(name).isPresent();
     }
 
     private static void requireVersion(int major, int minor, int patch)
