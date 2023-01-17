@@ -10,6 +10,6 @@ public class Particle {
 	}
 
 	public static int stride() {
-		return 16 * 2;
+		return 16 * 5;
 	}
 }
