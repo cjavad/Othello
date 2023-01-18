@@ -1,85 +1,71 @@
 package othello.components.board;
 
-import javafx.event.ActionEvent;
-
-// Manages game Pane and events
-
-import javafx.scene.control.Button;
+import javafx.event.Event;
+import javafx.scene.Scene;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.GridPane;
-import othello.components.board.advanced.BoardViewer3D;
-import othello.components.board.basic.BoardScene2D;
-import othello.components.ui.GoBackOnceButton;
-import othello.events.MoveEvent;
-import othello.game.Board2D;
 import othello.components.SceneManager;
 import othello.components.SceneProvider;
+import othello.components.board.basic.BoardScene2D;
+import othello.components.board.advanced.BoardScene3D;
+import othello.events.SettingsEvent;
+import othello.game.Board2D;
 
 public class GameScene extends SceneProvider {
-	public boolean rtxOn = false;
-	public BorderPane basicPane;
-	public BorderPane advancedPane;
-	public Board2D board;
+    private BoardScene2D basicBoard;
+    private BoardScene3D advancedBoard;
 
-	public othello.components.board.basic.BoardScene2D basicBoard;
-	public BoardViewer3D advancedBoard;
+    private Board2D board;
 
-	public SceneManager manager;
+    BorderPane root;
+    private BoardTopbar topbar;
+    private BoardButtons buttons;
+
+    private BoardMoves moveList;
+
 
     public GameScene(SceneManager manager, Board2D board) {
         super(manager, "GameScene");
+        this.board = board;
 
-		this.board = board;
+        this.root = new BorderPane();
 
-		GridPane grid = new GridPane();
-		grid.add(new GoBackOnceButton(manager), 0, 0);
-		Button rtxButton = new Button("RTX");
-		rtxButton.setOnAction(this::toggleRTX);
-		grid.add(rtxButton, 1, 0);
+        this.topbar = new BoardTopbar(manager);
+        this.buttons = new BoardButtons(this.board);
+        this.moveList = new BoardMoves(manager, this.board);
 
-		MoveList moveList = new MoveList(manager, board);
+        this.topbar.addEventHandler(SettingsEvent.UPDATE, this::handleSettingsUpdate);
+        this.root.addEventHandler(SettingsEvent.UPDATE, this::handleSettingsUpdate);
+
+        this.root.setTop(this.topbar);
+        this.root.setRight(this.moveList.getRoot());
+        this.root.setBottom(this.buttons);
 
         this.basicBoard = new BoardScene2D(manager, this.board);
 
-		this.basicPane = new BorderPane(); 
-		this.basicPane.setCenter(basicBoard.getRoot());
-		this.basicPane.setRight(moveList.getRoot());
-		this.basicPane.setTop(grid);
-		this.basicBoard.getScene().setRoot(this.basicPane);
+        if (manager.getOption("RTX")) {
+            this.advancedBoard = new BoardScene3D(manager, this.board);
+            root.setCenter(this.advancedBoard.getRoot());
+        } else {
+            root.setCenter(this.basicBoard.getRoot());
+        }
 
-		// Listen for MoveEvents on the basic board
-		this.basicBoard.getScene().addEventHandler(MoveEvent.UPDATE, event -> {
-			moveList.update();
-		});
+        this.setScene(new Scene(root, manager.getWidth(), manager.getHeight()));
+    }
 
-		grid = new GridPane();
-		grid.add(new GoBackOnceButton(manager), 0, 0);
-		rtxButton = new Button("RTX");
-		rtxButton.setOnAction(this::toggleRTX);
-		grid.add(rtxButton, 1, 0);
+    public void createAdvancedBoard() {
+        this.advancedBoard = new BoardScene3D(this.getSceneManager(), this.board);
+        this.root.setCenter(this.advancedBoard.getRoot());
+    }
 
-		this.advancedPane = new BorderPane();
-		this.advancedPane.setTop(grid);
+    public void handleSettingsUpdate(Event event) {
+        this.buttons.update();
+        this.moveList.update();
+        this.basicBoard.handleUpdate(null);
 
-		this.setScene(this.basicBoard.getScene());
-	}
-
-	public BoardViewer3D getAdvancedBoard() {
-		if (this.advancedBoard == null) {
-			this.advancedBoard = new BoardViewer3D(this.getSceneManager(), this.board);
-			this.advancedPane.setCenter(advancedBoard.getRoot());
-			this.advancedBoard.getScene().setRoot(this.advancedPane);
-		}
-		return this.advancedBoard;
-	}
-
-	public void toggleRTX(ActionEvent event) {
-		this.rtxOn = !this.rtxOn;
-
-		if (this.rtxOn) {
-			this.getSceneManager().setActiveScene(this.getAdvancedBoard().getScene());
-		} else {
-			this.getSceneManager().setActiveScene(this.basicBoard.getScene());
-		}
-	}
+        if (this.getSceneManager().getOption("RTX")) {
+            this.createAdvancedBoard();
+        } else {
+            this.root.setCenter(this.basicBoard.getRoot());
+        }
+    }
 }

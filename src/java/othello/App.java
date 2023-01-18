@@ -17,9 +17,8 @@ public class App extends Application {
     @Override
     public void start(Stage stage) throws Exception {
 		Window.initialize();
-
-        stage.setTitle("Othello");
         SceneManager sceneManager = new SceneManager(stage, 800, 600);
+        stage.setTitle("Othello");
         new StartMenu(sceneManager).setActive();
     }
 

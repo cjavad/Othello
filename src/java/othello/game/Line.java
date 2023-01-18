@@ -10,6 +10,8 @@ public class Line implements othello.game.interfaces.Line {
     private int dr;
     private int dc;
 
+    private String label;
+
     public Line(Space start, Space end, int maxColumn, int maxRow) {
         this.start = start;
         this.end = end;
@@ -26,6 +28,8 @@ public class Line implements othello.game.interfaces.Line {
 
     public Line(Space offset, String direction, int maxColumn, int maxRow) {
         // Derive the start and end spaces from the offset and direction
+        this.label = direction;
+
         switch (direction) {
             case "vertical" -> {
                 this.start = new Space(0, offset.row);
@@ -70,13 +74,13 @@ public class Line implements othello.game.interfaces.Line {
             }
             case "diagonalTopRight" -> {
                 int min = Math.min(offset.row, maxColumn - offset.column - 1);
-                this.start = new Space(offset.column, offset.row - min);
-                this.end = new Space(offset.column + min, offset.row);
+                this.start = new Space(offset.column, offset.row);
+                this.end = new Space(offset.column + min, offset.row - min);
             }
             case "diagonalBottomLeft" -> {
                 int min = Math.min(maxRow - offset.row - 1, offset.column);
-                this.start = new Space(offset.column - min, offset.row);
-                this.end = new Space(offset.column, offset.row + min);
+                this.start = new Space(offset.column, offset.row);
+                this.end = new Space(offset.column - min, offset.row + min);
             }
             case "diagonalBottomRight" -> {
                 int min = Math.min(maxRow - offset.row - 1, maxColumn - offset.column - 1);
@@ -168,7 +172,7 @@ public class Line implements othello.game.interfaces.Line {
     }
 
     public String toString() {
-        StringBuilder s = new StringBuilder("Line between " + this.start + " and " + this.end + " c: " + this.length());
+        StringBuilder s = new StringBuilder("Line (" + this.label + ") between " + this.start + " and " + this.end + " c: " + this.length());
 
         for (Space space : this) {
             if (space == null) continue;

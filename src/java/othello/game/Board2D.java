@@ -96,11 +96,14 @@ public class Board2D implements othello.game.interfaces.Board2D {
 
         for (int i = 0; i < lines.length; i++) {
             Line line = lines[i];
+
             if (line == null) continue;
 
             Space startSpace = null;
             Space endSpace = null;
             Space lastOwnSpace = null;
+
+
 
             for (Space space : line) {
                 if (space == null) continue;
@@ -248,10 +251,14 @@ public class Board2D implements othello.game.interfaces.Board2D {
                     this.isInSetup = false;
                     this.currentPlayerId = 0;
                 });
-                return null;
+
+                if (!this.isInSetup) {
+                    return null;
+                }
             }
 
-            // When in setup simply place the piece
+            // When in setup simply place the piece if the space is empty
+            if (this.getSpace(space) != -1) return null;
             this.setSpace(space, this.currentPlayerId);
             this.players[this.currentPlayerId].maxPlacements--;
             return null;

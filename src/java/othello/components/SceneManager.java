@@ -6,7 +6,6 @@ import othello.game.Board2D;
 import othello.utils.SettingsManager;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 
 public class SceneManager {
     private int width;
@@ -40,13 +39,15 @@ public class SceneManager {
         this.stage.show();
     }
 
-    public void getScene(String name) {
+    public SceneProvider getScene(String name) {
         for (SceneProvider scene : this.scenes) {
             if (scene.getName().equals(name)) {
                 this.setActiveScene(scene.getScene());
-                return;
+                return scene;
             }
         }
+
+        return null;
     }
 
     public Board2D getNewBoard() {

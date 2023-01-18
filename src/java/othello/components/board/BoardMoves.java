@@ -8,21 +8,20 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Paint;
 import javafx.scene.text.Text;
+import javafx.scene.text.TextAlignment;
 import othello.components.SceneManager;
 import othello.components.SceneProvider;
 import othello.game.Board2D;
 import othello.game.Change;
 import othello.game.Move;
 
-import java.util.ArrayList;
-
-public class MoveList extends SceneProvider  {
+public class BoardMoves extends SceneProvider  {
     int selectedMove = 0;
     private Board2D board;
 
     private VBox movesBox;
     private AnchorPane anchorPane;
-    public MoveList(SceneManager manager, Board2D boardContext) {
+    public BoardMoves(SceneManager manager, Board2D boardContext) {
         super(manager, "MoveList");
 
         BorderPane borderPane = new BorderPane();
@@ -55,10 +54,7 @@ public class MoveList extends SceneProvider  {
         Text numberText = new Text("0");
         numberText.setStyle("-fx-font-size: 20px;");
         numberText.setFill(Paint.valueOf("#000000"));
-        numberText.setWrappingWidth(50);
         numberText.setTextAlignment(javafx.scene.text.TextAlignment.CENTER);
-        numberText.setTranslateX(25);
-        numberText.setTranslateY(25);
 
         Button forwardButton = new Button("Forward");
         buttonBox.getChildren().addAll(backButton, numberText, forwardButton);
@@ -109,7 +105,7 @@ public class MoveList extends SceneProvider  {
 
         Text moveText = new Text( "Move " + index + ". " + move.getPlacementSpace().toString());
         // Alternate background colors
-
+        moveText.setTextAlignment(TextAlignment.CENTER);
         moveText.setWrappingWidth(this.movesBox.getPrefWidth() - 20);
 
         pane.getChildren().add(moveText);
@@ -166,6 +162,7 @@ public class MoveList extends SceneProvider  {
         for (Change change : move.getChanges()) {
             Text changeText = new Text("Flipped: " + change.getPrevPlayerId() + " to " + move.getPlayerId() + " at " + "(" + change.getColumn() + ", " + change.getRow() + ")");
             changeText.setWrappingWidth(this.movesBox.getPrefWidth() - 20);
+            changeText.setTextAlignment(TextAlignment.CENTER);
             changesBox.getChildren().add(changeText);
         }
 

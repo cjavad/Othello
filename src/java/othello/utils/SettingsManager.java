@@ -12,7 +12,7 @@ public class SettingsManager {
     public static final int BOARD_WIDTH = 8;
     public static final int BOARD_HEIGHT = 8;
     public static final int PLAYER_COUNT = 2;
-    public static final int MAX_PLACEMENTS = 2;
+    public static final int MAX_PLACEMENTS = 64;
 
     private HashMap<String, Boolean> options;
     private HashMap<String, Integer> gameOptions;
@@ -26,7 +26,7 @@ public class SettingsManager {
         this.gameOptions.put("rows", SettingsManager.BOARD_HEIGHT);
         this.gameOptions.put("maxPlacements", SettingsManager.MAX_PLACEMENTS);
         this.gameOptions.put("manual", 0);
-        this.gameOptions.put("inSetup", 1);
+        this.gameOptions.put("setup", 1);
 
         this.players = new Player[SettingsManager.PLAYER_COUNT];
         for (int i = 0; i < SettingsManager.PLAYER_COUNT; i++) {
@@ -44,7 +44,7 @@ public class SettingsManager {
     }
 
     public boolean getOption(String key) {
-        return this.options.get(key);
+        return this.options.getOrDefault(key, false);
     }
 
     public void setGameOption(String key, int value) {

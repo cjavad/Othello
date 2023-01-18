@@ -1,4 +1,4 @@
-package othello.components.board.basic;
+package othello.components.board;
 
 import javafx.scene.control.Button;
 import javafx.scene.layout.GridPane;
@@ -11,6 +11,8 @@ public class BoardButtons extends GridPane {
 
     private Text currentPlayerText;
     private Text currentPlayerScore;
+
+    private Button endSetupButton;
 
     public BoardButtons(Board2D boardContext) {
         super();
@@ -31,13 +33,13 @@ public class BoardButtons extends GridPane {
             this.fireEvent(new MoveEvent(MoveEvent.UPDATE, null));
         });
 
-        Button endSetupButton = new Button("End setup");
+        this.endSetupButton = new Button("End setup");
 
-        endSetupButton.setOnAction(event -> {
+        this.endSetupButton.setOnAction(event -> {
             this.board.isInSetup = false;
             this.update();
             // Remove this button
-            this.getChildren().remove(endSetupButton);
+            this.getChildren().remove(this.endSetupButton);
             this.fireEvent(new MoveEvent(MoveEvent.UPDATE, null));
         });
 
@@ -53,5 +55,9 @@ public class BoardButtons extends GridPane {
     public void update() {
         this.currentPlayerText.setText("Current player: " + this.board.getCurrentPlayerId());
         this.currentPlayerScore.setText("Current player score: " + this.board.getScore(this.board.getCurrentPlayerId()));
+
+        if (!this.board.inSetup()) {
+            this.getChildren().remove(this.endSetupButton);
+        }
     }
 }

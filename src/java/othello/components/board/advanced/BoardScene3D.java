@@ -22,7 +22,7 @@ import othello.game.Move;
 import othello.game.Player;
 import othello.game.Space;
 
-public class BoardViewer3D extends SceneProvider {
+public class BoardScene3D extends SceneProvider {
 	WritableImage image;
 	PixelWriter writer;
 	ImageView imageView;
@@ -49,11 +49,11 @@ public class BoardViewer3D extends SceneProvider {
 
 	float cameraShake = 0.0f;
 
-	public BoardViewer3D(SceneManager manager) {
+	public BoardScene3D(SceneManager manager) {
 		this(manager, manager.getNewBoard());
 	}
 
-	public BoardViewer3D(SceneManager manager, Board2D board) {
+	public BoardScene3D(SceneManager manager, Board2D board) {
 		super(manager, "BoardViewer3D");
 		this.board = board;
 		this.animations = new float[board.getRows() * board.getColumns()];
@@ -88,19 +88,16 @@ public class BoardViewer3D extends SceneProvider {
 		root.getChildren().add(this.imageView);
 		this.scene = new Scene(this.root, manager.getWidth(), manager.getHeight());
 
-		this.scene.setOnMousePressed(this::handleMousePressed);
+		this.root.setOnMousePressed(this::handleMousePressed);
+		this.root.setOnMouseMoved(this::handleMouseMoved);
+		this.root.setOnMouseDragged(this::handleMouseDragged);
 
-		this.scene.setOnMouseMoved(this::handleMouseMoved);
-		this.scene.setOnMouseDragged(this::handleMouseDragged);
-
-		this.scene.setOnKeyPressed(this::handleKeyPressed);
-		this.scene.setOnKeyReleased(this::handleKeyReleased);
+		this.getSceneManager().getActiveScene().setOnKeyPressed(this::handleKeyPressed);
+		this.getSceneManager().getActiveScene().setOnKeyReleased(this::handleKeyReleased);
 
 		Particle particle = new Particle();
 		particle.position = new Vec3(0, 3, 0);
-
 		this.particles.pushParticle(particle);
-
 		this.setScene(this.scene);
 	}
 
@@ -118,8 +115,8 @@ public class BoardViewer3D extends SceneProvider {
 	}
 
 	public void renderImage() {
-		int newWidth = (int) this.scene.getWidth();
-		int newHeight = (int) this.scene.getHeight();
+		int newWidth = (int) this.root.getWidth();
+		int newHeight = (int) this.root.getHeight();
 		this.handleResize(newWidth, newHeight);
 
 		Vec3 movement = new Vec3();
@@ -160,7 +157,7 @@ public class BoardViewer3D extends SceneProvider {
 		RenderStack stack = new RenderStack();
 
 		Vec3 boardPosition = new Vec3(0, 0, 0);
-		stack.pushModel(BoardViewer3D.boardFrame, Mat4.translation(boardPosition));
+		stack.pushModel(BoardScene3D.boardFrame, Mat4.translation(boardPosition));
 
 		for (Space space : this.board) {
 			Vec3 position = new Vec3(space.x - 3.5f, 0, space.y - 3.5f);
@@ -168,9 +165,9 @@ public class BoardViewer3D extends SceneProvider {
 			int id = space.x + space.y * 8;
 
 			if ((space.x + space.y) % 2 == 0) {	
-				stack.pushModel(BoardViewer3D.spaceWhite, Mat4.translation(position), id);
+				stack.pushModel(BoardScene3D.spaceWhite, Mat4.translation(position), id);
 			} else {
-				stack.pushModel(BoardViewer3D.spaceBlack, Mat4.translation(position), id);
+				stack.pushModel(BoardScene3D.spaceBlack, Mat4.translation(position), id);
 			}
 
 			float maxHeight = this.heights[id];
@@ -197,12 +194,12 @@ public class BoardViewer3D extends SceneProvider {
 				player.getColor() == "#FFFFFF" && this.animations[id] >= 0.5f
 				 || player.getColor() == "#101010" && this.animations[id] < 0.5f
 			) {
-				stack.pushModel(BoardViewer3D.chipWhite, model, id);
+				stack.pushModel(BoardScene3D.chipWhite, model, id);
 			} else if (
 				player.getColor() == "#101010" && this.animations[id] >= 0.5f 
 				 || player.getColor() == "#FFFFFF" && this.animations[id] < 0.5f
 			) {
-				stack.pushModel(BoardViewer3D.chipBlack, model, id);
+				stack.pushModel(BoardScene3D.chipBlack, model, id);
 			} else {
 				System.out.println("Unknown player color: " + player.getColor());
 			}

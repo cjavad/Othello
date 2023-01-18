@@ -8,10 +8,10 @@ import javafx.scene.layout.GridPane;
 import othello.components.SceneManager;
 import othello.components.SceneProvider;
 import othello.components.board.GameScene;
-import othello.components.board.advanced.BoardViewer3D;
+import othello.components.board.advanced.BoardScene3D;
 import othello.components.board.basic.BoardScene2D;
+import othello.events.SettingsEvent;
 import othello.game.Board2D;
-import othello.game.Player;
 
 public class PauseMenu extends SceneProvider {
     public GridPane centerPane;
@@ -33,37 +33,33 @@ public class PauseMenu extends SceneProvider {
         GridPane pane = new GridPane();
         Button resumeButton = new Button("Resume");
         Button homeButton = new Button("Home");
-        Button NewGameButton = new Button("New Game");
+        Button newGameButton = new Button("New Game");
         Button RTXButton = new Button("RTX Mode");
 
 
         resumeButton.setOnAction(event -> {
-            Board2D board = this.getSceneManager().getNewBoard();
-            new BoardScene2D(this.getSceneManager(), board).setActive();
+            this.getSceneManager().getScene("GameScene");
         });
+
         homeButton.setOnAction(event -> {
             new StartMenu(this.getSceneManager()).setActive();
         });
+
         RTXButton.setOnAction(event ->{
-        this.getSceneManager().setOption("RTX", !this.getSceneManager().getOption("RTX"));
-                if (this.getSceneManager().getOption("RTX")==true) {
-                    Board2D board = this.getSceneManager().getNewBoard();
-                    new BoardViewer3D(this.getSceneManager(), board).setActive();
-                } else {
-                    Board2D board = this.getSceneManager().getNewBoard();
-                    new BoardScene2D(this.getSceneManager(), board).setActive();
-                }
+            this.getSceneManager().setOption("RTX", !this.getSceneManager().getOption("RTX"));
+            this.getSceneManager().getScene("GameScene").getRoot().fireEvent(new SettingsEvent(SettingsEvent.UPDATE));
         });
-        NewGameButton.setOnAction(event -> {
+
+        newGameButton.setOnAction(event -> {
             // Create simple scene
             Board2D board = this.getSceneManager().getNewBoard();
-
             this.getSceneManager().resetScene(new GameScene(this.getSceneManager(), board), false);
         });
+        
         pane.add(resumeButton, 0, 0);
         pane.add(homeButton, 0, 1);
         pane.add(RTXButton, 0, 2);
-        pane.add(NewGameButton, 0, 3);
+        pane.add(newGameButton, 0, 3);
         return pane;
     }
 

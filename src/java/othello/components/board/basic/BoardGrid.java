@@ -2,7 +2,9 @@ package othello.components.board.basic;
 
 import javafx.scene.layout.GridPane;
 import othello.events.MoveEvent;
+import othello.events.SettingsEvent;
 import othello.game.Board2D;
+import othello.game.Move;
 import othello.game.Space;
 
 public class BoardGrid extends GridPane {
@@ -20,9 +22,14 @@ public class BoardGrid extends GridPane {
         }
 
         this.addEventHandler(MoveEvent.MOVE, event -> {
-            this.board.move(event.space);
+            Move move = this.board.move(event.space);
+
             this.update();
             this.fireEvent(new MoveEvent(MoveEvent.UPDATE, event.space));
+
+            if (move == null) {
+                this.fireEvent(new SettingsEvent(SettingsEvent.UPDATE));
+            }
         });
     }
     public void update() {

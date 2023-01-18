@@ -4,9 +4,6 @@ import othello.components.SceneManager;
 import othello.components.SceneProvider;
 import othello.components.board.GameScene;
 import othello.game.Board2D;
-import othello.game.Player;
-
-import java.util.HashMap;
 
 /**
  * Required preset class for assignment
