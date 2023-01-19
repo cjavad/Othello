@@ -7,6 +7,7 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Text;
 import othello.components.SceneManager;
 import othello.components.SceneProvider;
 import othello.components.board.GameScene;
@@ -21,7 +22,10 @@ public class PauseMenu extends SceneProvider {
         this.centerPane = this.createCenterPane();
 
         BorderPane pane = new BorderPane();
-
+        var title = new Text("Pause Menu");
+        title.setFill(Color.BLACK);
+        title.setStyle("-fx-font-size: 30px;");
+        pane.setTop(title);
         pane.setCenter(this.centerPane);
         this.centerPane.setAlignment(Pos.CENTER);
         this.setScene(new Scene(pane, manager.getWidth(), manager.getHeight()));
@@ -54,11 +58,14 @@ public class PauseMenu extends SceneProvider {
             Board2D board = this.getSceneManager().getNewBoard();
             this.getSceneManager().resetScene(new GameScene(this.getSceneManager(), board), false);
         });
+
+        pane.setAlignment(Pos.CENTER);
         
         pane.add(resumeButton, 0, 0);
         pane.add(homeButton, 0, 1);
         pane.add(RTXButton, 0, 2);
         pane.add(newGameButton, 0, 3);
+
         return pane;
     }
 
