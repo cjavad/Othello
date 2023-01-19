@@ -101,9 +101,10 @@ public class BoardScene3D extends SceneProvider {
 		this.getSceneManager().getActiveScene().setOnKeyPressed(this::handleKeyPressed);
 		this.getSceneManager().getActiveScene().setOnKeyReleased(this::handleKeyReleased);
 
-		Particle particle = new Particle();
-		particle.position = new Vec3(0, 3, 0);
-		this.particles.pushParticle(particle);
+//		Commented out for now
+//		Particle particle = new Particle();
+//		particle.position = new Vec3(0, 3, 0);
+//		this.particles.pushParticle(particle);
 
 		this.root = new Pane();
 		this.root.getChildren().add(this.imageView);
