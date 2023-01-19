@@ -18,9 +18,9 @@ public class BoardTopbar extends GridPane {
     public BoardTopbar(SceneManager manager, Board2D boardContext) {
         super();
         this.setAlignment(Pos.TOP_LEFT);
-        Button menuButton = new FancyButton("Menu", Color.BLACK);
-        Button rtxButton = new FancyButton("RTX", Color.BLACK);
-        Button saveGameButton = new FancyButton("Save game", Color.BLACK);
+        Button menuButton = new FancyButton("Menu", Color.WHITE);
+        Button rtxButton = new FancyButton("RTX", Color.WHITE);
+        Button saveGameButton = new FancyButton("Save game", Color.WHITE);
         TextField saveGameName = new TextField();
         saveGameName.setPromptText("Game name");
         saveGameName.setPrefWidth(100);

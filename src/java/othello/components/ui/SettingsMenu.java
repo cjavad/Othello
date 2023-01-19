@@ -78,7 +78,7 @@ public class SettingsMenu extends SceneProvider {
         setupField.setSelected(manager.settings.getGameOption("setup") == 1);
 
         // Create a button to save the settings
-        Button saveButton = new FancyButton("Save", Color.BLACK);
+        Button saveButton = new FancyButton("Save", Color.WHITE);
         saveButton.setOnAction(this::handleSaveClick);
 
         this.createNode("rows", rowsField);
