@@ -15,6 +15,14 @@ public class FancyButton extends Button {
         String textColor = luminance > 0.4 ? "#000000" : "#ffffff";
         String styleString = "-fx-background-color: "+ colorString +"; -fx-border-color: transparent;-fx-font-size: 14px; -fx-text-fill:" + textColor + ";";
 
+
+        System.out.println(text + " (" + color + ")");
+        System.out.println(colorString);
+        System.out.println("luminance = " + luminance);
+        System.out.println(textColor);
+        System.out.println(styleString);
+
+
         this.setStyle(styleString);
 
         this.setOnMouseEntered(e -> {
