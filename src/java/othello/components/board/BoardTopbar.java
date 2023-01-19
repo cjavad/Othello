@@ -4,8 +4,10 @@ import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
+import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import othello.components.SceneManager;
+import othello.components.ui.FancyButton;
 import othello.components.ui.GoBackOnceButton;
 import othello.components.ui.PauseMenu;
 import othello.events.SettingsEvent;
@@ -16,9 +18,9 @@ public class BoardTopbar extends GridPane {
     public BoardTopbar(SceneManager manager, Board2D boardContext) {
         super();
         this.setAlignment(Pos.TOP_LEFT);
-        Button menuButton = new Button("Menu");
-        Button rtxButton = new Button("RTX");
-        Button saveGameButton = new Button("Save game");
+        Button menuButton = new FancyButton("Menu", Color.BLACK);
+        Button rtxButton = new FancyButton("RTX", Color.BLACK);
+        Button saveGameButton = new FancyButton("Save game", Color.BLACK);
         TextField saveGameName = new TextField();
         saveGameName.setPromptText("Game name");
         saveGameName.setPrefWidth(100);

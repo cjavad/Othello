@@ -6,6 +6,7 @@ import javafx.scene.control.Button;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
+import javafx.scene.paint.Color;
 import othello.components.SceneManager;
 import othello.components.SceneProvider;
 import othello.components.board.GameScene;
@@ -29,10 +30,10 @@ public class PauseMenu extends SceneProvider {
     }
     public GridPane createCenterPane() {
         GridPane pane = new GridPane();
-        Button resumeButton = new Button("Resume");
-        Button homeButton = new Button("Home");
-        Button newGameButton = new Button("New Game");
-        Button RTXButton = new Button("RTX Mode");
+        Button resumeButton = new FancyButton("Resume", Color.BLACK);
+        Button homeButton = new FancyButton("Home", Color.BLACK);
+        Button newGameButton = new FancyButton("New Game", Color.BLACK);
+        Button RTXButton = new FancyButton("RTX Mode", Color.BLACK);
 
 
         resumeButton.setOnAction(event -> {

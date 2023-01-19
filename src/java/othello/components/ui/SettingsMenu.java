@@ -6,6 +6,7 @@ import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
 import othello.components.SceneManager;
 import othello.components.SceneProvider;
 
@@ -63,7 +64,7 @@ public class SettingsMenu extends SceneProvider {
         setupField.setSelected(manager.settings.getGameOption("setup") == 1);
 
         // Create a button to save the settings
-        Button saveButton = new Button("Save");
+        Button saveButton = new FancyButton("Save", Color.BLACK);
         saveButton.setOnAction(this::handleSaveClick);
 
         this.createNode("rows", rowsField);

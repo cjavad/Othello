@@ -2,7 +2,9 @@ package othello.components.board;
 
 import javafx.scene.control.Button;
 import javafx.scene.layout.GridPane;
+import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
+import othello.components.ui.FancyButton;
 import othello.events.MoveEvent;
 import othello.game.Board2D;
 import othello.game.Space;
@@ -26,7 +28,7 @@ public class BoardButtons extends GridPane {
         this.update();
 
         // Create button to switch player
-        Button switchPlayerButton = new Button("Switch player");
+        Button switchPlayerButton = new FancyButton("Switch player", Color.BLANCHEDALMOND);
 
         switchPlayerButton.setOnAction(event -> {
             this.board.nextPlayer();
@@ -34,7 +36,7 @@ public class BoardButtons extends GridPane {
             this.fireEvent(new MoveEvent(MoveEvent.UPDATE, (Space) null));
         });
 
-        this.endSetupButton = new Button("End setup");
+        this.endSetupButton = new FancyButton("End setup", Color.BLANCHEDALMOND);
 
         this.endSetupButton.setOnAction(event -> {
             this.board.endSetup();

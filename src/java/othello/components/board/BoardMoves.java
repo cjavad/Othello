@@ -9,11 +9,11 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Paint;
 import javafx.scene.text.Text;
+import othello.components.ui.FancyButton;
 import othello.events.MoveEvent;
 import othello.game.Board2D;
 import othello.game.Move;
-
-import java.awt.*;
+import javafx.scene.paint.Color;
 
 public class BoardMoves extends BorderPane {
     private Board2D board;
@@ -45,8 +45,8 @@ public class BoardMoves extends BorderPane {
         buttonBox.setPadding(new javafx.geometry.Insets(10, 0, 0, 0));
         buttonBox.setAlignment(Pos.CENTER);
 
-        Button forwardButton = new Button(">");
-        Button backButton = new Button("<");
+        Button forwardButton = new FancyButton(">", Color.BLACK);
+        Button backButton = new FancyButton("<", Color.BLACK);
 
         forwardButton.setOnAction(e -> {
             // Find last move if any
@@ -95,6 +95,7 @@ public class BoardMoves extends BorderPane {
         if (!this.board.inSetup) {
             // Set starting moves
             var startingMoves = new FlowPane();
+            startingMoves.setPrefWidth(75);
 
             startingMoves.setOnMouseClicked(e -> {
                 this.gotoStartingPosition();
