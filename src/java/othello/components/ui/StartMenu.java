@@ -3,19 +3,14 @@ package othello.components.ui;
 import javafx.event.*;
 import javafx.scene.control.Button;
 import javafx.scene.input.*;
-import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.StackPane;
 import javafx.scene.Scene;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
-import othello.AdvancedReversi;
 import othello.BasicReversi;
+import othello.AdvancedReversi;
 import othello.components.SceneManager;
 import othello.components.SceneProvider;
-import othello.components.board.basic.BoardScene2D;
-import othello.game.Board2D;
-import othello.game.Player;
 import othello.utils.SettingsManager;
 
 // Start Menu UI
@@ -30,10 +25,10 @@ public class StartMenu extends SceneProvider {
         title.setStyle("-fx-font-size: 40px;");
         title.setTextAlignment(javafx.scene.text.TextAlignment.CENTER);
 
-        Button basicButton = new FancyButton("Play Game", Color.CRIMSON);
+        Button basicButton = new FancyButton("Basic Version", Color.CRIMSON);
         basicButton.setOnAction(this::handleGameClick);
 
-        Button advancedButton = new FancyButton("Pre-load Advanced Game", Color.CRIMSON);
+        Button advancedButton = new FancyButton("Play Game", Color.CRIMSON);
         advancedButton.setOnAction(this::handleAdvancedClick);
 
         Button settingsButton = new FancyButton("Settings", Color.CRIMSON);
@@ -66,12 +61,12 @@ public class StartMenu extends SceneProvider {
 
     private void handleGameClick(ActionEvent event) {
         // Create a new game with the basic game
-        new BasicReversi(this.getSceneManager()).setActive();
+        this.getSceneManager().setActive(new BasicReversi(this.getSceneManager()), true);
     }
 
     private void handleAdvancedClick(ActionEvent event) {
         // Create a new game with the advanced game type
-        new AdvancedReversi(this.getSceneManager()).setActive();
+        this.getSceneManager().setActive(new AdvancedReversi(this.getSceneManager()), true);
     }
 
     private void handleSettingsClick(ActionEvent event) {

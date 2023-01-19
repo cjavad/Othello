@@ -1,4 +1,4 @@
-package othello.components.board.basic;
+package othello.components.board;
 
 import javafx.scene.Scene;
 import othello.events.MoveEvent;

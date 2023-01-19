@@ -86,8 +86,6 @@ public class SceneManager {
     }
 
     public void setActive(SceneProvider provider, boolean resetScene) {
-        System.out.println("Setting new active scene to: " + provider.getName());
-
         // There can only be one active scene of each type at a time, check if name already exists
         for (int i = 0; i < this.scenes.size(); i++) {
             if (this.scenes.get(i).getName().equals(provider.getName())) {

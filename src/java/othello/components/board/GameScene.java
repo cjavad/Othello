@@ -9,8 +9,6 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import othello.components.SceneManager;
 import othello.components.SceneProvider;
-import othello.components.board.basic.BoardScene2D;
-import othello.components.board.advanced.BoardScene3D;
 import othello.components.ui.PauseMenu;
 import othello.events.MoveEvent;
 import othello.events.SettingsEvent;

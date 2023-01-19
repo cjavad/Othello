@@ -1,4 +1,4 @@
-package othello.components.board.advanced;
+package othello.components.board;
 
 import java.util.HashSet;
 

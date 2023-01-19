@@ -14,7 +14,6 @@ import othello.game.Space;
 public class BoardButtons extends GridPane {
     private final Board2D board;
     private VBox playerScoreBox;
-
     private int winnerId = -1;
 
     private Button endSetupButton;
