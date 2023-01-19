@@ -61,8 +61,11 @@ public class BoardButtons extends GridPane {
     }
 
     public void update() {
-        if (this.winnerId != -1) this.setWinner(this.winnerId);
-
+        if (this.winnerId != -1) {
+            var winnerText = new Text("Player " + winnerId + " wins!");
+            winnerText.setStyle("-fx-font-size: 20; -fx-font-weight: bold;");
+            this.playerScoreBox.getChildren().add(winnerText);
+        }
         this.playerScoreBox.getChildren().clear();
 
         for (int i = 0; i < this.board.getPlayerCount(); i++) {
@@ -96,8 +99,6 @@ public class BoardButtons extends GridPane {
 
     public void setWinner(int winnerId) {
         this.winnerId = winnerId;
-        var winnerText = new Text("Player " + winnerId + " wins!");
-        winnerText.setStyle("-fx-font-size: 20; -fx-font-weight: bold;");
-        this.playerScoreBox.getChildren().add(winnerText);
+        this.update();
     }
 }

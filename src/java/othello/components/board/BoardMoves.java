@@ -187,7 +187,7 @@ public class BoardMoves extends BorderPane {
     }
 
     public void gotoStartingPosition() {
-        this.inStaticMode = true;
+        this.inStaticMode = false;
         this.setSelectedMove(-1, true);
     }
 }

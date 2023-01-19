@@ -3,15 +3,10 @@ package othello.components.board;
 import javafx.event.Event;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
-import javafx.scene.paint.Paint;
 import javafx.scene.shape.Ellipse;
 import othello.events.MoveEvent;
 import othello.game.Board2D;
-import othello.game.Move;
-import othello.game.Player;
 import othello.game.Space;
-
-import java.util.concurrent.atomic.AtomicReference;
 
 public class SpacePane extends Pane {
     private Board2D board;

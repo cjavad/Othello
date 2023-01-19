@@ -6,7 +6,10 @@ import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.media.AudioClip;
+import javafx.scene.media.Media;
+import othello.utils.ResourceLoader;
 
+import java.io.IOException;
 import java.util.HashMap;
 
 public class SceneProvider {
@@ -17,14 +20,9 @@ public class SceneProvider {
     boolean isRegistered = false;
 
 	// music
-	static AudioClip music = new AudioClip("file:src/resources/audio/Orchard.wav");
+	static AudioClip music = new AudioClip(ResourceLoader.pathResource("audio/Orchard.wav"));
 
     public SceneProvider(SceneManager manager, String name) {
-		if (!music.isPlaying()) {
-			music.play(0.5);
-			music.setCycleCount(AudioClip.INDEFINITE);
-		}
-
         this.name = name;
         this.sceneManager = manager;
         this.nodes = new HashMap<>();
@@ -67,7 +65,20 @@ public class SceneProvider {
     }
 
     public void onActive() {
+        double volume = this.sceneManager.settings.getGameOption("volume") / 100.0;
         // Override this method to run code when the scene is activated
+        if (!music.isPlaying()) {
+            music.play(volume);
+            music.setCycleCount(AudioClip.INDEFINITE);
+        } else {
+            if (music.getVolume() != volume) {
+                music.setVolume(volume);
+                // force volume update
+                // Save music playing state and play again
+                music.stop();
+                music.play();
+            }
+        }
     }
 
     public SceneManager getSceneManager() {

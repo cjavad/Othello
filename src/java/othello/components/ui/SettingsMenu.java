@@ -56,13 +56,21 @@ public class SettingsMenu extends SceneProvider {
         vbox.setSpacing(10);
 
         // Create fields with text as labels
-
+        Label volumeLabel = new Label("Volume");
         Label rowsLabel = new Label("Rows");
         Label columnsLabel = new Label("Columns");
         Label maxPlacementsLabel = new Label("Max Placements");
         Label playerCountLabel = new Label("Player Count");
         Label manualLabel = new Label("Manual");
         Label setupLabel = new Label("Setup");
+
+        // Create slider for volume
+        Slider volumeSlider = new Slider(0, 100, manager.settings.getGameOption("volume"));
+        volumeSlider.setShowTickLabels(true);
+        volumeSlider.setShowTickMarks(true);
+        volumeSlider.setMajorTickUnit(10);
+        volumeSlider.setMinorTickCount(5);
+        volumeSlider.setBlockIncrement(10);
 
         Spinner rowsField = new Spinner(4, 64 * 4, manager.settings.getGameOption("rows"));
         Spinner columnsField = new Spinner(4, 64 * 4, manager.settings.getGameOption("columns"));
@@ -81,6 +89,7 @@ public class SettingsMenu extends SceneProvider {
         Button saveButton = new FancyButton("Save", Color.BLACK);
         saveButton.setOnAction(this::handleSaveClick);
 
+        this.createNode("volume", volumeSlider);
         this.createNode("rows", rowsField);
         this.createNode("columns", columnsField);
         this.createNode("maxPlacements", maxPlacementsField);
@@ -90,6 +99,8 @@ public class SettingsMenu extends SceneProvider {
 
         // Add all fields to the vbox
         vbox.getChildren().addAll(
+                volumeLabel,
+                volumeSlider,
                 rowsLabel,
                 rowsField,
                 columnsLabel,
@@ -128,6 +139,7 @@ public class SettingsMenu extends SceneProvider {
     }
 
     private void handleSaveClick(Event event) {
+        Slider volumeSlider = (Slider) this.getNode("volume");
         Spinner rowsField = this.getNode("rows");
         Spinner columnsField = this.getNode("columns");
         Spinner maxPlacementsField = this.getNode("maxPlacements");
@@ -135,6 +147,7 @@ public class SettingsMenu extends SceneProvider {
         CheckBox manualField = this.getNode("manual");
         CheckBox setupField = this.getNode("setup");
 
+        this.getSceneManager().settings.setGameOption("volume", (int) volumeSlider.getValue());
         this.getSceneManager().settings.setGameOption("rows", (int) rowsField.getValue());
         this.getSceneManager().settings.setGameOption("columns", (int) columnsField.getValue());
         this.getSceneManager().settings.setGameOption("maxPlacements", (int) maxPlacementsField.getValue());

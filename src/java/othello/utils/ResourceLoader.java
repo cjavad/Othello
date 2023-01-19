@@ -10,6 +10,12 @@ import java.util.HashMap;
     Basic resource loader to find and read model data and the like.
  */
 public class ResourceLoader {
+    public static String pathResource(String path) {
+        var p = ClassLoader.getSystemClassLoader().getResource(path);
+        if (p == null) return null;
+        return p.toString();
+    }
+
     public static String getShaderResource(String shaderName) throws IOException {
         String shaderPath = "shaders/" + shaderName;
         InputStream shaderStream = ResourceLoader.resourceStream(shaderPath);

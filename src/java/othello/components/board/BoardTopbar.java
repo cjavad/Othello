@@ -5,10 +5,8 @@ import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
-import javafx.scene.text.Text;
 import othello.components.SceneManager;
 import othello.components.ui.FancyButton;
-import othello.components.ui.GoBackOnceButton;
 import othello.components.ui.PauseMenu;
 import othello.events.SettingsEvent;
 import othello.game.Board2D;
@@ -60,9 +58,5 @@ public class BoardTopbar extends GridPane {
         this.add(rtxButton, 1, 0);
         this.add(saveGameButton, 2, 0);
         this.add(saveGameName, 3, 0);
-    }
-
-    public void createSaveTextInputPopup() {
-
     }
 }
