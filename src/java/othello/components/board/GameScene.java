@@ -16,8 +16,7 @@ import othello.events.MoveEvent;
 import othello.events.SettingsEvent;
 import othello.game.Board2D;
 import othello.game.Move;
-
-import static javafx.scene.input.KeyCode.ESCAPE;
+import othello.game.Player;
 
 public class GameScene extends SceneProvider {
     private BoardScene2D basicBoard;
@@ -51,6 +50,7 @@ public class GameScene extends SceneProvider {
         this.root.addEventHandler(SettingsEvent.UPDATE, this::handleSettingsUpdate);
         this.buttons.addEventHandler(MoveEvent.UPDATE, this::handleBoardButton);
         this.moveList.addEventHandler(MoveEvent.SELECT, this::handleSelect);
+        this.moveList.addEventHandler(MoveEvent.UPDATE, this::handleUpdate);
 
         this.sidebar.getChildren().addAll(this.moveList, this.buttons);
 
@@ -96,8 +96,29 @@ public class GameScene extends SceneProvider {
     public void handleMove(MoveEvent event) {
         this.moveList.gotoCurrentMove();
         this.basicBoard.setStatic(-2);
-        this.basicBoard.handleUpdate(null);
         this.moveList.update();
+
+        if (!this.board.inSetup && !this.board.isStatic && this.board.isGameOver()) {
+            // Determine winner
+            Player winner = this.board.getWinner();
+            System.out.println("Winner: " + winner.getPlayerId() + " with " + this.board.getScore(winner.getPlayerId()) + " points");
+        } else {
+            // Check if current player has any moves
+            var iter = this.board.validMoves(this.board.getCurrentPlayerId());
+            boolean hasMoves = false;
+
+            while (iter.hasNext()) {
+                if (iter.next() != null) {
+                    hasMoves = true;
+                    break;
+                }
+            }
+
+            if (!hasMoves) {
+                this.board.nextPlayer();
+                this.handleBoardButton(null);
+            }
+        }
     }
 
     public void handleSelect(MoveEvent event) {
@@ -126,5 +147,12 @@ public class GameScene extends SceneProvider {
             default:
                 break;
         }
+    }
+
+    public void handleUpdate(MoveEvent event) {
+        this.basicBoard.setStatic(-2);
+        this.buttons.update();
+        this.basicBoard.handleUpdate(null);
+        this.moveList.update();
     }
 }

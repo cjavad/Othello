@@ -1,5 +1,8 @@
 package othello.components.board;
 
+import javafx.beans.InvalidationListener;
+import javafx.beans.binding.BooleanExpression;
+import javafx.beans.value.ChangeListener;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.ScrollPane;
@@ -15,11 +18,16 @@ import othello.game.Board2D;
 import othello.game.Move;
 import javafx.scene.paint.Color;
 
+import java.util.function.Predicate;
+
 public class BoardMoves extends BorderPane {
     private Board2D board;
     private VBox content;
 
     private Text currentRoundText;
+
+    private FancyButton forwardButton;
+    private FancyButton backButton;
 
     private boolean inStaticMode;
 
@@ -45,10 +53,10 @@ public class BoardMoves extends BorderPane {
         buttonBox.setPadding(new javafx.geometry.Insets(10, 0, 0, 0));
         buttonBox.setAlignment(Pos.CENTER);
 
-        Button forwardButton = new FancyButton(">", Color.BLACK);
-        Button backButton = new FancyButton("<", Color.BLACK);
+        this.forwardButton = new FancyButton(">", Color.BLACK);
+        this.backButton = new FancyButton("<", Color.BLACK);
 
-        forwardButton.setOnAction(e -> {
+        this.forwardButton.setOnAction(e -> {
             // Find last move if any
             int newMove = this.selectedMove + 1;
 
@@ -60,7 +68,8 @@ public class BoardMoves extends BorderPane {
             this.setSelectedMove(newMove, true);
         });
 
-        backButton.setOnAction(e -> {
+
+        this.backButton.setOnAction(e -> {
             // Find last move if any
             int newMove = this.selectedMove - 1;
 
@@ -74,9 +83,9 @@ public class BoardMoves extends BorderPane {
         // Square field with number text
         this.currentRoundText = new Text("In setup");
 
-        currentRoundText.setStyle("-fx-font-size: 20px;");
-        currentRoundText.setFill(Paint.valueOf("#000000"));
-        currentRoundText.setTextAlignment(javafx.scene.text.TextAlignment.CENTER);
+        this.currentRoundText.setStyle("-fx-font-size: 20px;");
+        this.currentRoundText.setFill(Paint.valueOf("#000000"));
+        this.currentRoundText.setTextAlignment(javafx.scene.text.TextAlignment.CENTER);
 
         buttonBox.getChildren().addAll(backButton, currentRoundText, forwardButton);
         // Set padding below buttons
@@ -116,7 +125,19 @@ public class BoardMoves extends BorderPane {
             this.content.getChildren().add(startingMoves);
         }
 
-        this.currentRoundText.setText(this.selectedMove > -1 ? "Round " + (this.selectedMove + 1) : "Starting setup");
+        this.currentRoundText.setText(this.selectedMove > -1 ? "Round " + (this.selectedMove + 1) : "In setup");
+
+        if (this.selectedMove < 0) {
+            this.backButton.setVisible(false);
+        } else {
+            this.backButton.setVisible(true);
+        }
+
+        if (this.selectedMove == this.board.getMoves().size() - 1) {
+            this.forwardButton.setVisible(false);
+        } else {
+            this.forwardButton.setVisible(true);
+        }
 
         for (Move m : this.board.getMoves()) {
             var moveElement = new FlowPane();
@@ -140,7 +161,7 @@ public class BoardMoves extends BorderPane {
     }
 
     public void setSelectedMove(int moveIndex, boolean doFireEvent) {
-        if (moveIndex < -1) {
+        if (moveIndex == -2) {
             this.inStaticMode = false;
             this.selectedMove = this.board.getMoves().size() - 1;
             this.selectedMove = this.selectedMove > -1 ? this.selectedMove : 0;
@@ -150,6 +171,8 @@ public class BoardMoves extends BorderPane {
             if (this.inStaticMode && this.selectedMove == moveIndex) {
                 // Revert main board to moveIndex
                 this.board.revert(moveIndex);
+                this.board.isStatic = false;
+                this.fireEvent(new MoveEvent(MoveEvent.UPDATE, null));
             }
 
             this.selectedMove = moveIndex;

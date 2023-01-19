@@ -1,6 +1,8 @@
 package othello.game;
 
 
+import java.util.Objects;
+
 /**
  * Not the actual Board Element but a representation of a reference to an existing board element.
  * We store the board as a 1D array for performance reasons.
@@ -71,5 +73,18 @@ public class Space implements othello.game.interfaces.Space {
 
     public int distanceTo(Space space) {
         return Math.max(Math.abs(this.row - space.row), Math.abs(this.column - space.column));
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Space space = (Space) o;
+        return column == space.column && row == space.row;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(column, row);
     }
 }

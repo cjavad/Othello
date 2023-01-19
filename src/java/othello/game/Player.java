@@ -18,4 +18,11 @@ public class Player implements othello.game.interfaces.Player {
     public String getColor() {
         return this.hexColor;
     }
+
+    @Override
+    public Player clone() {
+        Player clone = new Player(this.playerId);
+        clone.hexColor = this.hexColor;
+        return clone;
+    }
 }

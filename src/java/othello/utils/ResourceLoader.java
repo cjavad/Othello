@@ -124,7 +124,7 @@ public class ResourceLoader {
 
     public static String getConfigFolderPath() {
         // Ensure folder exists, otherwise create it
-        String path = System.getProperty("user.home") + "/.othello";
+        String path = "./data";
         File folder = new File(path);
         if (!folder.exists()) {
             folder.mkdir();

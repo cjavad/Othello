@@ -29,12 +29,23 @@ public class BoardTopbar extends GridPane {
         saveGameName.setVisible(false);
 
         saveGameButton.setOnAction(e -> {
-            saveGameName.setVisible(true);
+            if (saveGameName.isVisible()) {
+                saveGameName.setVisible(false);
+                String name = saveGameName.getText();
+                if (name.length() > 0) {
+                    ResourceLoader.saveGameObject(boardContext, name);
+                }
+            } else {
+                saveGameName.setVisible(true);
+            }
         });
 
         saveGameName.setOnAction(e -> {
-            ResourceLoader.saveGameObject(boardContext, saveGameName.getText());
             saveGameName.setVisible(false);
+            String name = saveGameName.getText();
+            if (name.length() > 0) {
+                ResourceLoader.saveGameObject(boardContext, name);
+            }
         });
 
 

@@ -1,9 +1,11 @@
 package othello.game;
 
+import javafx.beans.binding.BooleanExpression;
 import javafx.util.Pair;
 
 import java.io.Serializable;
 import java.util.*;
+import java.util.function.Predicate;
 
 public class Board2D implements othello.game.interfaces.Board2D {
     // Determines if moves are made automatically
@@ -18,6 +20,9 @@ public class Board2D implements othello.game.interfaces.Board2D {
     private int currentPlayerId;
     private Player[] players;
     private ArrayList<Move> moves;
+
+    // HashMap cache for operations run after move() in the same round
+    public HashMap<Space, Integer> validMoveCache;
 
     public boolean inSetup;
     public boolean isStatic;
@@ -38,6 +43,7 @@ public class Board2D implements othello.game.interfaces.Board2D {
         this.currentPlayerId = 0;
         this.manual = options.getOrDefault("manual", 0) == 1;
         this.moves = new ArrayList<Move>();
+        this.validMoveCache = new HashMap<Space, Integer>();
 
         if (options.getOrDefault("setup", 0) == 1) {
             this.startSetup(options.getOrDefault("maxPlacements", players.length));
@@ -173,19 +179,39 @@ public class Board2D implements othello.game.interfaces.Board2D {
      */
 
     public Pair<Integer, Line[]> isValidMove(Space space, int playerId) {
-        if (this.inSetup) return new Pair<>(1, null);
+        if (this.inSetup) {
+            this.validMoveCache.put(space, -1);
+            return new Pair<>(1, null);
+        }
+
+        if (this.validMoveCache.containsKey(space)) {
+            int prevValue = this.validMoveCache.getOrDefault(space, -1);
+            Move lastMove = getLatestMove();
+
+            if (lastMove != null && lastMove.getRound() == this.round && lastMove.getPlayerId() == playerId && prevValue != -1) {
+                return new Pair<>(prevValue, null);
+            }
+        }
+
         // Get state of space
         int playerOccupied = this.getSpace(space);
 
         // If the player already occupies the space, then the move is invalid (1)
-        if (playerOccupied == playerId) return new Pair<>(1, null);
+        if (playerOccupied == playerId) {
+            this.validMoveCache.put(space, -1);
+            return new Pair<>(1, null);
+        }
+
         // Find last move
         Move lastMove = this.getLatestMove();
 
         // If last move was made in this round, then the following moves can only be flips
         if (lastMove != null && lastMove.getRound() == this.round) {
             // If the space is empty, then the move is invalid, as it is not a flip (1)
-            if (playerOccupied == -1) return new Pair<>(1, null);
+            if (playerOccupied == -1) {
+                this.validMoveCache.put(space, -1);
+                return new Pair<>(1, null);
+            }
 
             // Flips can only be made on existing lines
             // Fetch precalculated lines
@@ -195,6 +221,7 @@ public class Board2D implements othello.game.interfaces.Board2D {
             for (Line line : lines) {
                 if (line == null) continue;
                 if (line.contains(space)) {
+                    this.validMoveCache.put(space, playerId);
                     return new Pair<>(0, lines);
                 }
             }
@@ -216,6 +243,7 @@ public class Board2D implements othello.game.interfaces.Board2D {
                     if (lineSpace == null) continue;
 
                     if (!space.equals(lineSpace) && this.getSpace(lineSpace) != playerId && this.getSpace(lineSpace) != -1) {
+                        this.validMoveCache.put(space, playerId);
                         return new Pair<>(0, lines);
                     }
                 }
@@ -223,6 +251,7 @@ public class Board2D implements othello.game.interfaces.Board2D {
         }
 
         // Otherwise the move is invalid
+        this.validMoveCache.put(space, -1);
         return new Pair<>(1, null);
     }
 
@@ -247,8 +276,6 @@ public class Board2D implements othello.game.interfaces.Board2D {
     }
 
     public Move move(Space space) {
-        if (this.isStatic) return null;
-
         if (this.inSetup) {
             if (this.getCurrentPlayer().maxPlacements < 1) {
                 // Forcefully switch to the next player with placements left
@@ -258,7 +285,7 @@ public class Board2D implements othello.game.interfaces.Board2D {
                     return null;
                 }
             }
-
+            if (this.isStatic) return null;
             // When in setup simply place the piece if the space is empty
             if (this.getSpace(space) != -1) return null;
             this.setSpace(space, this.currentPlayerId);
@@ -317,6 +344,7 @@ public class Board2D implements othello.game.interfaces.Board2D {
         this.board = othello.game.interfaces.Board2D.createCopyFromMoves(this.startingPositions, this.moves, this.columns, this.rows);
         this.round = this.moves.size() > 0 ? this.getLatestMove().getRound() : 0;
         this.currentPlayerId = this.moves.size() > 0 ? this.getLatestMove().getPlayerId() : 0;
+        if (!this.inSetup) this.nextPlayer();
     }
 
     public void setStartingPositions() {
@@ -358,10 +386,12 @@ public class Board2D implements othello.game.interfaces.Board2D {
     @Override
     public boolean isGameOver() {
         for (Player player : this.players) {
-            if (validMoves(player.getPlayerId()).hasNext()) {
-                return false;
+            var iter = this.validMoves(player.getPlayerId());
+            while (iter.hasNext()) {
+                if (iter.next() != null) return false;
             }
         }
+
         return true;
     }
 
@@ -413,6 +443,20 @@ public class Board2D implements othello.game.interfaces.Board2D {
         return (int) Arrays.stream(this.board).filter(i -> i == playerId).count();
     }
 
+    public Player getWinner() {
+        int maxScore = 0;
+        Player winner = null;
+        for (Player player : this.players) {
+            int score = this.getScore(player.getPlayerId());
+            if (score > maxScore) {
+                maxScore = score;
+                winner = player;
+            }
+        }
+
+        return winner;
+    }
+
     @Override
     public Iterator<Space> iterator() {
         return new Iterator<>() {
@@ -432,14 +476,18 @@ public class Board2D implements othello.game.interfaces.Board2D {
         };
     }
 
+    @Override
+    public Board2D clone() {
+        return this.copy(this.manual, this.isStatic);
+    }
+
     public Board2D copy(boolean manual, boolean isStatic) {
-        Board2D copy = new Board2D(this.rows, this.columns, this.players, manual);
+        Board2D copy = new Board2D(this.rows, this.columns, this.players.clone(), manual);
         copy.board = this.board.clone();
         copy.startingPositions = this.startingPositions.clone();
         copy.currentPlayerId = this.currentPlayerId;
         copy.round = this.round;
         copy.inSetup = this.inSetup;
-        copy.players = this.players.clone();
         copy.isStatic = isStatic;
         copy.moves = new ArrayList<>(this.moves);
         return copy;

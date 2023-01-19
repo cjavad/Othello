@@ -53,6 +53,15 @@ public class BoardGrid extends GridPane {
 
     public void setStaticBoard(Board2D staticBoard) {
         this.staticBoard = staticBoard;
+
+        this.getChildren().forEach(node -> {
+            var spacePane = (SpacePane) node;
+            if (this.staticBoard != null) {
+                spacePane.setBoard(this.staticBoard);
+            } else {
+                spacePane.setBoard(this.board);
+            }
+        });
     }
 
     public void update() {
@@ -74,8 +83,6 @@ public class BoardGrid extends GridPane {
                     hoveredSpaces.add(s);
                 }
             }
-        } else {
-            cellOccupant = -1;
         }
 
         this.getChildren().forEach(node -> {
@@ -87,12 +94,6 @@ public class BoardGrid extends GridPane {
 
             for (Space s : hoveredSpaces)
                 if (s.equals(ownSpace)) flippable = true;
-
-            if (this.staticBoard != null) {
-                spacePane.setBoard(this.staticBoard);
-            } else {
-                spacePane.setBoard(this.board);
-            }
 
             spacePane.update(ownSpace.equals(this.hoverSpace), flippable && this.board.getCurrentPlayerId() != this.board.getSpace(ownSpace));
         });

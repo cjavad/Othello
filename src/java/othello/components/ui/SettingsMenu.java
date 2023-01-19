@@ -1,12 +1,15 @@
 package othello.components.ui;
 
 import javafx.event.Event;
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Text;
+import javafx.scene.text.TextAlignment;
 import othello.components.SceneManager;
 import othello.components.SceneProvider;
 
@@ -26,7 +29,15 @@ public class SettingsMenu extends SceneProvider {
          */
 
         // Create a scene and add the grid pane to it and center it
-        GridPane pane = new GridPane();
+        BorderPane root = new BorderPane();
+        StackPane pane = new StackPane();
+        var title = new Text("Settings");
+        title.setStyle("-fx-font-size: 40px;");
+        title.setTextAlignment(TextAlignment.CENTER);
+        pane.getChildren().add(title);
+        pane.setPadding(new javafx.geometry.Insets(10, 10, 10, 10));
+        pane.setAlignment(Pos.CENTER);
+        root.setTop(pane);
 
         // Int validator
         UnaryOperator<TextFormatter.Change> filter = change -> {
@@ -42,6 +53,7 @@ public class SettingsMenu extends SceneProvider {
         // Create options input fields
         // Create two integer inputs for rows and columns
         VBox vbox = new VBox();
+        vbox.setSpacing(10);
 
         // Create fields with text as labels
 
@@ -51,8 +63,8 @@ public class SettingsMenu extends SceneProvider {
         Label manualLabel = new Label("Manual");
         Label setupLabel = new Label("Setup");
 
-        Spinner rowsField = new Spinner(4, 64*4, manager.settings.getGameOption("rows"));
-        Spinner columnsField = new Spinner(4, 64*4, manager.settings.getGameOption("columns"));
+        Spinner rowsField = new Spinner(4, 64 * 4, manager.settings.getGameOption("rows"));
+        Spinner columnsField = new Spinner(4, 64 * 4, manager.settings.getGameOption("columns"));
         Spinner maxPlacementsField = new Spinner(2, 64, manager.settings.getGameOption("maxPlacements"));
 
         // Create a checkbox for manual
@@ -74,19 +86,25 @@ public class SettingsMenu extends SceneProvider {
         this.createNode("setup", setupField);
 
         // Add all fields to the vbox
-        vbox.getChildren().addAll(rowsLabel, rowsField, columnsLabel, columnsField, maxPlacementsLabel, maxPlacementsField, manualLabel, manualField, setupLabel, setupField, saveButton);
+        vbox.getChildren().addAll(
+                rowsLabel,
+                rowsField,
+                columnsLabel,
+                columnsField,
+                maxPlacementsLabel,
+                maxPlacementsField,
+                manualLabel,
+                manualField,
+                setupLabel,
+                setupField,
+                saveButton
+        );
 
-        // Create input fields for each label
-        // Dropdowns for booleans and text fields for integers (first 3)
-        // Add all fields to the vbox
-        // Add vbox to the root
-        pane.getChildren().add(vbox);
-        pane.setAlignment(javafx.geometry.Pos.CENTER);
-
-        var root = new BorderPane();
-        root.setCenter(pane);
-
-        // Center pane in the BorderPane
+        GridPane grid = new GridPane();
+        vbox.setAlignment(Pos.CENTER_LEFT);
+        grid.add(vbox, 0, 0);
+        grid.setAlignment(Pos.CENTER);
+        root.setCenter(grid);
 
         Scene scene = new Scene(root, manager.getWidth(), manager.getHeight());
         scene.addEventFilter(KeyEvent.KEY_PRESSED, this::handleKey);
@@ -117,5 +135,8 @@ public class SettingsMenu extends SceneProvider {
         this.getSceneManager().settings.setGameOption("manual", manualField.isSelected() ? 1 : 0);
         this.getSceneManager().settings.setGameOption("setup", setupField.isSelected() ? 1 : 0);
         this.getSceneManager().settings.saveSettings();
+
+        // Go back
+        this.getSceneManager().goBack();
     }
 }

@@ -43,13 +43,14 @@ public class BoardScene2D extends SceneProvider {
 
     public void setStatic(int moveIndex) {
         // -1 being the starting position
-        if (moveIndex < -1) {
+        if (moveIndex == -2) {
             this.boardGrid.setStaticBoard(null);
-            return;
+            this.boardGrid.update();
+        } else {
+            // Show static board from move @
+            Board2D b = this.board.copy(true, true);
+            b.revert(moveIndex);
+            this.boardGrid.setStaticBoard(b);
         }
-        // Show static board from move @
-        Board2D b = this.board.copy(true, true);
-        b.revert(moveIndex);
-        this.boardGrid.setStaticBoard(b);
     }
 }

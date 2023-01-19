@@ -41,7 +41,7 @@ public class SceneProvider {
 
     public <T> T getNode(String name) {
         // Get node and cast to type
-        return (T) this.nodes.get(name);
+        return (T) this.nodes.getOrDefault(name, null);
     }
 
     public boolean hasNode(String name) {

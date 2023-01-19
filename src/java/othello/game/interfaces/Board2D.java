@@ -16,7 +16,7 @@ import java.util.Iterator;
  *
  */
 
-public interface Board2D extends Iterable<Space>, Serializable {
+public interface Board2D extends Iterable<Space>, Serializable, Cloneable {
     /**
      * Geometry of board
      */
