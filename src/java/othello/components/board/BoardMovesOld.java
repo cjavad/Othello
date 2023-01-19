@@ -15,13 +15,14 @@ import othello.game.Board2D;
 import othello.game.Change;
 import othello.game.Move;
 
-public class BoardMoves extends SceneProvider  {
+public class BoardMovesOld extends SceneProvider  {
     int selectedMove = 0;
     private Board2D board;
 
     private VBox movesBox;
     private AnchorPane anchorPane;
-    public BoardMoves(SceneManager manager, Board2D boardContext) {
+
+    public BoardMovesOld(SceneManager manager, Board2D boardContext) {
         super(manager, "MoveList");
 
         BorderPane borderPane = new BorderPane();

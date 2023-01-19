@@ -19,6 +19,7 @@ public class BoardScene2D extends SceneProvider {
         this.board = board;
         this.boardGrid = new BoardGrid(this.board, (manager.getWidth() * 2/3) / this.board.getColumns());
         this.setScene(new Scene(this.boardGrid, manager.getWidth(), manager.getHeight()));
+
         this.getRoot().addEventHandler(MoveEvent.UPDATE, event -> {
             this.handleUpdate(event.space);
         });

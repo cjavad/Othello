@@ -20,4 +20,9 @@ public class BasicReversi extends SceneProvider {
         // Set scene
         this.setScene(this.gameUI.getScene());
     }
+
+    @Override
+    public void onActive() {
+        this.gameUI.onActive();
+    }
 }

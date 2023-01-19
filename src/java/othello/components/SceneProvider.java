@@ -57,6 +57,10 @@ public class SceneProvider {
         this.isRegistered = true;
     }
 
+    public void onActive() {
+        // Override this method to run code when the scene is activated
+    }
+
     public SceneManager getSceneManager() {
         return this.sceneManager;
     }

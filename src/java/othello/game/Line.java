@@ -20,35 +20,38 @@ public class Line implements othello.game.interfaces.Line {
 
         /*
             A line always has an initial direction, which can not be changed.
+            If it changes pass true to at() once to recalculate its direction.
         */
 
         this.dr = end.compareToRow(start);
         this.dc = end.compareToColumn(start);
     }
 
+    public static Line[] getLinesFromOffset(Space offset, int maxColumn, int maxRow) {
+        return new Line[] {
+                new Line(offset, "verticalLeft", maxColumn, maxRow),
+                new Line(offset, "verticalRight", maxColumn, maxRow),
+                new Line(offset, "horizontalTop", maxColumn, maxRow),
+                new Line(offset, "horizontalBottom", maxColumn, maxRow),
+                new Line(offset, "diagonalTopLeft", maxColumn, maxRow),
+                new Line(offset, "diagonalTopRight", maxColumn, maxRow),
+                new Line(offset, "diagonalBottomLeft", maxColumn, maxRow),
+                new Line(offset, "diagonalBottomRight", maxColumn, maxRow),
+        };
+    }
+
     public Line(Space offset, String direction, int maxColumn, int maxRow) {
         // Derive the start and end spaces from the offset and direction
         this.label = direction;
 
+        final int min1 = Math.min(maxRow - offset.row - 1, offset.column);
+        final int min2 = Math.min(offset.row, maxColumn - offset.column - 1);
+        final int min3 = Math.min(maxRow - offset.row - 1, maxColumn - offset.column - 1);
+
         switch (direction) {
-            case "vertical" -> {
-                this.start = new Space(0, offset.row);
-                this.end = new Space(maxColumn - 1, offset.row);
-            }
-            case "horizontal" -> {
-                this.start = new Space(offset.column, 0);
-                this.end = new Space(offset.column, maxRow - 1);
-            }
-            case "diagonal" -> {
-                int min = Math.min(maxRow - offset.row - 1, maxColumn - offset.column - 1);
-                this.start = new Space( offset.column - Math.min(offset.row, offset.column),offset.row - Math.min(offset.row, offset.column));
-                this.end = new Space(offset.column + min,  offset.row + min);
-            }
             case "antiDiagonal" -> {
-                int minEnd = Math.min(maxRow - offset.row - 1, offset.column);
-                int minStart = Math.min(offset.row, maxColumn - offset.column - 1);
-                this.start = new Space(offset.column + minStart, offset.row - minStart);
-                this.end = new Space(offset.column - minEnd, offset.row + minEnd);
+                this.start = new Space(offset.column + min2, offset.row - min2);
+                this.end = new Space(offset.column - min1, offset.row + min1);
             }
             // We split the above cases into two to avoid a default case
             case "verticalLeft" -> {
@@ -68,24 +71,21 @@ public class Line implements othello.game.interfaces.Line {
                 this.end = new Space(offset.column, maxRow - 1);
             }
             case "diagonalTopLeft" -> {
-                int min = Math.min(offset.row, offset.column);
+                int min = Math.min(offset.column, offset.row);
                 this.start = new Space(offset.column - min, offset.row - min);
                 this.end = new Space(offset.column, offset.row);
             }
             case "diagonalTopRight" -> {
-                int min = Math.min(offset.row, maxColumn - offset.column - 1);
                 this.start = new Space(offset.column, offset.row);
-                this.end = new Space(offset.column + min, offset.row - min);
+                this.end = new Space(offset.column + min2, offset.row - min2);
             }
             case "diagonalBottomLeft" -> {
-                int min = Math.min(maxRow - offset.row - 1, offset.column);
                 this.start = new Space(offset.column, offset.row);
-                this.end = new Space(offset.column - min, offset.row + min);
+                this.end = new Space(offset.column - min1, offset.row + min1);
             }
             case "diagonalBottomRight" -> {
-                int min = Math.min(maxRow - offset.row - 1, maxColumn - offset.column - 1);
                 this.start = new Space(offset.column, offset.row);
-                this.end = new Space(offset.column + min, offset.row + min);
+                this.end = new Space(offset.column + min3, offset.row + min3);
             }
             default -> throw new IllegalArgumentException("Invalid direction: " + direction);
         }
@@ -152,7 +152,6 @@ public class Line implements othello.game.interfaces.Line {
 
     public boolean contains(Space space) {
         // Check if the space is within the line
-
         for (Space s : this) {
             if (s == null) continue;
             if (s.equals(space)) {

@@ -10,6 +10,7 @@ import javafx.scene.image.PixelWriter;
 import javafx.scene.image.WritableImage;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 
 import othello.components.SceneManager;
@@ -26,7 +27,7 @@ public class BoardScene3D extends SceneProvider {
 	WritableImage image;
 	PixelWriter writer;
 	ImageView imageView;
-	StackPane root;
+	Pane root;
 	Scene scene;
 
 	Faskinen faskinen;
@@ -84,13 +85,9 @@ public class BoardScene3D extends SceneProvider {
 		};
 		timer.start();
 
-		this.root = new StackPane();
-		root.getChildren().add(this.imageView);
-		this.scene = new Scene(this.root, manager.getWidth(), manager.getHeight());
-
-		this.root.setOnMousePressed(this::handleMousePressed);
-		this.root.setOnMouseMoved(this::handleMouseMoved);
-		this.root.setOnMouseDragged(this::handleMouseDragged);
+		this.getSceneManager().getActiveScene().setOnMousePressed(this::handleMousePressed);
+		this.getSceneManager().getActiveScene().setOnMouseMoved(this::handleMouseMoved);
+		this.getSceneManager().getActiveScene().setOnMouseDragged(this::handleMouseDragged);
 
 		this.getSceneManager().getActiveScene().setOnKeyPressed(this::handleKeyPressed);
 		this.getSceneManager().getActiveScene().setOnKeyReleased(this::handleKeyReleased);
@@ -98,7 +95,11 @@ public class BoardScene3D extends SceneProvider {
 		Particle particle = new Particle();
 		particle.position = new Vec3(0, 3, 0);
 		this.particles.pushParticle(particle);
-		this.setScene(this.scene);
+
+		this.root = new Pane();
+		this.root.getChildren().add(this.imageView);
+		this.scene = new Scene(this.root, width, height);
+		createNode("root", this.root);
 	}
 
 	public static float animateHeight(float time, float height) {
@@ -257,7 +258,7 @@ public class BoardScene3D extends SceneProvider {
 		// from the mouse event
 		// it's not documented anywhere, but it works
 		// https://stackoverflow.com/questions/53496882/how-to-get-pixel-id-from-mouseevent-in-javafx
-		return this.faskinen.getPixelId((int) event.getX(), (int) event.getY() - 28);
+		return this.faskinen.getPixelId((int) (event.getSceneX()), (int) (event.getSceneY()));
 	}
 
 	public int getPixelId(int x, int y) {

@@ -2,11 +2,13 @@ package othello.components.board.basic;
 
 import javafx.event.Event;
 import javafx.scene.layout.Pane;
+import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.Ellipse;
 import othello.events.MoveEvent;
 import othello.game.Board2D;
 import othello.game.Move;
+import othello.game.Player;
 import othello.game.Space;
 
 import java.util.concurrent.atomic.AtomicReference;
@@ -14,61 +16,83 @@ import java.util.concurrent.atomic.AtomicReference;
 public class SpacePane extends Pane {
     private final Board2D board;
     private final Space space;
+
+    private Ellipse piece;
+
     public SpacePane(Board2D boardContext, Space space) {
         super();
         this.board = boardContext;
         this.space = space;
+
+        // Set size and bind size of board space to piece
+        this.piece = new Ellipse(this.getWidth(), this.getHeight());
+        this.piece.centerXProperty().bind(this.widthProperty().divide(2));
+        this.piece.centerYProperty().bind(this.heightProperty().divide(2));
+
+        //Make piece fit cell
+        this.piece.radiusXProperty().bind(this.widthProperty().divide(2).subtract(2));
+        this.piece.radiusYProperty().bind(this.heightProperty().divide(2).subtract(2));
+
+        // Initially make transparent
+        this.piece.setFill(javafx.scene.paint.Color.TRANSPARENT);
+        this.getChildren().add(this.piece);
+        this.setStyle("-fx-border-width: 1; -fx-border-color: green; -fx-background-color: darkgreen;");
         this.setOnMouseClicked(this::handleClick);
+        this.setOnMouseEntered(this::handleMouseEnter);
+        this.setOnMouseExited(this::handleMouseExit);
     }
 
-    public int isOccupiedBy() {
-        return this.board.getSpace(this.space);
+    public Space getSpace() {
+        return this.space;
     }
 
-    public void update() {
-        int cellOccupant = this.isOccupiedBy();
-        AtomicReference<Ellipse> pieceRef = new AtomicReference<>();
+    public void update(boolean isBeingHovered, boolean hoveredHighlight) {
+        int cellOccupant = this.board.getSpace(this.space);
 
-        String borderColour = this.board.isValidMove(space, this.board.getCurrentPlayerId()) == 0 ? "gold" : "green";
-        String cellStyle = "-fx-border-width: 1; -fx-border-color: " + borderColour + "; -fx-background-color: darkgreen;";
-        this.setStyle(cellStyle);
-        this.getChildren().forEach(child -> {
-            if (child instanceof Ellipse ellipse) {
-                pieceRef.set((ellipse));
-            }
-        });
-        
-        if (pieceRef.get() == null) {
-            pieceRef.set(new Ellipse(this.getWidth(), this.getHeight()));
+        boolean isValidMove = this.board.isValidMove(space, this.board.getCurrentPlayerId()).getKey() == 0;
+        boolean isValidFlip = cellOccupant != -1 && isValidMove;
+
+        piece.setStrokeWidth(0);
+
+        // If the move is valid but not a flip make a white glassish color to the piece
+        if (isValidFlip || isBeingHovered) {
+            Color pieceColor = (Color) piece.getFill();
+            piece.setFill(pieceColor.deriveColor(0, 1, 1, 0.5));
         }
 
-        Ellipse piece = pieceRef.get();
-        piece.setFill(cellOccupant > -1 ? Paint.valueOf(this.board.getPlayer(cellOccupant).getColor()) : javafx.scene.paint.Color.TRANSPARENT);
+        if (isValidMove) {
+            // Yellow outline
+            this.piece.setFill(javafx.scene.paint.Color.rgb(255, 255, 255, 0.5));
+            piece.setStroke((javafx.scene.paint.Color.YELLOW));
+            piece.setStrokeWidth(1);
+        }
 
         if (cellOccupant > -1) {
-            //Black outline
-            piece.setStroke((javafx.scene.paint.Color.BLACK));
-            piece.setStrokeWidth(1);
+            Color playerColor = Color.valueOf(this.board.getPlayer(cellOccupant).getColor());
 
-            //Center the piece
-            piece.centerXProperty().bind(this.widthProperty().divide(2));
-            piece.centerYProperty().bind(this.heightProperty().divide(2));
+            if (hoveredHighlight) {
+                // Lower opacity of piece
+                playerColor = playerColor.deriveColor(0, 1, 1, 0.5);
+            }
 
-            //Make piece fit cell
-            piece.radiusXProperty().bind(this.widthProperty().divide(2).subtract(2));
-            piece.radiusYProperty().bind(this.heightProperty().divide(2).subtract(2));
-
-            //Set piece on top of cell
-            piece.toFront();
+            this.piece.setFill(playerColor);
+        } else {
+            this.piece.setFill(javafx.scene.paint.Color.TRANSPARENT);
         }
 
-        //Add piece to cell if it's not already there
-        if (!this.getChildren().contains(piece)) {
-            this.getChildren().add(piece);
-        }
+        //Set piece on top of cell
+        piece.toFront();
     }
 
     public void handleClick(Event e) {
         this.fireEvent(new MoveEvent(MoveEvent.MOVE, this.space));
+    }
+
+    public void handleMouseEnter(Event e) {
+        this.fireEvent(new MoveEvent(MoveEvent.HOVER, this.space));
+    }
+
+    public void handleMouseExit(Event e) {
+        this.fireEvent(new MoveEvent(MoveEvent.HOVER, null));
     }
 }

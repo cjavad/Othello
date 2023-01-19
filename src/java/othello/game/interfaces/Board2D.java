@@ -1,5 +1,6 @@
 package othello.game.interfaces;
 
+import javafx.util.Pair;
 import othello.game.Space;
 
 import java.util.ArrayList;
@@ -29,10 +30,9 @@ public interface Board2D extends Iterable<Space> {
 
     Line[] findLines(othello.game.Space space, int playerId);
     /**
-     *
      * @return Returns 0 is playable, 1 if something is wrong.
      */
-    int isValidMove(othello.game.Space space, int playerId);
+    Pair<Integer, othello.game.Line[]> isValidMove(Space space, int playerId);
     // Return list of all valid moves
     Iterator<Space> validMoves(int playerId);
 

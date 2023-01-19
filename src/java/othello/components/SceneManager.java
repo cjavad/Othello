@@ -43,6 +43,7 @@ public class SceneManager {
         for (SceneProvider scene : this.scenes) {
             if (scene.getName().equals(name)) {
                 this.setActiveScene(scene.getScene());
+                scene.onActive();
                 return scene;
             }
         }
@@ -85,6 +86,8 @@ public class SceneManager {
     }
 
     public void setActive(SceneProvider provider, boolean resetScene) {
+        System.out.println("Setting new active scene to: " + provider.getName());
+
         // There can only be one active scene of each type at a time, check if name already exists
         for (int i = 0; i < this.scenes.size(); i++) {
             if (this.scenes.get(i).getName().equals(provider.getName())) {
@@ -95,6 +98,7 @@ public class SceneManager {
                 }
                 this.activeSceneIndex = i;
                 this.setActiveScene(provider.getScene());
+                provider.onActive();
                 return;
             }
         }
@@ -102,6 +106,7 @@ public class SceneManager {
         this.scenes.add(provider);
         this.activeSceneIndex = scenes.size() - 1;
         this.setActiveScene(provider.getScene());
+        provider.onActive();
     }
 
     public Scene getActiveScene() {
@@ -128,15 +133,16 @@ public class SceneManager {
             this.activeSceneIndex = 0;
         }
         this.setActiveScene(this.getActiveScene());
+        this.getActiveProvider().onActive();
     }
 
     public void goForward() {
         if (this.activeSceneIndex < this.scenes.size() - 1) {
             this.activeSceneIndex++;
             this.setActiveScene(this.getActiveScene());
+            this.getActiveProvider().onActive();
         }
     }
-
     public void setOption(String name, boolean value) {
         this.settings.setOption(name, value);
     }

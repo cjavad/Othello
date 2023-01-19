@@ -1,9 +1,8 @@
 package othello.game;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Iterator;
+import javafx.util.Pair;
+
+import java.util.*;
 
 public class Board2D implements othello.game.interfaces.Board2D {
     // Determines if moves are made automatically
@@ -83,16 +82,7 @@ public class Board2D implements othello.game.interfaces.Board2D {
 
     public Line[] findLines(Space placementSpace, int playerId) {
         // Find all lines that are captured by this move
-        Line[] lines = {
-                new Line(placementSpace, "verticalLeft", this.columns, this.rows),
-                new Line(placementSpace, "verticalRight", this.columns, this.rows),
-                new Line(placementSpace, "horizontalTop", this.columns, this.rows),
-                new Line(placementSpace, "horizontalBottom", this.columns, this.rows),
-                new Line(placementSpace, "diagonalTopLeft", this.columns, this.rows),
-                new Line(placementSpace, "diagonalTopRight", this.columns, this.rows),
-                new Line(placementSpace, "diagonalBottomLeft", this.columns, this.rows),
-                new Line(placementSpace, "diagonalBottomRight", this.columns, this.rows),
-        };
+        Line[] lines = Line.getLinesFromOffset(placementSpace, this.columns, this.rows);
 
         for (int i = 0; i < lines.length; i++) {
             Line line = lines[i];
@@ -102,8 +92,6 @@ public class Board2D implements othello.game.interfaces.Board2D {
             Space startSpace = null;
             Space endSpace = null;
             Space lastOwnSpace = null;
-
-
 
             for (Space space : line) {
                 if (space == null) continue;
@@ -169,20 +157,27 @@ public class Board2D implements othello.game.interfaces.Board2D {
         }).toArray(Line[]::new);
     }
 
-    public int isValidMove(Space space, int playerId) {
-        if (this.isInSetup) return 1;
+    /**
+     *
+     * @param space The space of the attempted move
+     * @param playerId The id of the player attempting the move
+     * @return Returns a pair containing the state of the attempted move, and the possible valid lines it forms.
+     */
+
+    public Pair<Integer, Line[]> isValidMove(Space space, int playerId) {
+        if (this.isInSetup) return new Pair<>(1, null);
         // Get state of space
         int playerOccupied = this.getSpace(space);
 
         // If the player already occupies the space, then the move is invalid (1)
-        if (playerOccupied == playerId) return 1;
+        if (playerOccupied == playerId) return new Pair<>(1, null);
         // Find last move
         Move lastMove = this.getLatestMove();
 
         // If last move was made in this round, then the following moves can only be flips
         if (lastMove != null && lastMove.getRound() == this.round) {
             // If the space is empty, then the move is invalid, as it is not a flip (1)
-            if (playerOccupied == -1) return 1;
+            if (playerOccupied == -1) return new Pair<>(1, null);
 
             // Flips can only be made on existing lines
             // Fetch precalculated lines
@@ -192,7 +187,7 @@ public class Board2D implements othello.game.interfaces.Board2D {
             for (Line line : lines) {
                 if (line == null) continue;
                 if (line.contains(space)) {
-                    return 0;
+                    return new Pair<>(0, lines);
                 }
             }
         } else if (playerOccupied == -1) {
@@ -213,14 +208,14 @@ public class Board2D implements othello.game.interfaces.Board2D {
                     if (lineSpace == null) continue;
 
                     if (!space.equals(lineSpace) && this.getSpace(lineSpace) != playerId && this.getSpace(lineSpace) != -1) {
-                        return 0;
+                        return new Pair<>(0, lines);
                     }
                 }
             }
         }
 
         // Otherwise the move is invalid
-        return 1;
+        return new Pair<>(1, null);
     }
 
     // Make above function an iterator that calls isValidMove every run
@@ -235,7 +230,7 @@ public class Board2D implements othello.game.interfaces.Board2D {
             @Override
             public Space next() {
                 Space space = iter.next();
-                if (isValidMove(space, playerId) == 0) {
+                if (isValidMove(space, playerId).getKey() == 0) {
                     return space;
                 }
                 return null;
@@ -244,6 +239,7 @@ public class Board2D implements othello.game.interfaces.Board2D {
     }
 
     public Move move(Space space) {
+
         if (this.isInSetup) {
             if (this.getCurrentPlayer().maxPlacements < 1) {
                 // Forcefully switch to the next player with placements left
@@ -264,7 +260,9 @@ public class Board2D implements othello.game.interfaces.Board2D {
             return null;
         }
 
-        if (this.isValidMove(space, this.currentPlayerId) > 0) return null;
+        var validity = this.isValidMove(space, this.currentPlayerId);
+
+        if (validity.getKey() > 0) return null;
         int prevValue = this.getSpace(space);
 
         Move move = this.getLatestMove();
@@ -273,7 +271,7 @@ public class Board2D implements othello.game.interfaces.Board2D {
             // We are making a new placement
             // Create a new move
             this.setSpace(space, this.currentPlayerId);
-            move = new Move(this.round, this.currentPlayerId, space, this.findLines(space, this.currentPlayerId), new ArrayList<>());
+            move = new Move(this.round, this.currentPlayerId, space, validity.getValue(), new ArrayList<>());
             this.moves.add(move);
         }
 
@@ -416,5 +414,16 @@ public class Board2D implements othello.game.interfaces.Board2D {
                 return new Space(column, row);
             }
         };
+    }
+
+    public Board2D copy(boolean manual) {
+        Board2D copy = new Board2D(this.rows, this.columns, this.players, manual);
+        copy.board = this.board.clone();
+        copy.currentPlayerId = this.currentPlayerId;
+        copy.round = this.round;
+        copy.isInSetup = this.isInSetup;
+        copy.players = this.players.clone();
+        copy.moves = new ArrayList<>(this.moves);
+        return copy;
     }
 }
