@@ -1,5 +1,6 @@
 package othello.components.ui;
 
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -25,7 +26,13 @@ public class PauseMenu extends SceneProvider {
         var title = new Text("Pause Menu");
         title.setFill(Color.BLACK);
         title.setStyle("-fx-font-size: 30px;");
-        pane.setTop(title);
+
+        var gridTitle = new GridPane();
+        gridTitle.setPadding(new Insets(10, 10, 10, 10));
+        gridTitle.setAlignment(Pos.CENTER);
+        gridTitle.add(title, 0, 0);
+
+        pane.setTop(gridTitle);
         pane.setCenter(this.centerPane);
         this.centerPane.setAlignment(Pos.CENTER);
         this.setScene(new Scene(pane, manager.getWidth(), manager.getHeight()));
@@ -60,6 +67,7 @@ public class PauseMenu extends SceneProvider {
         });
 
         pane.setAlignment(Pos.CENTER);
+        pane.setVgap(10);
         
         pane.add(resumeButton, 0, 0);
         pane.add(homeButton, 0, 1);

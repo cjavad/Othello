@@ -7,8 +7,8 @@ public class FancyButton extends Button {
     public FancyButton(String text, Color color) {
         super(text);
 
-        String colorString = String.format("rgba(%d, %d, %d, %f)", (int) color.getRed() * 255, (int) color.getGreen() * 255, (int) color.getBlue() * 255,  color.getOpacity());
-        String hoverColorString = String.format("rgba(%d, %d, %d, %f)", (int) (color.getRed()), (int) (color.getGreen() * 255), (int) (color.getBlue() * 255), (color.getOpacity() - 0.2));
+        String colorString = String.format("rgba(%d, %d, %d, 1)", (int) color.getRed() * 255, (int) color.getGreen() * 255, (int) color.getBlue() * 255);
+        String hoverColorString = String.format("rgba(%d, %d, %d, 0.5)", (int) (color.getRed() * 255), (int) (color.getGreen() * 255), (int) (color.getBlue() * 255));
 
         // Determine if the color is dark or light
         double luminance = 0.2126 * color.getRed() + 0.7152 * color.getGreen() + 0.0722 * color.getBlue();
