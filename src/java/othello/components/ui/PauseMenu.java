@@ -37,14 +37,14 @@ public class PauseMenu extends SceneProvider {
         this.centerPane.setAlignment(Pos.CENTER);
         this.setScene(new Scene(pane, manager.getWidth(), manager.getHeight()));
         this.getScene().addEventHandler(KeyEvent.KEY_PRESSED, this::handleKey);
-        this.getSceneManager().setOption("RTX", false);
+        this.getSceneManager().setOption("3D", false);
     }
     public GridPane createCenterPane() {
         GridPane pane = new GridPane();
         Button resumeButton = new FancyButton("Resume", Color.BLACK);
         Button homeButton = new FancyButton("Home", Color.BLACK);
         Button newGameButton = new FancyButton("New Game", Color.BLACK);
-        Button RTXButton = new FancyButton("RTX Mode", Color.BLACK);
+        Button glButton = new FancyButton("3D Mode", Color.BLACK);
 
 
         resumeButton.setOnAction(event -> {
@@ -55,8 +55,8 @@ public class PauseMenu extends SceneProvider {
             new StartMenu(this.getSceneManager()).setActive();
         });
 
-        RTXButton.setOnAction(event ->{
-            this.getSceneManager().setOption("RTX", !this.getSceneManager().getOption("RTX"));
+        glButton.setOnAction(event ->{
+            this.getSceneManager().setOption("3D", !this.getSceneManager().getOption("RTX"));
             this.getSceneManager().getScene("GameScene").getRoot().fireEvent(new SettingsEvent(SettingsEvent.UPDATE));
         });
 
@@ -68,11 +68,11 @@ public class PauseMenu extends SceneProvider {
 
         pane.setAlignment(Pos.CENTER);
         pane.setVgap(10);
-        
-        pane.add(resumeButton, 0, 0);
-        pane.add(homeButton, 0, 1);
-        pane.add(RTXButton, 0, 2);
-        pane.add(newGameButton, 0, 3);
+
+        pane.add(homeButton, 0, 0);
+        pane.add(glButton, 0, 1);
+        pane.add(newGameButton, 0, 2);
+        pane.add(resumeButton, 0, 3);
 
         return pane;
     }

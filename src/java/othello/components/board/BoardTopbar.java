@@ -17,7 +17,7 @@ public class BoardTopbar extends GridPane {
         super();
         this.setAlignment(Pos.TOP_LEFT);
         Button menuButton = new FancyButton("Menu", Color.BLACK);
-        Button rtxButton = new FancyButton("RTX", Color.BLACK);
+        Button glButton = new FancyButton("3D Mode", Color.BLACK);
         Button saveGameButton = new FancyButton("Save game", Color.BLACK);
         TextField saveGameName = new TextField();
         saveGameName.setPromptText("Game name");
@@ -47,15 +47,15 @@ public class BoardTopbar extends GridPane {
         });
 
 
-        rtxButton.setOnAction(event -> {
-            manager.setOption("RTX", !manager.getOption("RTX"));
+        glButton.setOnAction(event -> {
+            manager.setOption("3D", !manager.getOption("3D"));
             this.fireEvent(new SettingsEvent(SettingsEvent.UPDATE));
         });
 
         menuButton.setOnAction(event -> new PauseMenu(manager).setActive());
         // this.add(goBackButton, 0, 0);
         this.add(menuButton, 0, 0);
-        this.add(rtxButton, 1, 0);
+        this.add(glButton, 1, 0);
         this.add(saveGameButton, 2, 0);
         this.add(saveGameName, 3, 0);
     }

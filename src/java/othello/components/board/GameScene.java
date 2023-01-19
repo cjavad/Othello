@@ -110,7 +110,7 @@ public class GameScene extends SceneProvider {
     public void handleSettingsUpdate(Event event) {
         this.handleBoardButton(event);
 
-        if (this.getSceneManager().getOption("RTX")) {
+        if (this.getSceneManager().getOption("3D")) {
             this.createAdvancedBoard();
         } else {
             // Stop rendering advanced board
