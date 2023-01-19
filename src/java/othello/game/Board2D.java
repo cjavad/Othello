@@ -190,6 +190,8 @@ public class Board2D implements othello.game.interfaces.Board2D {
 
             if (lastMove != null && lastMove.getRound() == this.round && lastMove.getPlayerId() == playerId && prevValue != -1) {
                 return new Pair<>(prevValue, null);
+            } else {
+                this.validMoveCache.remove(space);
             }
         }
 
@@ -292,6 +294,9 @@ public class Board2D implements othello.game.interfaces.Board2D {
             this.players[this.currentPlayerId].maxPlacements--;
             return null;
         }
+
+        // Invalidates the cache
+        this.validMoveCache.clear();
 
         var validity = this.isValidMove(space, this.currentPlayerId);
 

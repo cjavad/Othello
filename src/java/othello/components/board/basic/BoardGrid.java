@@ -87,15 +87,9 @@ public class BoardGrid extends GridPane {
 
         this.getChildren().forEach(node -> {
             SpacePane spacePane = (SpacePane) node;
-
             // Check if spacePane space is in hoveredSpaces
-            boolean flippable = false;
             Space ownSpace = spacePane.getSpace();
-
-            for (Space s : hoveredSpaces)
-                if (s.equals(ownSpace)) flippable = true;
-
-            spacePane.update(ownSpace.equals(this.hoverSpace), flippable && this.board.getCurrentPlayerId() != this.board.getSpace(ownSpace));
+            spacePane.update(ownSpace.equals(this.hoverSpace), hoveredSpaces.contains(ownSpace) && this.board.getCurrentPlayerId() != this.board.getSpace(ownSpace));
         });
     }
 }
