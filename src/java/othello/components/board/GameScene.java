@@ -29,7 +29,6 @@ public class GameScene extends SceneProvider {
 
     private BoardMoves moveList;
 
-
     public GameScene(SceneManager manager, Board2D board) {
         super(manager, "GameScene");
         this.board = board;

@@ -50,6 +50,8 @@ public class BoardScene3D extends SceneProvider {
 	float[] animations;
 	float[] heights;
 
+	float dt = 0.05f;
+	float time = 0.0f;
 	float cameraShake = 0.0f;
 
 	public BoardScene3D(SceneManager manager) {
@@ -159,6 +161,8 @@ public class BoardScene3D extends SceneProvider {
 		);
 		this.cameraShake *= 0.9f;
 
+		this.time += this.dt;
+
 		this.faskinen.camera.position = this.faskinen.camera.position.add(cameraShake);
 
 		this.faskinen.clear();
@@ -175,6 +179,12 @@ public class BoardScene3D extends SceneProvider {
 
 			int id = space.x + space.y * this.board.getColumns();
 
+			if (this.board.isValidMove(space, this.board.getCurrentPlayerId()).getKey() == 0) {
+				float j = (float) space.x + (float) space.y * 1.62f;
+
+				position.y += 0.1 + (float) Math.sin(this.time + j) * 0.05f;
+			}
+
 			if ((space.x + space.y) % 2 == 0) {	
 				stack.pushModel(BoardScene3D.spaceWhite, Mat4.translation(position), id);
 			} else {
@@ -186,12 +196,12 @@ public class BoardScene3D extends SceneProvider {
 			float rotation = animateRotation(this.animations[id]);
 			position.y = 0.3f + height;
 
-			float dt = 0.05f;
-			if (this.animations[id] < 1.0f && this.animations[id] + dt > 1.0f) {
+
+			if (this.animations[id] < 1.0f && this.animations[id] + this.dt > 1.0f) {
 				this.cameraShake += maxHeight * 0.1f;
 			}
 
-			this.animations[id] += dt;
+			this.animations[id] += this.dt;
 
 			int playerId = currentBoard.getSpace(space);
 			if (playerId == -1) continue;
@@ -202,13 +212,13 @@ public class BoardScene3D extends SceneProvider {
 			model = model.mul(Mat4.rotationX(rotation));
 
 			if (
-				player.getColor() == "#FFFFFF" && this.animations[id] >= 0.5f
-				 || player.getColor() == "#101010" && this.animations[id] < 0.5f
+				player.getColor().contains("#FFFFFF") && this.animations[id] >= 0.5f
+				 || player.getColor().contains("#101010") && this.animations[id] < 0.5f
 			) {
 				stack.pushModel(BoardScene3D.chipWhite, model, id);
 			} else if (
-				player.getColor() == "#101010" && this.animations[id] >= 0.5f 
-				 || player.getColor() == "#FFFFFF" && this.animations[id] < 0.5f
+				player.getColor().contains("#101010") && this.animations[id] >= 0.5f 
+				 || player.getColor().contains("#FFFFFF") && this.animations[id] < 0.5f
 			) {
 				stack.pushModel(BoardScene3D.chipBlack, model, id);
 			} else {
@@ -242,7 +252,7 @@ public class BoardScene3D extends SceneProvider {
 	}
 
 	public void handleMousePressed(MouseEvent event) {
-		if (this.staticBoard != null) return;
+		if (this.staticBoard != null || !event.isPrimaryButtonDown()) return;
 
 		int id = this.getPixelId(event);
 		if (id == -1) return;

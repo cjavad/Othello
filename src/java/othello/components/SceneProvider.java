@@ -5,6 +5,7 @@ package othello.components;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.media.AudioClip;
 
 import java.util.HashMap;
 
@@ -15,7 +16,15 @@ public class SceneProvider {
     private HashMap<String, Object> nodes;
     boolean isRegistered = false;
 
+	// music
+	static AudioClip music = new AudioClip("file:src/resources/audio/Orchard.wav");
+
     public SceneProvider(SceneManager manager, String name) {
+		if (!music.isPlaying()) {
+			music.play();
+			music.setCycleCount(AudioClip.INDEFINITE);
+		}
+
         this.name = name;
         this.sceneManager = manager;
         this.nodes = new HashMap<>();

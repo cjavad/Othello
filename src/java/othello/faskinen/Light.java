@@ -50,7 +50,7 @@ public class Light {
 	 * The intensity of the light is set to 10.0f.
 	 */
 	public Light(Vec3 direction, Vec3 color) {
-		this(direction, color, 10.0f);
+		this(direction, color, 7.5f);
 	}
 
 	/**

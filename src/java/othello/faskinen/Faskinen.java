@@ -325,7 +325,7 @@ public class Faskinen {
 	 * Tone maps the HDR framebuffer to the SDR framebuffer.
 	 */
 	public void tonemap() {
-		this.bloom.render(this.hdrFramebuffer, 3.0f, 0.5f);
+		this.bloom.render(this.hdrFramebuffer, 2.0f, 1.0f);
 
 		GL.Viewport(0, 0, this.imageWidth, this.imageHeight);
 
