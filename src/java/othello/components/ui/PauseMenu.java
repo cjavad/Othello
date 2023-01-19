@@ -30,10 +30,10 @@ public class PauseMenu extends SceneProvider {
     }
     public GridPane createCenterPane() {
         GridPane pane = new GridPane();
-        Button resumeButton = new FancyButton("Resume", Color.WHITE);
-        Button homeButton = new FancyButton("Home", Color.WHITE);
-        Button newGameButton = new FancyButton("New Game", Color.WHITE);
-        Button RTXButton = new FancyButton("RTX Mode", Color.WHITE);
+        Button resumeButton = new FancyButton("Resume", Color.BLACK);
+        Button homeButton = new FancyButton("Home", Color.BLACK);
+        Button newGameButton = new FancyButton("New Game", Color.BLACK);
+        Button RTXButton = new FancyButton("RTX Mode", Color.BLACK);
 
 
         resumeButton.setOnAction(event -> {
