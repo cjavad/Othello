@@ -28,6 +28,7 @@ public class BoardMoves extends BorderPane {
 
     private FancyButton forwardButton;
     private FancyButton backButton;
+    private ScrollPane scrollPane;
 
     private boolean inStaticMode;
 
@@ -37,15 +38,20 @@ public class BoardMoves extends BorderPane {
         super();
         this.board = boardContext;
 
-        var scrollPane = new ScrollPane();
+        this.scrollPane = new ScrollPane();
+        // Scroll with mouse with new content
+        this.scrollPane.setPannable(true);
+        this.scrollPane.setFitToWidth(true);
+        this.scrollPane.setFitToHeight(true);
+
         this.content = new VBox();
 
         this.content.setPadding(new javafx.geometry.Insets(10, 0, 10, 0));
         this.content.setSpacing(1);
         this.content.setStyle("-fx-background-color: #F9F9F9;");
 
-        scrollPane.setContent(this.content);
-        this.setCenter(scrollPane);
+        this.scrollPane.setContent(this.content);
+        this.setCenter(this.scrollPane);
 
         var buttonBox = new HBox();
 
@@ -157,6 +163,11 @@ public class BoardMoves extends BorderPane {
 
             moveElement.getChildren().add(moveText);
             this.content.getChildren().add(moveElement);
+        }
+
+        // Scroll to bottom of scroll pane
+        if (this.scrollPane != null) {
+            this.scrollPane.setVvalue(1.0);
         }
     }
 

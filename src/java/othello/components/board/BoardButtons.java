@@ -17,6 +17,7 @@ public class BoardButtons extends GridPane {
     private int winnerId = -1;
 
     private Button endSetupButton;
+    private Text winnerText;
 
     public BoardButtons(Board2D boardContext) {
         super();
@@ -50,22 +51,22 @@ public class BoardButtons extends GridPane {
             this.fireEvent(new MoveEvent(MoveEvent.UPDATE, (Space) null));
         });
 
+        this.winnerText = new Text("Player " + this.winnerId + " wins!");
+        winnerText.setStyle("-fx-font-size: 20; -fx-font-weight: bold;");
+        winnerText.setVisible(false);
+
         this.setAlignment(javafx.geometry.Pos.TOP_CENTER);
         this.add(switchPlayerButton, 0, 2);
         this.add(endSetupButton, 0, 3);
         this.add(this.playerScoreBox, 0, 0);
+        this.add(this.winnerText, 0, 1);
+
         // Add spacing
         this.setVgap(10);
-
         this.update();
     }
 
     public void update() {
-        if (this.winnerId != -1) {
-            var winnerText = new Text("Player " + winnerId + " wins!");
-            winnerText.setStyle("-fx-font-size: 20; -fx-font-weight: bold;");
-            this.playerScoreBox.getChildren().add(winnerText);
-        }
         this.playerScoreBox.getChildren().clear();
 
         for (int i = 0; i < this.board.getPlayerCount(); i++) {
@@ -92,6 +93,7 @@ public class BoardButtons extends GridPane {
             this.playerScoreBox.getChildren().add(playerBox);
         }
 
+
         if (!this.board.inSetup) {
             this.getChildren().remove(this.endSetupButton);
         }
@@ -99,6 +101,11 @@ public class BoardButtons extends GridPane {
 
     public void setWinner(int winnerId) {
         this.winnerId = winnerId;
-        this.update();
+        if (winnerId != -1) {
+            this.winnerText.setText("Player " + winnerId + " wins!");
+            this.winnerText.setVisible(true);
+        } else {
+            this.winnerText.setVisible(false);
+        }
     }
 }

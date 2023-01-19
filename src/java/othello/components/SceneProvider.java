@@ -77,6 +77,7 @@ public class SceneProvider {
                 // Save music playing state and play again
                 music.stop();
                 music.play();
+                music.setCycleCount(AudioClip.INDEFINITE);
             }
         }
     }
