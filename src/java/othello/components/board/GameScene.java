@@ -1,6 +1,6 @@
 package othello.components.board;
 
-import javafx.event.ActionEvent;
+import javafx.animation.AnimationTimer;
 import javafx.event.Event;
 import javafx.scene.Scene;
 import javafx.scene.input.KeyEvent;
@@ -73,8 +73,23 @@ public class GameScene extends SceneProvider {
     }
 
     public void createAdvancedBoard() {
-        if (this.advancedBoard == null) this.advancedBoard = new BoardScene3D(this.getSceneManager(), this.board);
-        this.root.setCenter(this.advancedBoard.getNode("root"));
+        Pane root;
+        if (this.advancedBoard == null) {
+            this.advancedBoard = new BoardScene3D(this.getSceneManager(), this.board);
+            root = this.advancedBoard.getNode("root");
+            // Add event listeners for move and update + select
+            root.addEventHandler(MoveEvent.MOVE, this::handleMove);
+            root.addEventHandler(MoveEvent.UPDATE, this::handleUpdate);
+            root.addEventHandler(MoveEvent.SELECT, this::handleSelect);
+            // Settings update
+            root.addEventHandler(SettingsEvent.UPDATE, this::handleSettingsUpdate);
+        } else {
+            root = this.advancedBoard.getNode("root");
+            AnimationTimer timer = this.advancedBoard.getNode("timer");
+            if (timer != null) timer.start();
+        }
+
+        this.root.setCenter(root);
     }
 
     public void handleBoardButton(Event event) {
@@ -83,19 +98,42 @@ public class GameScene extends SceneProvider {
         this.moveList.update();
     }
 
+    public Board2D createStatic(int moveIndex) {
+        // -1 being the starting position
+        if (moveIndex == -2) {
+            return null;
+        } else {
+            // Show static board from move @
+            Board2D b = this.board.copy(true, true);
+            b.revert(moveIndex);
+            return b;
+        }
+    }
+
     public void handleSettingsUpdate(Event event) {
         this.handleBoardButton(event);
 
         if (this.getSceneManager().getOption("RTX")) {
             this.createAdvancedBoard();
         } else {
+            // Stop rendering advanced board
+            if (this.advancedBoard != null) {
+                AnimationTimer t = this.advancedBoard.getNode("timer");
+                if (t != null) {
+                    t.stop();
+                }
+            }
+
             this.root.setCenter(this.basicBoard.getRoot());
         }
     }
 
     public void handleMove(MoveEvent event) {
+        Board2D staticBoard = this.createStatic(-2);
         this.moveList.gotoCurrentMove();
-        this.basicBoard.setStatic(-2);
+        this.basicBoard.setStaticBoard(staticBoard);
+        if (this.advancedBoard != null) this.advancedBoard.setStaticBoard(staticBoard);
+
         this.moveList.update();
 
         if (!this.board.inSetup && !this.board.isStatic && this.board.isGameOver()) {
@@ -123,15 +161,19 @@ public class GameScene extends SceneProvider {
 
     public void handleSelect(MoveEvent event) {
         Move latest = this.board.getLatestMove();
+        Board2D staticBoard;
 
         if (latest == null || event.moveIndex != latest.getRound()) {
             // Create a static Board2D that displays the move
-            this.basicBoard.setStatic(event.moveIndex);
+            staticBoard = this.createStatic(event.moveIndex);
+
         } else {
             // Create a static Board2D that displays the current board
-            this.basicBoard.setStatic(-2);
+            staticBoard = this.createStatic(-2);
         }
 
+        this.basicBoard.setStaticBoard(staticBoard);
+        if (this.advancedBoard != null) this.advancedBoard.setStaticBoard(staticBoard);
         this.basicBoard.handleUpdate(null);
         this.moveList.update();
     }
@@ -150,7 +192,9 @@ public class GameScene extends SceneProvider {
     }
 
     public void handleUpdate(MoveEvent event) {
-        this.basicBoard.setStatic(-2);
+        Board2D staticBoard = this.createStatic(-2);
+        this.basicBoard.setStaticBoard(staticBoard);
+        if (this.advancedBoard != null) this.advancedBoard.setStaticBoard(staticBoard);
         this.buttons.update();
         this.basicBoard.handleUpdate(null);
         this.moveList.update();

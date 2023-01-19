@@ -33,7 +33,7 @@ public class SceneProvider {
         }
     }
 
-    public <T> T createNode(String name, Node node) {
+    public <T> T createNode(String name, T node) {
         // Store node and type
         this.nodes.put(name, node);
         return (T) this.getNode(name);

@@ -6,6 +6,7 @@ import othello.faskinen.Platform;
 import othello.components.SceneManager;
 import othello.faskinen.Window;
 import othello.components.ui.StartMenu;
+import othello.utils.SettingsManager;
 
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
@@ -18,7 +19,7 @@ public class App extends Application {
     public void start(Stage stage) throws Exception {
 		Window.initialize();
         SceneManager sceneManager = new SceneManager(stage, 800, 600);
-        stage.setTitle("Othello");
+        stage.setTitle(SettingsManager.TITLE);
         new StartMenu(sceneManager).setActive();
     }
 

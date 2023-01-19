@@ -2,6 +2,8 @@ package othello.components.board;
 
 import javafx.scene.control.Button;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import othello.components.ui.FancyButton;
@@ -11,9 +13,7 @@ import othello.game.Space;
 
 public class BoardButtons extends GridPane {
     private final Board2D board;
-
-    private Text currentPlayerText;
-    private Text currentPlayerScore;
+    private VBox playerScoreBox;
 
     private Button endSetupButton;
 
@@ -21,11 +21,13 @@ public class BoardButtons extends GridPane {
         super();
         this.board = boardContext;
         this.setAlignment(javafx.geometry.Pos.CENTER);
-        this.currentPlayerText = new Text();
-        this.currentPlayerText.setTextAlignment(javafx.scene.text.TextAlignment.CENTER);
-        this.currentPlayerScore = new Text();
-        this.currentPlayerScore.setTextAlignment(javafx.scene.text.TextAlignment.CENTER);
-        this.update();
+        this.setHgap(10);
+
+        this.playerScoreBox = new VBox();
+        this.playerScoreBox.setSpacing(10);
+        this.playerScoreBox.setAlignment(javafx.geometry.Pos.CENTER);
+        this.playerScoreBox.setPadding(new javafx.geometry.Insets(10, 0, 0, 0));
+
 
         // Create button to switch player
         Button switchPlayerButton = new FancyButton("Switch player", Color.BLANCHEDALMOND);
@@ -47,17 +49,41 @@ public class BoardButtons extends GridPane {
         });
 
         this.setAlignment(javafx.geometry.Pos.TOP_CENTER);
-        this.add(this.currentPlayerText, 0, 0);
-        this.add(this.currentPlayerScore, 0, 1);
         this.add(switchPlayerButton, 0, 2);
         this.add(endSetupButton, 0, 3);
+        this.add(this.playerScoreBox, 0, 0);
         // Add spacing
         this.setVgap(10);
+
+        this.update();
     }
 
     public void update() {
-        this.currentPlayerText.setText("Current player: " + this.board.getCurrentPlayerId());
-        this.currentPlayerScore.setText("Current player score: " + this.board.getScore(this.board.getCurrentPlayerId()));
+        this.playerScoreBox.getChildren().clear();
+
+        for (int i = 0; i < this.board.getPlayerCount(); i++) {
+            var player = this.board.getPlayer(i);
+            var playerScore = new Text("Player " + player.getPlayerId() + ": " + this.board.getScore(player.getPlayerId()) + " points");
+            var playerColor = Color.valueOf(player.getColor());
+
+            // Create small circle to represent player with their color
+            var playerCircle = new javafx.scene.shape.Circle(10, playerColor);
+            playerCircle.setStroke(Color.BLACK);
+
+            var playerBox = new HBox();
+            playerBox.setSpacing(10);
+            playerBox.setAlignment(javafx.geometry.Pos.CENTER);
+            playerBox.getChildren().addAll(playerCircle, playerScore);
+            // Set background color
+            playerBox.setStyle("-fx-background-color: #F9F9F9;");
+
+            // Highlight current player with Yellow rounded border
+            if (this.board.getCurrentPlayerId() == player.getPlayerId()) {
+                playerBox.setStyle("-fx-background-color: #F9F9F9; -fx-border-color: gold; -fx-border-width: 1; -fx-border-radius: 5; -fx-border-style: solid;");
+            }
+
+            this.playerScoreBox.getChildren().add(playerBox);
+        }
 
         if (!this.board.inSetup) {
             this.getChildren().remove(this.endSetupButton);

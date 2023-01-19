@@ -11,19 +11,28 @@ public class Board2D implements othello.game.interfaces.Board2D {
     // Determines if moves are made automatically
     private boolean manual;
 
+    // Dimensions of the board
+
     private int columns;
     private int rows;
 
+    // Board internal state is represented as a 1D array of integers
+
     private int[] board;
     private int[] startingPositions;
+    // Current round / move index
     private int round;
+    // Current player
     private int currentPlayerId;
+    // List of all players
     private Player[] players;
+    // List of all moves
     private ArrayList<Move> moves;
 
     // HashMap cache for operations run after move() in the same round
     public HashMap<Space, Integer> validMoveCache;
 
+    // Flags determining the state of the board
     public boolean inSetup;
     public boolean isStatic;
 
@@ -485,6 +494,13 @@ public class Board2D implements othello.game.interfaces.Board2D {
     public Board2D clone() {
         return this.copy(this.manual, this.isStatic);
     }
+
+    /**
+     * Creates a copy of the board with custom flags
+     * @param manual
+     * @param isStatic
+     * @return
+     */
 
     public Board2D copy(boolean manual, boolean isStatic) {
         Board2D copy = new Board2D(this.rows, this.columns, this.players.clone(), manual);

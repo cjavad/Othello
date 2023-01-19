@@ -55,7 +55,6 @@ public class ResourceLoader {
         try {
             return ResourceLoader.readObject(path);
         } catch (IOException | ClassNotFoundException e) {
-            e.printStackTrace();
             return null;
         }
     }
@@ -97,7 +96,7 @@ public class ResourceLoader {
         try {
             ResourceLoader.writeObject(game, path);
         } catch (IOException e) {
-            e.printStackTrace();
+            // No
         }
     }
 
@@ -106,7 +105,7 @@ public class ResourceLoader {
         try {
             return ResourceLoader.readObject(path);
         } catch (IOException | ClassNotFoundException e) {
-            e.printStackTrace();
+            // No
         }
         return null;
     }

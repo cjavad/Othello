@@ -60,12 +60,14 @@ public class SettingsMenu extends SceneProvider {
         Label rowsLabel = new Label("Rows");
         Label columnsLabel = new Label("Columns");
         Label maxPlacementsLabel = new Label("Max Placements");
+        Label playerCountLabel = new Label("Player Count");
         Label manualLabel = new Label("Manual");
         Label setupLabel = new Label("Setup");
 
         Spinner rowsField = new Spinner(4, 64 * 4, manager.settings.getGameOption("rows"));
         Spinner columnsField = new Spinner(4, 64 * 4, manager.settings.getGameOption("columns"));
         Spinner maxPlacementsField = new Spinner(2, 64, manager.settings.getGameOption("maxPlacements"));
+        Spinner playerCountField = new Spinner(2, 4, manager.settings.getGameOption("playerCount"));
 
         // Create a checkbox for manual
         CheckBox manualField = new CheckBox();
@@ -82,6 +84,7 @@ public class SettingsMenu extends SceneProvider {
         this.createNode("rows", rowsField);
         this.createNode("columns", columnsField);
         this.createNode("maxPlacements", maxPlacementsField);
+        this.createNode("playerCount", playerCountField);
         this.createNode("manual", manualField);
         this.createNode("setup", setupField);
 
@@ -93,6 +96,8 @@ public class SettingsMenu extends SceneProvider {
                 columnsField,
                 maxPlacementsLabel,
                 maxPlacementsField,
+                playerCountLabel,
+                playerCountField,
                 manualLabel,
                 manualField,
                 setupLabel,
@@ -126,12 +131,14 @@ public class SettingsMenu extends SceneProvider {
         Spinner rowsField = this.getNode("rows");
         Spinner columnsField = this.getNode("columns");
         Spinner maxPlacementsField = this.getNode("maxPlacements");
+        Spinner playerCountField = this.getNode("playerCount");
         CheckBox manualField = this.getNode("manual");
         CheckBox setupField = this.getNode("setup");
 
         this.getSceneManager().settings.setGameOption("rows", (int) rowsField.getValue());
         this.getSceneManager().settings.setGameOption("columns", (int) columnsField.getValue());
         this.getSceneManager().settings.setGameOption("maxPlacements", (int) maxPlacementsField.getValue());
+        this.getSceneManager().settings.setGameOption("playerCount", (int) playerCountField.getValue());
         this.getSceneManager().settings.setGameOption("manual", manualField.isSelected() ? 1 : 0);
         this.getSceneManager().settings.setGameOption("setup", setupField.isSelected() ? 1 : 0);
         this.getSceneManager().settings.saveSettings();

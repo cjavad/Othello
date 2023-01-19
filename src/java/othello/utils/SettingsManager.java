@@ -7,12 +7,12 @@ import java.util.HashMap;
 
 public class SettingsManager {
     public static final String VERSION = "1.0.0";
-    public static final String TITLE = "Othello";
+    public static final String TITLE = "Othello                                 ";
 
     public static final int BOARD_WIDTH = 8;
     public static final int BOARD_HEIGHT = 8;
     public static final int PLAYER_COUNT = 2;
-    public static final int MAX_PLACEMENTS = 64;
+    public static final int MAX_PLACEMENTS = 2;
 
     private HashMap<String, Boolean> options;
     private HashMap<String, Integer> gameOptions;

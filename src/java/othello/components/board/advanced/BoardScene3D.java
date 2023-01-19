@@ -11,10 +11,11 @@ import javafx.scene.image.WritableImage;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
-import javafx.scene.layout.StackPane;
 
 import othello.components.SceneManager;
 import othello.components.SceneProvider;
+import othello.events.MoveEvent;
+import othello.events.SettingsEvent;
 import othello.faskinen.*;
 import othello.faskinen.opengl.GL;
 import othello.game.Board2D;
@@ -45,6 +46,7 @@ public class BoardScene3D extends SceneProvider {
 	ParticleSystem particles = new ParticleSystem(1000);
                             
 	Board2D board;
+	Board2D staticBoard;
 	float[] animations;
 	float[] heights;
 
@@ -56,7 +58,10 @@ public class BoardScene3D extends SceneProvider {
 
 	public BoardScene3D(SceneManager manager, Board2D board) {
 		super(manager, "BoardViewer3D");
+
 		this.board = board;
+		this.staticBoard = null;
+
 		this.animations = new float[board.getRows() * board.getColumns()];
 		this.heights = new float[board.getRows() * board.getColumns()];
 		for (int i = 0; i < this.animations.length; i++) {
@@ -84,6 +89,8 @@ public class BoardScene3D extends SceneProvider {
 			}
 		};
 		timer.start();
+
+		this.createNode("timer", timer);
 
 		this.getSceneManager().getActiveScene().setOnMousePressed(this::handleMousePressed);
 		this.getSceneManager().getActiveScene().setOnMouseMoved(this::handleMouseMoved);
@@ -120,6 +127,8 @@ public class BoardScene3D extends SceneProvider {
 		int newWidth = (int) this.root.getWidth();
 		int newHeight = (int) this.root.getHeight();
 		this.handleResize(newWidth, newHeight);
+
+		var currentBoard = staticBoard == null ? board : staticBoard;
 
 		Vec3 movement = new Vec3();
 
@@ -161,7 +170,7 @@ public class BoardScene3D extends SceneProvider {
 		Vec3 boardPosition = new Vec3(0, 0, 0);
 		stack.pushModel(BoardScene3D.boardFrame, Mat4.translation(boardPosition));
 
-		for (Space space : this.board) {
+		for (Space space : currentBoard) {
 			Vec3 position = new Vec3(space.x - 3.5f, 0, space.y - 3.5f);
 
 			int id = space.x + space.y * 8;
@@ -184,10 +193,10 @@ public class BoardScene3D extends SceneProvider {
 
 			this.animations[id] += dt;
 
-			int playerId = this.board.getSpace(space);
+			int playerId = currentBoard.getSpace(space);
 			if (playerId == -1) continue;
 
-			Player player = this.board.getPlayer(playerId);
+			Player player = currentBoard.getPlayer(playerId);
 
 			Mat4 model = Mat4.translation(position);
 			model = model.mul(Mat4.rotationX(rotation));
@@ -233,6 +242,8 @@ public class BoardScene3D extends SceneProvider {
 	}
 
 	public void handleMousePressed(MouseEvent event) {
+		if (this.staticBoard != null) return;
+
 		int id = this.getPixelId(event);
 		if (id == -1) return;
 
@@ -244,6 +255,9 @@ public class BoardScene3D extends SceneProvider {
 
 		if (move == null) return;
 
+		this.root.fireEvent(new MoveEvent(MoveEvent.MOVE, move.getRound()));
+		this.root.fireEvent(new SettingsEvent(SettingsEvent.UPDATE));
+
 		for (Change change : move.getChanges()) {
 			int cx = change.getColumn();
 			int cy = change.getRow();
@@ -252,6 +266,10 @@ public class BoardScene3D extends SceneProvider {
 			this.animations[cx + cy * 8] = 0.5f - distance * 0.5f;
 			this.heights[cx + cy * 8] = 1.0f + distance * 0.1f;
 		}
+	}
+
+	public void setStaticBoard(Board2D staticBoard) {
+		this.staticBoard = staticBoard;
 	}
 
 	public int getPixelId(MouseEvent event) {

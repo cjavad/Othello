@@ -1,12 +1,8 @@
 package othello.components.board.basic;
 
 import javafx.scene.Scene;
-import javafx.scene.layout.BorderPane;
-import othello.components.board.BoardButtons;
-import othello.components.board.BoardTopbar;
 import othello.events.MoveEvent;
 import othello.game.Board2D;
-import othello.game.Move;
 import othello.game.Space;
 import othello.components.SceneManager;
 import othello.components.SceneProvider;
@@ -41,16 +37,8 @@ public class BoardScene2D extends SceneProvider {
         this.boardGrid.update();
     }
 
-    public void setStatic(int moveIndex) {
-        // -1 being the starting position
-        if (moveIndex == -2) {
-            this.boardGrid.setStaticBoard(null);
-            this.boardGrid.update();
-        } else {
-            // Show static board from move @
-            Board2D b = this.board.copy(true, true);
-            b.revert(moveIndex);
-            this.boardGrid.setStaticBoard(b);
-        }
+    public void setStaticBoard(Board2D staticBoard) {
+        this.boardGrid.setStaticBoard(staticBoard);
+        this.boardGrid.update();
     }
 }
