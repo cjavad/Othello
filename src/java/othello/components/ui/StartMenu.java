@@ -22,14 +22,14 @@ public class StartMenu extends SceneProvider {
         // Create two buttons, one for basic and one for advanced
         // When clicked, create a new game with the appropriate game type
 
-        Button basicButton = new Button("Basic");
-        basicButton.setOnAction(this::handleBasicClick);
+        Button basicButton = new Button("Play Game");
+        basicButton.setOnAction(this::handleGameClick);
 
-        Button advancedButton = new Button("Advanced");
+        Button advancedButton = new Button("Pre-load Advanced Game");
         advancedButton.setOnAction(this::handleAdvancedClick);
 
-        Button faskineButton = new Button("Faskinen");
-        faskineButton.setOnAction(this::handleFaskineClick);
+        Button faskineButton = new Button("Settings");
+        faskineButton.setOnAction(this::handleSettingsClick);
 
         // Create a grid pane to hold the buttons
         GridPane grid = new GridPane();
@@ -47,7 +47,7 @@ public class StartMenu extends SceneProvider {
         this.setScene(scene);
     }
 
-    private void handleBasicClick(ActionEvent event) {
+    private void handleGameClick(ActionEvent event) {
         // Create a new game with the basic game
         new BasicReversi(this.getSceneManager()).setActive();
     }
@@ -57,9 +57,8 @@ public class StartMenu extends SceneProvider {
         new AdvancedReversi(this.getSceneManager()).setActive();
     }
 
-    private void handleFaskineClick(ActionEvent event) {
-        Board2D board = this.getSceneManager().getNewBoard();
-        new BoardScene2D(this.getSceneManager(), board).setActive();
+    private void handleSettingsClick(ActionEvent event) {
+        new SettingsMenu(this.getSceneManager()).setActive();
     }
 
     private void handleKey(KeyEvent event) {

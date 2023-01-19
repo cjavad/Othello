@@ -3,13 +3,12 @@ package othello.components.ui;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import othello.components.SceneManager;
 import othello.components.SceneProvider;
 import othello.components.board.GameScene;
-import othello.components.board.advanced.BoardScene3D;
-import othello.components.board.basic.BoardScene2D;
 import othello.events.SettingsEvent;
 import othello.game.Board2D;
 
@@ -25,9 +24,8 @@ public class PauseMenu extends SceneProvider {
         pane.setCenter(this.centerPane);
         this.centerPane.setAlignment(Pos.CENTER);
         this.setScene(new Scene(pane, manager.getWidth(), manager.getHeight()));
-
+        this.getScene().addEventHandler(KeyEvent.KEY_PRESSED, this::handleKey);
         this.getSceneManager().setOption("RTX", false);
-
     }
     public GridPane createCenterPane() {
         GridPane pane = new GridPane();
@@ -61,6 +59,17 @@ public class PauseMenu extends SceneProvider {
         pane.add(RTXButton, 0, 2);
         pane.add(newGameButton, 0, 3);
         return pane;
+    }
+
+
+    public void handleKey(KeyEvent event) {
+        switch (event.getCode()) {
+            case ESCAPE:
+                this.getSceneManager().getScene("GameScene");
+                break;
+            default:
+                break;
+        }
     }
 
 }

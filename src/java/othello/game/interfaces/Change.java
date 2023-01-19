@@ -1,6 +1,8 @@
 package othello.game.interfaces;
 
-public interface Change {
+import java.io.Serializable;
+
+public interface Change extends Serializable {
     public int getRow();
     public int getColumn();
     public int getPrevPlayerId();

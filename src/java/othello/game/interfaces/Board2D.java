@@ -3,7 +3,9 @@ package othello.game.interfaces;
 import javafx.util.Pair;
 import othello.game.Space;
 
+import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 
@@ -14,7 +16,7 @@ import java.util.Iterator;
  *
  */
 
-public interface Board2D extends Iterable<Space> {
+public interface Board2D extends Iterable<Space>, Serializable {
     /**
      * Geometry of board
      */
@@ -44,6 +46,8 @@ public interface Board2D extends Iterable<Space> {
 
     Move move(Space space);
 
+    void revert(int moveIndex);
+
     /**
      * Player
      */
@@ -59,22 +63,23 @@ public interface Board2D extends Iterable<Space> {
      * Board state
      */
 
-    boolean inSetup();
     boolean isGameOver();
     void startSetup(int maxPlacements);
+    void endSetup();
 
     int getRound();
     othello.game.Move getLatestMove();
     othello.game.Move getMove(int moveIndex);
-    Iterable<othello.game.Move> getMoves(); // Chains moves
+    ArrayList<othello.game.Move> getMoves(); // Chains moves
 
-    static int[] createCopyFromMoves(Iterable<othello.game.Move> moves, int columns, int rows) {
-        int[] copy = new int[columns * rows];
+    static int[] createCopyFromMoves(int[] state, Iterable<othello.game.Move> moves, int columns, int rows) {
+        int[] copy = state.clone();
+
         for (othello.game.Move move : moves) {
             Space placementSpace = move.getPlacementSpace();
             copy[placementSpace.row * columns + placementSpace.column] = move.getPlayerId();
             for (othello.game.Change change : move.getChanges()) {
-                copy[change.getRow() * columns + change.getColumn()] = move.getPlayerId();
+                copy[change.getRow() * columns + change.getColumn()] = change.getPlayerId();
             }
         }
         return copy;

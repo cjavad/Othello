@@ -14,7 +14,7 @@ import othello.game.Space;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class SpacePane extends Pane {
-    private final Board2D board;
+    private Board2D board;
     private final Space space;
 
     private Ellipse piece;
@@ -40,6 +40,10 @@ public class SpacePane extends Pane {
         this.setOnMouseClicked(this::handleClick);
         this.setOnMouseEntered(this::handleMouseEnter);
         this.setOnMouseExited(this::handleMouseExit);
+    }
+
+    public void setBoard(Board2D board) {
+        this.board = board;
     }
 
     public Space getSpace() {
@@ -85,6 +89,7 @@ public class SpacePane extends Pane {
     }
 
     public void handleClick(Event e) {
+        if (this.board.isStatic) return;
         this.fireEvent(new MoveEvent(MoveEvent.MOVE, this.space));
     }
 
@@ -93,6 +98,6 @@ public class SpacePane extends Pane {
     }
 
     public void handleMouseExit(Event e) {
-        this.fireEvent(new MoveEvent(MoveEvent.HOVER, null));
+        this.fireEvent(new MoveEvent(MoveEvent.HOVER, (Space) null));
     }
 }

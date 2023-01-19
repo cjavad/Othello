@@ -1,6 +1,8 @@
 package othello.game.interfaces;
 
-public interface Space extends Comparable<othello.game.Space> {
+import java.io.Serializable;
+
+public interface Space extends Comparable<othello.game.Space>, Serializable {
     int compareToColumn(othello.game.Space space);
     int compareToRow(othello.game.Space space);
     boolean equals(othello.game.Space space);

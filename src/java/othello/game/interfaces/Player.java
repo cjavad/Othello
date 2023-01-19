@@ -1,6 +1,8 @@
 package othello.game.interfaces;
 
-public interface Player {
+import java.io.Serializable;
+
+public interface Player extends Serializable {
     public int getPlayerId();
     public String getColor();
 }

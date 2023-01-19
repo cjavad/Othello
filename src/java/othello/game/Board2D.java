@@ -2,6 +2,7 @@ package othello.game;
 
 import javafx.util.Pair;
 
+import java.io.Serializable;
 import java.util.*;
 
 public class Board2D implements othello.game.interfaces.Board2D {
@@ -12,12 +13,14 @@ public class Board2D implements othello.game.interfaces.Board2D {
     private int rows;
 
     private int[] board;
+    private int[] startingPositions;
     private int round;
     private int currentPlayerId;
     private Player[] players;
     private ArrayList<Move> moves;
 
-    public boolean isInSetup;
+    public boolean inSetup;
+    public boolean isStatic;
 
     public Board2D(Player[] players, HashMap<String, Integer> options) {
         this.players = players;
@@ -26,7 +29,10 @@ public class Board2D implements othello.game.interfaces.Board2D {
         this.rows = options.getOrDefault("rows", players.length * 4);
 
         this.board = new int[this.columns * this.rows];
+        this.startingPositions = new int[this.columns * this.rows];
+
         Arrays.fill(this.board, -1);
+        Arrays.fill(this.startingPositions, -1);
 
         this.round = 0;
         this.currentPlayerId = 0;
@@ -44,24 +50,22 @@ public class Board2D implements othello.game.interfaces.Board2D {
         this(players.length * 4, players.length * 4, players, manual);
     }
 
-    public Board2D(Player[] players, int[] startingBoard, boolean manual) {
+    public Board2D(Player[] players, int[] startingPositions, boolean manual) {
         this(players.length * 4, players.length * 4, players, manual);
-        this.board = startingBoard;
+        this.startingPositions = startingPositions;
+        this.board = startingPositions.clone();
     }
 
     public Board2D(int columns, int rows, Player[] players, boolean manual) {
-        this.columns = columns;
-        this.rows = rows;
-        this.board = new int[columns * rows];
-        this.players = players;
+        this(players, new HashMap<>() {{
+            put("columns", columns);
+            put("rows", rows);
+            put("manual", manual ? 1 : 0);
+        }});
+    }
 
-        // Fill board with empty spaces
-        Arrays.fill(this.board, -1);
-        this.round = 0;
-        this.currentPlayerId = 0;
-        this.moves = new ArrayList<>();
-        this.manual = manual;
-        this.setStartingPositions();
+    public Board2D(Player[] players) {
+        this(players, false);
     }
 
     public int getColumns() {
@@ -77,6 +81,10 @@ public class Board2D implements othello.game.interfaces.Board2D {
     }
 
     public void setSpace(Space space, int playerId) {
+        if (this.inSetup) {
+            this.startingPositions[space.row * this.columns + space.column] = playerId;
+        }
+
         this.board[space.row * this.columns + space.column] = playerId;
     }
 
@@ -165,7 +173,7 @@ public class Board2D implements othello.game.interfaces.Board2D {
      */
 
     public Pair<Integer, Line[]> isValidMove(Space space, int playerId) {
-        if (this.isInSetup) return new Pair<>(1, null);
+        if (this.inSetup) return new Pair<>(1, null);
         // Get state of space
         int playerOccupied = this.getSpace(space);
 
@@ -239,16 +247,14 @@ public class Board2D implements othello.game.interfaces.Board2D {
     }
 
     public Move move(Space space) {
+        if (this.isStatic) return null;
 
-        if (this.isInSetup) {
+        if (this.inSetup) {
             if (this.getCurrentPlayer().maxPlacements < 1) {
                 // Forcefully switch to the next player with placements left
-                Arrays.stream(this.players).filter(player -> player.maxPlacements > 0).findFirst().ifPresentOrElse(player -> this.currentPlayerId = player.getPlayerId(), () -> {
-                    this.isInSetup = false;
-                    this.currentPlayerId = 0;
-                });
+                Arrays.stream(this.players).filter(player -> player.maxPlacements > 0).findFirst().ifPresentOrElse(player -> this.currentPlayerId = player.getPlayerId(), this::endSetup);
 
-                if (!this.isInSetup) {
+                if (!this.inSetup) {
                     return null;
                 }
             }
@@ -279,7 +285,7 @@ public class Board2D implements othello.game.interfaces.Board2D {
 
         if (this.manual) {
             // Don't propagate changes if manual
-            changes.add(new Change(space, prevValue));
+            changes.add(new Change(space, this.currentPlayerId, prevValue));
             // move.invalidateLinesMove(space);
             this.setSpace(space, this.currentPlayerId);
         } else {
@@ -289,7 +295,7 @@ public class Board2D implements othello.game.interfaces.Board2D {
             while (validMovesIterator.hasNext()) {
                 Space validMove = validMovesIterator.next();
                 if (validMove == null) continue;
-                changes.add(new Change(validMove, this.getSpace(validMove)));
+                changes.add(new Change(validMove, this.currentPlayerId, this.getSpace(validMove)));
                 // Update valid lines
                 // move.invalidateLinesMove(space);
                 this.setSpace(validMove, this.currentPlayerId);
@@ -302,6 +308,15 @@ public class Board2D implements othello.game.interfaces.Board2D {
         move.setChanges(changes);
 
         return move;
+    }
+
+    public void revert(int moveIndex) {
+        // Remove all moves after the specified index
+        if (moveIndex < -1 || moveIndex >= this.moves.size()) return;
+        this.moves.subList(moveIndex + 1, this.moves.size()).clear();
+        this.board = othello.game.interfaces.Board2D.createCopyFromMoves(this.startingPositions, this.moves, this.columns, this.rows);
+        this.round = this.moves.size() > 0 ? this.getLatestMove().getRound() : 0;
+        this.currentPlayerId = this.moves.size() > 0 ? this.getLatestMove().getPlayerId() : 0;
     }
 
     public void setStartingPositions() {
@@ -322,12 +337,13 @@ public class Board2D implements othello.game.interfaces.Board2D {
             // Set starting positions
             for (int position : startingPositions) {
                 this.board[position] = playerId;
+                this.startingPositions[position] = position;
             }
         }
     }
 
     public void nextPlayer() {
-        this.round += 1;
+        if (!this.inSetup) this.round++;
         this.currentPlayerId = (this.currentPlayerId + 1) % this.players.length;
     }
 
@@ -337,11 +353,6 @@ public class Board2D implements othello.game.interfaces.Board2D {
 
     public Player getPlayer(int playerId) {
         return this.players[playerId];
-    }
-
-    @Override
-    public boolean inSetup() {
-        return isInSetup;
     }
 
     @Override
@@ -356,10 +367,16 @@ public class Board2D implements othello.game.interfaces.Board2D {
 
     @Override
     public void startSetup(int maxPlacements) {
-        this.isInSetup = true;
+        this.inSetup = true;
         for (Player p : this.players) {
             p.maxPlacements = maxPlacements;
         }
+    }
+
+    @Override
+    public void endSetup() {
+        this.inSetup = false;
+        this.currentPlayerId = 0;
     }
 
     public int getCurrentPlayerId() {
@@ -382,8 +399,7 @@ public class Board2D implements othello.game.interfaces.Board2D {
         return this.moves.stream().skip(moveIndex).findFirst().orElse(null);
     }
 
-    @Override
-    public Iterable<Move> getMoves() {
+    public ArrayList<Move> getMoves() {
         return this.moves;
     }
 
@@ -416,13 +432,15 @@ public class Board2D implements othello.game.interfaces.Board2D {
         };
     }
 
-    public Board2D copy(boolean manual) {
+    public Board2D copy(boolean manual, boolean isStatic) {
         Board2D copy = new Board2D(this.rows, this.columns, this.players, manual);
         copy.board = this.board.clone();
+        copy.startingPositions = this.startingPositions.clone();
         copy.currentPlayerId = this.currentPlayerId;
         copy.round = this.round;
-        copy.isInSetup = this.isInSetup;
+        copy.inSetup = this.inSetup;
         copy.players = this.players.clone();
+        copy.isStatic = isStatic;
         copy.moves = new ArrayList<>(this.moves);
         return copy;
     }

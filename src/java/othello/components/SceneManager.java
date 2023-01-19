@@ -13,7 +13,7 @@ public class SceneManager {
 
     private Stage stage;
 
-    private SettingsManager settings;
+    public SettingsManager settings;
     private ArrayList<SceneProvider> scenes;
     private int activeSceneIndex;
 
@@ -39,12 +39,12 @@ public class SceneManager {
         this.stage.show();
     }
 
-    public SceneProvider getScene(String name) {
+    public <T extends SceneProvider> T getScene(String name) {
         for (SceneProvider scene : this.scenes) {
             if (scene.getName().equals(name)) {
                 this.setActiveScene(scene.getScene());
                 scene.onActive();
-                return scene;
+                return (T) scene;
             }
         }
 

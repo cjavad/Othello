@@ -98,6 +98,7 @@ public class BoardScene3D extends SceneProvider {
 
 		this.root = new Pane();
 		this.root.getChildren().add(this.imageView);
+		this.root.setPrefWidth(width * 2/3);
 		this.scene = new Scene(this.root, width, height);
 		createNode("root", this.root);
 	}
@@ -258,7 +259,7 @@ public class BoardScene3D extends SceneProvider {
 		// from the mouse event
 		// it's not documented anywhere, but it works
 		// https://stackoverflow.com/questions/53496882/how-to-get-pixel-id-from-mouseevent-in-javafx
-		return this.faskinen.getPixelId((int) (event.getSceneX()), (int) (event.getSceneY()));
+		return this.faskinen.getPixelId((int) (event.getSceneX()), (int) (event.getSceneY() - 28));
 	}
 
 	public int getPixelId(int x, int y) {

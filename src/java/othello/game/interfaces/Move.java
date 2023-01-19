@@ -3,7 +3,9 @@ package othello.game.interfaces;
 import othello.game.Change;
 import othello.game.Space;
 
-public interface Move {
+import java.io.Serializable;
+
+public interface Move extends Serializable {
     public int getRound();
     public int getPlayerId();
     public Iterable<Change> getChanges();

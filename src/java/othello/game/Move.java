@@ -49,4 +49,12 @@ public class Move implements othello.game.interfaces.Move {
             }
         }
     }
+
+    public boolean equals(Move move) {
+        return this.round == move.round && this.playerId == move.playerId && this.placementSpace.equals(move.placementSpace);
+    }
+
+    public String toString() {
+        return String.format("Player %d placed on %s", this.playerId, this.placementSpace);
+    }
 }

@@ -12,6 +12,7 @@ import java.util.Iterator;
 
 public class BoardGrid extends GridPane {
     private Board2D board;
+    private Board2D staticBoard;
     private Space hoverSpace;
 
     public BoardGrid(Board2D boardContext, int cellSize) {
@@ -23,7 +24,7 @@ public class BoardGrid extends GridPane {
             var spacePane = new SpacePane(this.board, s);
             spacePane.setPrefSize(cellSize, cellSize);
             spacePane.update(false, false);
-            this.add(spacePane, s.x, s.y);
+            this.add(spacePane, s.column, s.row);
         }
 
         this.addEventHandler(MoveEvent.MOVE, event -> {
@@ -42,6 +43,18 @@ public class BoardGrid extends GridPane {
             this.update();
         });
     }
+
+    public void setCellSize(int cellSize) {
+        this.getChildren().forEach(node -> {
+            var spacePane = (SpacePane) node;
+            spacePane.setPrefSize(cellSize, cellSize);
+        });
+    }
+
+    public void setStaticBoard(Board2D staticBoard) {
+        this.staticBoard = staticBoard;
+    }
+
     public void update() {
         final int cellOccupant;
 
@@ -52,7 +65,7 @@ public class BoardGrid extends GridPane {
 
             if (cellOccupant == -1) {
                 // Inject move for hoverSpace
-                Board2D copyOfBoard = this.board.copy(true);
+                Board2D copyOfBoard = this.board.copy(true, true);
                 copyOfBoard.move(this.hoverSpace);
 
                 for (Iterator<Space> it = copyOfBoard.validMoves(cellOccupant); it.hasNext(); ) {
@@ -75,7 +88,11 @@ public class BoardGrid extends GridPane {
             for (Space s : hoveredSpaces)
                 if (s.equals(ownSpace)) flippable = true;
 
-
+            if (this.staticBoard != null) {
+                spacePane.setBoard(this.staticBoard);
+            } else {
+                spacePane.setBoard(this.board);
+            }
 
             spacePane.update(ownSpace.equals(this.hoverSpace), flippable && this.board.getCurrentPlayerId() != this.board.getSpace(ownSpace));
         });

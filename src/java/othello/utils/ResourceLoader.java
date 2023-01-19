@@ -1,8 +1,10 @@
 package othello.utils;
 
-import java.io.IOException;
-import java.io.InputStream;
+import othello.game.Board2D;
+
+import java.io.*;
 import java.util.Arrays;
+import java.util.HashMap;
 
 /*
     Basic resource loader to find and read model data and the like.
@@ -46,5 +48,79 @@ public class ResourceLoader {
 
     public static String readAsString(String path) throws IOException {
         return Arrays.toString(ResourceLoader.readAsBytes(path));
+    }
+
+    public static HashMap<String, Integer> readSavedConfig() {
+        String path = ResourceLoader.getConfigFolderPath() + "/profile";
+        try {
+            return ResourceLoader.readObject(path);
+        } catch (IOException | ClassNotFoundException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public static void saveConfig(HashMap<String, Integer> options) {
+        String path = ResourceLoader.getConfigFolderPath() + "/profile";
+
+        try {
+            ResourceLoader.writeObject(options, path);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static String[] listOfSavedGames() {
+        String path = ResourceLoader.getConfigFolderPath() + "/saves";
+        File folder = new File(path);
+        File[] listOfFiles = folder.listFiles();
+        assert listOfFiles != null;
+        String[] savedGames = new String[listOfFiles.length];
+        for (int i = 0; i < listOfFiles.length; i++) {
+            if (listOfFiles[i].isFile()) {
+                savedGames[i] = listOfFiles[i].getName();
+            }
+        }
+        return savedGames;
+    }
+
+    public static void saveGameObject(Board2D game, String name) {
+        String path = ResourceLoader.getConfigFolderPath() + "/saves/" + name;
+        try {
+            ResourceLoader.writeObject(game, path);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static Board2D readGameObject(String name) {
+        String path = ResourceLoader.getConfigFolderPath() + "/saves/" + name;
+        try {
+            return ResourceLoader.readObject(path);
+        } catch (IOException | ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    private static <T> T readObject(String path) throws IOException, ClassNotFoundException {
+       return (T) new ObjectInputStream(new FileInputStream(path)).readObject();
+    }
+
+    private static void writeObject(Object obj, String path) throws IOException {
+        // Serialize the board with Serializable
+        ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(path));
+        oos.writeObject(obj);
+        oos.close();
+    }
+
+    public static String getConfigFolderPath() {
+        // Ensure folder exists, otherwise create it
+        String path = System.getProperty("user.home") + "/.othello";
+        File folder = new File(path);
+        if (!folder.exists()) {
+            folder.mkdir();
+        }
+        return path;
     }
 }

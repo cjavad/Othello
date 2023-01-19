@@ -21,18 +21,34 @@ public class SettingsManager {
     public SettingsManager() {
         this.options = new HashMap<>();
 
-        this.gameOptions = new HashMap<String, Integer>();
-        this.gameOptions.put("columns", SettingsManager.BOARD_WIDTH);
-        this.gameOptions.put("rows", SettingsManager.BOARD_HEIGHT);
-        this.gameOptions.put("maxPlacements", SettingsManager.MAX_PLACEMENTS);
-        this.gameOptions.put("manual", 0);
-        this.gameOptions.put("setup", 1);
+        this.gameOptions = new HashMap<>();
+        this.setGameOption("columns", SettingsManager.BOARD_WIDTH);
+        this.setGameOption("rows", SettingsManager.BOARD_HEIGHT);
+        this.setGameOption("maxPlacements", SettingsManager.MAX_PLACEMENTS);
+        this.setGameOption("playerCount", SettingsManager.PLAYER_COUNT);
+        this.setGameOption("manual", 0);
+        this.setGameOption("setup", 1);
 
-        this.players = new Player[SettingsManager.PLAYER_COUNT];
-        for (int i = 0; i < SettingsManager.PLAYER_COUNT; i++) {
-            this.players[i] = new Player(i);
-            this.players[i].maxPlacements = SettingsManager.MAX_PLACEMENTS;
+        // Try to read saved config
+        HashMap<String, Integer> savedConfig = ResourceLoader.readSavedConfig();
+
+        if (savedConfig != null) {
+            this.gameOptions = savedConfig;
+        } else {
+            // If no saved config, create a new one
+            ResourceLoader.saveConfig(this.gameOptions);
         }
+
+        this.players = new Player[this.getGameOption("playerCount")];
+
+        for (int i = 0; i < this.getGameOption("playerCount"); i++) {
+            this.players[i] = new Player(i);
+            this.players[i].maxPlacements = this.getGameOption("maxPlacements");
+        }
+    }
+
+    public void saveSettings() {
+        ResourceLoader.saveConfig(this.gameOptions);
     }
 
     public Board2D getBoardState() {

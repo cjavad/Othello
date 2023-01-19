@@ -23,8 +23,8 @@ public class BoardTopbar extends GridPane {
         });
 
         menuButton.setOnAction(event -> new PauseMenu(manager).setActive());
-        this.add(goBackButton, 0, 0);
-        this.add(menuButton, 1, 0);
-        this.add(rtxButton, 2, 0);
+        // this.add(goBackButton, 0, 0);
+        this.add(menuButton, 0, 0);
+        this.add(rtxButton, 1, 0);
     }
 }
