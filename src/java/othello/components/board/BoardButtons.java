@@ -15,6 +15,8 @@ public class BoardButtons extends GridPane {
     private final Board2D board;
     private VBox playerScoreBox;
 
+    private int winnerId = -1;
+
     private Button endSetupButton;
 
     public BoardButtons(Board2D boardContext) {
@@ -33,6 +35,7 @@ public class BoardButtons extends GridPane {
         Button switchPlayerButton = new FancyButton("Switch player", Color.BLANCHEDALMOND);
 
         switchPlayerButton.setOnAction(event -> {
+            if (this.winnerId != -1) return;
             this.board.nextPlayer();
             this.update();
             this.fireEvent(new MoveEvent(MoveEvent.UPDATE, (Space) null));
@@ -59,6 +62,8 @@ public class BoardButtons extends GridPane {
     }
 
     public void update() {
+        if (this.winnerId != -1) this.setWinner(this.winnerId);
+
         this.playerScoreBox.getChildren().clear();
 
         for (int i = 0; i < this.board.getPlayerCount(); i++) {
@@ -88,5 +93,12 @@ public class BoardButtons extends GridPane {
         if (!this.board.inSetup) {
             this.getChildren().remove(this.endSetupButton);
         }
+    }
+
+    public void setWinner(int winnerId) {
+        this.winnerId = winnerId;
+        var winnerText = new Text("Player " + winnerId + " wins!");
+        winnerText.setStyle("-fx-font-size: 20; -fx-font-weight: bold;");
+        this.playerScoreBox.getChildren().add(winnerText);
     }
 }

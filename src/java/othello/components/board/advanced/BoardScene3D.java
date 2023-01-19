@@ -173,7 +173,7 @@ public class BoardScene3D extends SceneProvider {
 		for (Space space : currentBoard) {
 			Vec3 position = new Vec3(space.x - 3.5f, 0, space.y - 3.5f);
 
-			int id = space.x + space.y * 8;
+			int id = space.x + space.y * this.board.getColumns();
 
 			if ((space.x + space.y) % 2 == 0) {	
 				stack.pushModel(BoardScene3D.spaceWhite, Mat4.translation(position), id);
@@ -263,8 +263,8 @@ public class BoardScene3D extends SceneProvider {
 			int cy = change.getRow();
 			float distance = (float) Math.sqrt((cx - x) * (cx - x) + (cy - y) * (cy - y));
 
-			this.animations[cx + cy * 8] = 0.5f - distance * 0.5f;
-			this.heights[cx + cy * 8] = 1.0f + distance * 0.1f;
+			this.animations[cx + cy * this.board.getColumns()] = 0.5f - distance * 0.5f;
+			this.heights[cx + cy * this.board.getColumns()] = 1.0f + distance * 0.1f;
 		}
 	}
 

@@ -139,7 +139,7 @@ public class GameScene extends SceneProvider {
         if (!this.board.inSetup && !this.board.isStatic && this.board.isGameOver()) {
             // Determine winner
             Player winner = this.board.getWinner();
-            System.out.println("Winner: " + winner.getPlayerId() + " with " + this.board.getScore(winner.getPlayerId()) + " points");
+            this.buttons.setWinner(winner.getPlayerId());
         } else {
             // Check if current player has any moves
             var iter = this.board.validMoves(this.board.getCurrentPlayerId());
