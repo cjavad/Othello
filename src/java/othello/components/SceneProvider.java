@@ -21,7 +21,7 @@ public class SceneProvider {
 
     public SceneProvider(SceneManager manager, String name) {
 		if (!music.isPlaying()) {
-			music.play();
+			music.play(0.5);
 			music.setCycleCount(AudioClip.INDEFINITE);
 		}
 
