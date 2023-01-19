@@ -32,7 +32,7 @@ public class BoardMoves extends BorderPane {
         var scrollPane = new ScrollPane();
         this.content = new VBox();
 
-        this.content.setPadding(new javafx.geometry.Insets(10, 0, 0, 0));
+        this.content.setPadding(new javafx.geometry.Insets(10, 0, 10, 0));
         this.content.setSpacing(1);
         this.content.setStyle("-fx-background-color: #F9F9F9;");
 
@@ -54,7 +54,7 @@ public class BoardMoves extends BorderPane {
 
             if (newMove >= this.board.getMoves().size()) {
                 newMove = this.board.getMoves().size() - 1;
-                newMove = newMove > 0 ? newMove : 0;
+                newMove = Math.max(newMove, 0);
             }
             if (this.board.inSetup) newMove = -1;
             this.setSelectedMove(newMove, true);
@@ -78,10 +78,12 @@ public class BoardMoves extends BorderPane {
         currentRoundText.setFill(Paint.valueOf("#000000"));
         currentRoundText.setTextAlignment(javafx.scene.text.TextAlignment.CENTER);
 
-
         buttonBox.getChildren().addAll(backButton, currentRoundText, forwardButton);
+        // Set padding below buttons
+        buttonBox.setPadding(new javafx.geometry.Insets(0, 0, 10, 0));
+        this.setTop(buttonBox);
 
-        this.setBottom(buttonBox);
+        // Set padding between top and center
         this.selectedMove = this.board.getMoves().size() - 1;
         this.update();
     }

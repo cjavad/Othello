@@ -37,6 +37,17 @@ public class SpacePane extends Pane {
         this.piece.setFill(javafx.scene.paint.Color.TRANSPARENT);
         this.getChildren().add(this.piece);
         this.setStyle("-fx-border-width: 1; -fx-border-color: green; -fx-background-color: darkgreen;");
+
+        // Imprint name of field on space with a green text color in this format in the center:
+        var text = new javafx.scene.text.Text(this.space.toString());
+        text.setFill(javafx.scene.paint.Color.GREEN);
+        text.setStyle("-fx-font-size: 10px;");
+
+        text.xProperty().bind(this.widthProperty().divide(2).subtract(text.getLayoutBounds().getWidth() / 2));
+        text.yProperty().bind(this.heightProperty().divide(2).add(text.getLayoutBounds().getHeight() / 4));
+
+
+        this.getChildren().add(text);
         this.setOnMouseClicked(this::handleClick);
         this.setOnMouseEntered(this::handleMouseEnter);
         this.setOnMouseExited(this::handleMouseExit);
@@ -83,9 +94,6 @@ public class SpacePane extends Pane {
         } else {
             this.piece.setFill(javafx.scene.paint.Color.TRANSPARENT);
         }
-
-        //Set piece on top of cell
-        piece.toFront();
     }
 
     public void handleClick(Event e) {

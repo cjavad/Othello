@@ -22,7 +22,8 @@ public class Space implements othello.game.interfaces.Space {
     }
 
     public String toString() {
-        return "[" + this.column + ", " + this.row + "]";
+        // Convert to A1 notation
+        return String.format("%c%d", (char) (this.column + 65), this.row + 1);
     }
 
     @Override

@@ -73,9 +73,17 @@ public class ResourceLoader {
     public static String[] listOfSavedGames() {
         String path = ResourceLoader.getConfigFolderPath() + "/saves";
         File folder = new File(path);
+
+        if (!folder.exists()) {
+            folder.mkdirs();
+        }
+
         File[] listOfFiles = folder.listFiles();
-        assert listOfFiles != null;
+
+        if (listOfFiles == null || listOfFiles.length < 1) return new String[0];
+
         String[] savedGames = new String[listOfFiles.length];
+
         for (int i = 0; i < listOfFiles.length; i++) {
             if (listOfFiles[i].isFile()) {
                 savedGames[i] = listOfFiles[i].getName();

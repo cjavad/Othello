@@ -17,6 +17,7 @@ import othello.game.Player;
 // Start Menu UI
 
 public class StartMenu extends SceneProvider {
+    private GamesList gamesList;
     public StartMenu(SceneManager manager) {
         super(manager, "StartMenu");
         // Create two buttons, one for basic and one for advanced
@@ -28,14 +29,17 @@ public class StartMenu extends SceneProvider {
         Button advancedButton = new Button("Pre-load Advanced Game");
         advancedButton.setOnAction(this::handleAdvancedClick);
 
-        Button faskineButton = new Button("Settings");
-        faskineButton.setOnAction(this::handleSettingsClick);
+        Button settingsButton = new Button("Settings");
+        settingsButton.setOnAction(this::handleSettingsClick);
+
+        this.gamesList = new GamesList(this.getSceneManager());
 
         // Create a grid pane to hold the buttons
         GridPane grid = new GridPane();
         grid.add(basicButton, 0, 0);
         grid.add(advancedButton, 0, 1);
-        grid.add(faskineButton, 0, 2);
+        grid.add(settingsButton, 0, 2);
+        grid.add(this.gamesList, 0, 4);
         grid.setAlignment(javafx.geometry.Pos.CENTER);
         grid.setHgap(10);
 
@@ -64,5 +68,11 @@ public class StartMenu extends SceneProvider {
     private void handleKey(KeyEvent event) {
         // Handle key presses
 
+    }
+
+    @Override
+    public void onActive() {
+        super.onActive();
+        this.gamesList.update();
     }
 }

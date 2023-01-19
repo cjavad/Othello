@@ -46,11 +46,11 @@ public class BoardButtons extends GridPane {
 
         this.setAlignment(javafx.geometry.Pos.TOP_CENTER);
         this.add(this.currentPlayerText, 0, 0);
-        this.add(this.currentPlayerScore, 1, 0);
-        this.add(switchPlayerButton, 2, 0);
-        this.add(endSetupButton, 3, 0);
+        this.add(this.currentPlayerScore, 0, 1);
+        this.add(switchPlayerButton, 0, 2);
+        this.add(endSetupButton, 0, 3);
         // Add spacing
-        this.setHgap(10);
+        this.setVgap(10);
     }
 
     public void update() {

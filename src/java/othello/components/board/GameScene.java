@@ -6,6 +6,7 @@ import javafx.scene.Scene;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.VBox;
 import othello.components.SceneManager;
 import othello.components.SceneProvider;
 import othello.components.board.basic.BoardScene2D;
@@ -24,7 +25,8 @@ public class GameScene extends SceneProvider {
 
     private Board2D board;
 
-    BorderPane root;
+    private BorderPane root;
+    private VBox sidebar;
     private BoardTopbar topbar;
     private BoardButtons buttons;
 
@@ -36,24 +38,26 @@ public class GameScene extends SceneProvider {
         this.board = board;
 
         this.root = new BorderPane();
+        this.sidebar = new VBox();
 
-        this.topbar = new BoardTopbar(manager);
+        this.topbar = new BoardTopbar(manager, this.board);
         this.buttons = new BoardButtons(this.board);
         this.moveList = new BoardMoves(this.board);
 
         this.moveList.setPrefWidth(this.getSceneManager().getWidth() / 4);
+        this.moveList.setPrefHeight(this.getSceneManager().getHeight() / 2);
 
         this.topbar.addEventHandler(SettingsEvent.UPDATE, this::handleSettingsUpdate);
         this.root.addEventHandler(SettingsEvent.UPDATE, this::handleSettingsUpdate);
         this.buttons.addEventHandler(MoveEvent.UPDATE, this::handleBoardButton);
         this.moveList.addEventHandler(MoveEvent.SELECT, this::handleSelect);
 
+        this.sidebar.getChildren().addAll(this.moveList, this.buttons);
+
         this.root.setTop(this.topbar);
-        this.root.setRight(this.moveList);
-        this.root.setBottom(this.buttons);
+        this.root.setRight(this.sidebar);
 
         this.basicBoard = new BoardScene2D(manager, this.board);
-
         this.basicBoard.getRoot().addEventHandler(MoveEvent.MOVE, this::handleMove);
 
         this.root.setCenter(this.basicBoard.getRoot());
