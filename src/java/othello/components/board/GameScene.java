@@ -71,6 +71,7 @@ public class GameScene extends SceneProvider {
 
     public void createAdvancedBoard() {
         Pane root;
+
         if (this.advancedBoard == null) {
             this.advancedBoard = new BoardScene3D(this.getSceneManager(), this.board);
             root = this.advancedBoard.getNode("root");
@@ -80,6 +81,7 @@ public class GameScene extends SceneProvider {
             root.addEventHandler(MoveEvent.SELECT, this::handleSelect);
             // Settings update
             root.addEventHandler(SettingsEvent.UPDATE, this::handleSettingsUpdate);
+
         } else {
             root = this.advancedBoard.getNode("root");
             AnimationTimer timer = this.advancedBoard.getNode("timer");
@@ -139,6 +141,7 @@ public class GameScene extends SceneProvider {
             if (winner == null) return;
             this.buttons.setWinner(winner.getPlayerId());
         } else {
+            this.buttons.setWinner(-1);
             // Check if current player has any moves
             var iter = this.board.validMoves(this.board.getCurrentPlayerId());
             boolean hasMoves = false;
