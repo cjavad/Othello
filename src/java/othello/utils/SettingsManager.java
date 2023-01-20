@@ -28,7 +28,7 @@ public class SettingsManager {
         this.setGameOption("playerCount", SettingsManager.PLAYER_COUNT);
         this.setGameOption("manual", 0);
         this.setGameOption("setup", 1);
-        this.setGameOption("volume", 50);
+        this.setGameOption("volume", 25);
 
         // Try to read saved config
         HashMap<String, Integer> savedConfig = ResourceLoader.readSavedConfig();
