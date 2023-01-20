@@ -379,7 +379,7 @@ public class Board2D implements othello.game.interfaces.Board2D {
             // Set starting positions
             for (int position : startingPositions) {
                 this.board[position] = playerId;
-                this.startingPositions[position] = position;
+                this.startingPositions[position] = playerId;
             }
         }
     }
